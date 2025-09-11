@@ -12,13 +12,29 @@ namespace Vivit_Control_Center.Settings
         public string DefaultLocalPath { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         public string DefaultScriptsPath { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         public List<string> DisabledModules { get; set; } = new List<string>();
-        public string OfficeSuite { get; set; } = "MSOffice"; // MSOffice or LibreOffice
-        public string LibreOfficeProgramPath { get; set; } = string.Empty; // e.g. C:\Program Files\LibreOffice\program
 
-        // New parameterized module selections
-        public string AiService { get; set; } = "ChatGPT"; // ChatGPT, Perplexity AI, Claude
-        public string MessengerService { get; set; } = "WhatsApp"; // WhatsApp, Telegram
-        public string ChatService { get; set; } = "Discord"; // Discord, IRC IRCNet, IRC QuakeNet
+        private string _officeSuite = "MSOffice"; // always MSOffice now
+        public string OfficeSuite
+        {
+            get => string.IsNullOrWhiteSpace(_officeSuite) ? "MSOffice" : _officeSuite;
+            set => _officeSuite = "MSOffice"; // ignore external changes, force default
+        }
+
+        [Obsolete("LibreOffice wird nicht mehr unterstützt.")]
+        public string LibreOfficeProgramPath { get; set; } = string.Empty;
+
+        public string AiService { get; set; } = "ChatGPT";
+        public string MessengerService { get; set; } = "WhatsApp";
+        public string ChatService { get; set; } = "Discord";
+        public string NewsMode { get; set; } = "Webnews";
+        public List<string> RssFeeds { get; set; } = new List<string>();
+        public int RssMaxArticles { get; set; } = 60;
+
+        private static readonly List<string> DefaultFeeds = new List<string>
+        {
+            "https://rss.dw.com/rdf/rss-en-world",
+            "https://feeds.bbci.co.uk/news/world/rss.xml"
+        };
 
         public static string GetSettingsPath()
         {
@@ -32,20 +48,34 @@ namespace Vivit_Control_Center.Settings
             try
             {
                 var path = GetSettingsPath();
-                if (!File.Exists(path)) return new AppSettings();
+                if (!File.Exists(path))
+                {
+                    return new AppSettings { RssFeeds = new List<string>(DefaultFeeds) };
+                }
                 var ser = new XmlSerializer(typeof(AppSettings));
                 using (var fs = File.OpenRead(path))
                 {
-                    return (AppSettings)ser.Deserialize(fs);
+                    var loaded = (AppSettings)ser.Deserialize(fs);
+                    if (loaded.RssFeeds == null) loaded.RssFeeds = new List<string>();
+                    // Force MSOffice
+                    loaded.OfficeSuite = "MSOffice";
+                    loaded.LibreOfficeProgramPath = string.Empty;
+                    return loaded;
                 }
             }
-            catch { return new AppSettings(); }
+            catch
+            {
+                return new AppSettings { RssFeeds = new List<string>() };
+            }
         }
 
         public void Save()
         {
             try
             {
+                // enforce defaults before save
+                OfficeSuite = "MSOffice";
+                LibreOfficeProgramPath = string.Empty;
                 var path = GetSettingsPath();
                 var ser = new XmlSerializer(typeof(AppSettings));
                 using (var fs = File.Create(path))

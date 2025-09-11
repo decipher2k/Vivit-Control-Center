@@ -191,6 +191,12 @@ namespace Vivit_Control_Center.Views
                     default: return "https://discord.com/channels/@me";
                 }
             }
+            if (string.Equals(tag, "News", StringComparison.OrdinalIgnoreCase))
+            {
+                if (string.Equals(settings.NewsMode, "RSS", StringComparison.OrdinalIgnoreCase))
+                    return "about:blank"; // actual RSS handled by different module variant
+                return "https://news.google.com/?hl=de";
+            }
 
             var match = StaticRoutes.FirstOrDefault(r => string.Equals(r.Tag, tag, StringComparison.OrdinalIgnoreCase));
             return string.IsNullOrEmpty(match.Tag) ? null : match.Url;

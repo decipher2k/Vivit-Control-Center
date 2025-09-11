@@ -169,6 +169,11 @@ namespace Vivit_Control_Center
                 case "Settings":      return (IModule) new SettingsModule();
                 case "Notes":         return (IModule) new NotesModule();
                 case "Office":        return (IModule) new OfficeModule();
+                case "News":
+                    var settings = Settings.AppSettings.Load();
+                    if (string.Equals(settings.NewsMode, "RSS", StringComparison.OrdinalIgnoreCase))
+                        return new Views.Modules.RssNewsModule();
+                    return (IModule) new WebViewModule(tag);
                 default:               return (IModule) new WebViewModule(tag);
             }
         }

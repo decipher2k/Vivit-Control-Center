@@ -15,18 +15,18 @@
                 </StackPanel>
             </GroupBox>
 
-            <!-- Office Auswahl -->
-            <GroupBox Header="Office Suite" Margin="0,0,0,12">
+            <!-- News Module Auswahl -->
+            <GroupBox Header="News Module" Margin="0,0,0,12">
                 <StackPanel Margin="8">
-                    <ComboBox x:Name="cmbOffice" Width="200">
-                        <ComboBoxItem Content="MSOffice"/>
-                        <ComboBoxItem Content="LibreOffice"/>
+                    <ComboBox x:Name="newsModeSelector" Width="260" SelectionChanged="newsModeSelector_SelectionChanged">
+                        <ComboBoxItem Content="Webnews"/>
+                        <ComboBoxItem Content="RSS"/>
                     </ComboBox>
-                    <TextBlock Text="LibreOffice program Pfad (...\\LibreOffice\\program)" Margin="0,8,0,4"/>
-                    <DockPanel>
-                        <TextBox x:Name="txtLoPath" Width="420"/>
-                        <Button Content="..." Width="28" Margin="6,0,0,0" Click="btnPickLoPath_Click"/>
-                    </DockPanel>
+                    <Button x:Name="btnEditFeeds" Content="RSS Feeds bearbeiten" Width="180" Margin="0,8,0,0" Click="btnEditFeeds_Click" Visibility="Collapsed"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <TextBlock Text="Max. Artikel gesamt:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBox x:Name="txtRssMax" Width="70"/>
+                    </StackPanel>
                 </StackPanel>
             </GroupBox>
 

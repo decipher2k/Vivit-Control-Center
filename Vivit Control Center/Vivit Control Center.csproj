@@ -147,6 +147,12 @@
       <DependentUpon>OfficeModule.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Modules\OfficeModule_Fixed.xaml.cs" />
+    <Compile Include="Views\Modules\RssFeedsDialog.xaml.cs">
+      <DependentUpon>RssFeedsDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Modules\RssNewsModule.xaml.cs">
+      <DependentUpon>RssNewsModule.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Modules\ScriptingModule.xaml.cs">
       <DependentUpon>ScriptingModule.xaml</DependentUpon>
     </Compile>
@@ -196,6 +202,12 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Modules\OfficeModule.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Modules\RssFeedsDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Modules\RssNewsModule.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Modules\ScriptingModule.xaml">
