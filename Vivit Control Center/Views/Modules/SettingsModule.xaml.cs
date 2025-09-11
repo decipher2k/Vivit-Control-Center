@@ -123,7 +123,7 @@ namespace Vivit_Control_Center.Views.Modules
                 var btnSet = this.FindName("btnSetShell") as System.Windows.Controls.Button;
                 var btnRestore = this.FindName("btnRestoreShell") as System.Windows.Controls.Button;
                 var txtStatus = this.FindName("txtShellStatus") as System.Windows.Controls.TextBlock;
-                using (var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(WinLogonKeyPath, false))
+                using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(WinLogonKeyPath, false))
                 {
                     var current = key?.GetValue("Shell") as string;
                     if (string.IsNullOrWhiteSpace(_originalShellCached))
@@ -137,16 +137,28 @@ namespace Vivit_Control_Center.Views.Modules
             }
             catch { }
         }
-
+                           
         private void btnSetShell_Click(object sender, RoutedEventArgs e)
         {
-            var exe = Process.GetCurrentProcess().MainModule.FileName;
-            RunElevatedShellSetter(exe, saveOriginal:true);
+
+            String text = File.ReadAllText(".\\shell.reg");
+            File.WriteAllText(".\\shell_tmp.reg", text.Replace("explorer.exe", Process.GetCurrentProcess().MainModule.FileName.Replace("\\","\\\\")));            
+            var psi = new ProcessStartInfo("regedit.exe","\""+Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName)+ "\\shell_tmp.reg\"")
+            {
+                UseShellExecute = true,
+                Verb = "runas"
+            };
+            Process.Start(psi); ;
         }
 
         private void btnRestoreShell_Click(object sender, RoutedEventArgs e)
-        {
-            RunElevatedShellSetter(_originalShellCached, saveOriginal:false, restore:true);
+        {                    
+            var psi = new ProcessStartInfo("regedit.exe", "\"" + Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + ".\\shell.reg\"")
+            {
+                UseShellExecute = true,
+                Verb = "runas"
+            };
+            Process.Start(psi);
         }
 
         private void RunElevatedShellSetter(string newShell, bool saveOriginal, bool restore = false)

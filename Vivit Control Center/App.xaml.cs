@@ -9,6 +9,8 @@ namespace Vivit_Control_Center
     public partial class App : Application
     {
         private const string WinLogonKeyPath = @"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon";
+        public static bool IsShellMode { get; private set; }
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -18,7 +20,6 @@ namespace Vivit_Control_Center
                 {
                     if (e.Args.Contains("--restore-shell", StringComparer.OrdinalIgnoreCase))
                     {
-                        // Restore to default (explorer.exe)
                         SetShellValue("explorer.exe");
                         Current.Shutdown();
                         return;
@@ -40,6 +41,26 @@ namespace Vivit_Control_Center
             {
                 try { MessageBox.Show("Shell Änderung fehlgeschlagen: " + ex.Message); } catch { }
             }
+
+            // Prüfen ob aktuelle EXE als Shell eingetragen ist
+            try
+            {
+                using (var key = Registry.CurrentUser.OpenSubKey(WinLogonKeyPath, false))
+                {
+                    var regVal = key?.GetValue("Shell") as string;
+                    if (!string.IsNullOrWhiteSpace(regVal))
+                    {
+                        regVal = regVal.Trim().Trim('"');
+                        var exe = Process.GetCurrentProcess().MainModule.FileName.Trim().Trim('"');
+                        if (string.Equals(regVal, exe, StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(regVal, System.IO.Path.GetFileName(exe), StringComparison.OrdinalIgnoreCase))
+                        {
+                            IsShellMode = true;
+                        }
+                    }
+                }
+            }
+            catch { }
         }
 
         private void SetShellValue(string value)

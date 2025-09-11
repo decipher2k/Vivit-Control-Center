@@ -41,9 +41,21 @@ namespace Vivit_Control_Center
         public MainWindow()
         {
             InitializeComponent();
+
             _settings = AppSettings.Load();
             ApplyTheme(_settings.Theme);
             FilterSidebarBySettings();
+
+            // Shell Mode Anpassungen
+            if (App.IsShellMode)
+            {                
+                MinButton.Visibility = Visibility.Collapsed;
+                MaxButton.Visibility = Visibility.Collapsed;
+                CloseButton.Visibility=Visibility.Collapsed;
+                WindowStyle = WindowStyle.None;
+                ResizeMode = ResizeMode.NoResize;
+                WindowState = WindowState.Maximized;  
+            }
 
             SidebarRoot.IsEnabled = false;
             UpdateLoadProgress(0);
@@ -248,6 +260,7 @@ namespace Vivit_Control_Center
 
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            if (App.IsShellMode) return; // Drag/Max disable in Shell mode
             if (e.ClickCount == 2)
             {
                 ToggleMaximize();
@@ -262,11 +275,13 @@ namespace Vivit_Control_Center
 
         private void MinButton_Click(object sender, RoutedEventArgs e)
         {
+            if (App.IsShellMode) return; // keine Minimierung als Shell
             WindowState = WindowState.Minimized;
         }
 
         private void MaxButton_Click(object sender, RoutedEventArgs e)
         {
+            if (App.IsShellMode) return;
             ToggleMaximize();
         }
 
@@ -281,6 +296,11 @@ namespace Vivit_Control_Center
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
+            if (App.IsShellMode)
+            {
+                var res = MessageBox.Show("Shell-Modus beenden und schließen? (Explorer wird nicht automatisch gestartet)", "Beenden", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (res != MessageBoxResult.Yes) return;
+            }
             Close();
         }
 
