@@ -1,0 +1,54 @@
+<mcert:BaseSimpleModule
+    x:Class="Vivit_Control_Center.Views.Modules.SshModule"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:modules="clr-namespace:Vivit_Control_Center.Views.Modules"
+    xmlns:mcert="clr-namespace:Vivit_Control_Center.Views.Modules"
+    Background="White">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Top bar: address + connect button -->
+        <ToolBarTray Grid.Row="0">
+            <ToolBar>
+                <TextBlock Text="Server:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <TextBox Name="txtAddress" Width="320" KeyDown="txtAddress_KeyDown" ToolTip="user@host oder host:port"/>
+                <Button Name="btnConnect" Click="btnConnect_Click" Margin="6,0,0,0" Padding="6,2">Verbinden</Button>
+                <Button Name="btnDisconnect" Click="btnDisconnect_Click" Margin="6,0,0,0" Padding="6,2" IsEnabled="False">Trennen</Button>
+                <Separator />
+                <TextBlock Name="txtStatus" VerticalAlignment="Center"/>
+            </ToolBar>
+        </ToolBarTray>
+
+        <!-- Main SSH client area -->
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <RichTextBox Name="txtTerminal" Grid.Row="0" IsReadOnly="True" FontFamily="Consolas" FontSize="13"
+                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+
+            <!-- Eingabezeile: > [TextBox.................] [Senden] -->
+            <!-- Added bottom and right margin to lift input area from edges -->
+            <Grid Grid.Row="1" Margin="0,4,12,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text=">" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <TextBox Grid.Column="1" Name="txtInput" KeyDown="txtInput_KeyDown"
+                         FontFamily="Consolas" FontSize="13" VerticalAlignment="Center"/>
+                <Button Grid.Column="2" Content="Senden" Click="btnSend_Click"
+                        Margin="6,0,0,0" Padding="6,0" VerticalAlignment="Center"
+                        Height="{Binding ElementName=txtInput, Path=ActualHeight}"/>
+            </Grid>
+        </Grid>
+    </Grid>
+</mcert:BaseSimpleModule>

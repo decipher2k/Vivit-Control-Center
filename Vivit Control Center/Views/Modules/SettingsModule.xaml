@@ -1,0 +1,66 @@
+<modules:BaseSimpleModule
+    x:Class="Vivit_Control_Center.Views.Modules.SettingsModule"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:modules="clr-namespace:Vivit_Control_Center.Views.Modules"
+    Background="White">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="16" MaxWidth="720">
+            <TextBlock Text="Einstellungen" FontSize="20" FontWeight="Bold" Margin="0,0,0,16"/>
+
+            <!-- Theme Auswahl -->
+            <GroupBox Header="Theme" Margin="0,0,0,12">
+                <StackPanel Margin="8">
+                    <ComboBox x:Name="cmbTheme" Width="200"/>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- Office Auswahl -->
+            <GroupBox Header="Office Suite" Margin="0,0,0,12">
+                <StackPanel Margin="8">
+                    <ComboBox x:Name="cmbOffice" Width="200">
+                        <ComboBoxItem Content="MSOffice"/>
+                        <ComboBoxItem Content="LibreOffice"/>
+                    </ComboBox>
+                    <TextBlock Text="LibreOffice program Pfad (...\\LibreOffice\\program)" Margin="0,8,0,4"/>
+                    <DockPanel>
+                        <TextBox x:Name="txtLoPath" Width="420"/>
+                        <Button Content="..." Width="28" Margin="6,0,0,0" Click="btnPickLoPath_Click"/>
+                    </DockPanel>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- Standardpfade -->
+            <GroupBox Header="Standardpfade" Margin="0,0,0,12">
+                <Grid Margin="8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Lokaler Pfad:" VerticalAlignment="Center" Margin="0,0,6,6"/>
+                    <TextBox x:Name="txtLocalPath" Grid.Row="0" Grid.Column="1" Margin="0,0,6,6"/>
+                    <Button Grid.Row="0" Grid.Column="2" Content="..." Width="28" Margin="0,0,0,6" Click="btnPickLocalPath_Click"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Scripts Pfad:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBox x:Name="txtScriptsPath" Grid.Row="1" Grid.Column="1" Margin="0,0,6,0"/>
+                    <Button Grid.Row="1" Grid.Column="2" Content="..." Width="28" Click="btnPickScriptsPath_Click"/>
+                </Grid>
+            </GroupBox>
+
+            <!-- Module aktivieren/deaktivieren -->
+            <GroupBox Header="Module" Margin="0,0,0,12">
+                <StackPanel x:Name="modulesPanel" Margin="8"/>
+            </GroupBox>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Speichern" Padding="12,4" Margin="0,0,8,0" Click="btnSave_Click"/>
+                <Button Content="Abbrechen" Padding="12,4" Click="btnCancel_Click"/>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</modules:BaseSimpleModule>

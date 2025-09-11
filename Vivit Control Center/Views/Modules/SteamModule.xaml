@@ -1,0 +1,116 @@
+<local:BaseSimpleModule
+    x:Class="Vivit_Control_Center.Views.Modules.SteamModule"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Vivit_Control_Center.Views.Modules"
+    mc:Ignorable="d"
+    d:DesignWidth="800"
+    d:DesignHeight="450">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <TextBlock Grid.Row="0" Text="Steam Bibliothek" 
+                   FontSize="20" FontWeight="Bold" Margin="10,10,10,5"
+                   HorizontalAlignment="Center" />
+        
+        <!-- Scrollbare Kachelansicht -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding Games}" Margin="10">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Width="180" Height="260" Margin="5" Background="#222222" 
+                                BorderBrush="#444444" BorderThickness="1" 
+                                CornerRadius="3" Padding="5"
+                                MouseLeftButtonDown="Border_MouseLeftButtonDown">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="2" Opacity="0.3" />
+                            </Border.Effect>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                
+                                <!-- Spiel-Thumbnail -->
+                                <Border Grid.Row="0" Background="#111111">
+                                    <Grid>
+                                        <!-- Bild -->
+                                        <Image Source="{Binding ThumbnailImage}" Stretch="Uniform" 
+                                               VerticalAlignment="Center" HorizontalAlignment="Center"
+                                               RenderOptions.BitmapScalingMode="HighQuality">
+                                            <Image.Style>
+                                                <Style TargetType="Image">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ThumbnailImage}" Value="{x:Null}">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Image.Style>
+                                        </Image>
+                                        
+                                        <!-- Platzhaltertext -->
+                                        <TextBlock Text="Kein Bild" 
+                                                  Foreground="#999999" 
+                                                  HorizontalAlignment="Center" 
+                                                  VerticalAlignment="Center"
+                                                  TextAlignment="Center"
+                                                  TextWrapping="Wrap">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ThumbnailImage}" Value="{x:Null}">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </Border>
+                                
+                                <!-- Spielname -->
+                                <TextBlock Grid.Row="1" Text="{Binding Name}" 
+                                           TextWrapping="Wrap" TextTrimming="CharacterEllipsis"
+                                           Foreground="White" FontWeight="SemiBold"
+                                           HorizontalAlignment="Center" Margin="0,8,0,0"
+                                           MaxHeight="40" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+        
+        <!-- Lade-Overlay -->
+        <Grid Grid.Row="1" Background="#AA000000">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Games.Count}" Value="0">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Lade Steam-Bibliothek..." Foreground="White" FontSize="16" HorizontalAlignment="Center" />
+                <ProgressBar IsIndeterminate="True" Width="200" Height="20" Margin="0,10,0,0" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</local:BaseSimpleModule>

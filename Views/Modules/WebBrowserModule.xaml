@@ -1,0 +1,50 @@
+<local:BaseSimpleModule x:Class="Vivit_Control_Center.Views.Modules.WebBrowserModule"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Vivit_Control_Center.Views.Modules"
+             xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Navigation Bar -->
+        <Grid Grid.Row="0" Margin="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Navigation Buttons -->
+            <Button x:Name="btnBack" Grid.Column="0" Margin="2" Padding="5,2" Click="btnBack_Click">
+                <TextBlock Text="&#xE72B;" FontFamily="Segoe MDL2 Assets"/>
+            </Button>
+            <Button x:Name="btnForward" Grid.Column="1" Margin="2" Padding="5,2" Click="btnForward_Click">
+                <TextBlock Text="&#xE72A;" FontFamily="Segoe MDL2 Assets"/>
+            </Button>
+            <Button x:Name="btnRefresh" Grid.Column="2" Margin="2" Padding="5,2" Click="btnRefresh_Click">
+                <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets"/>
+            </Button>
+            
+            <!-- Address Bar -->
+            <TextBox x:Name="txtUrl" Grid.Column="3" Margin="5,2" KeyDown="txtUrl_KeyDown"/>
+            
+            <!-- Go Button -->
+            <Button x:Name="btnGo" Grid.Column="4" Margin="2" Padding="5,2" Click="btnGo_Click">
+                <TextBlock Text="Los"/>
+            </Button>
+        </Grid>
+        
+        <!-- WebView2 Control -->
+        <wv2:WebView2 x:Name="webView" Grid.Row="1" Source="https://www.google.de" 
+                     NavigationCompleted="webView_NavigationCompleted"/>
+    </Grid>
+</local:BaseSimpleModule>

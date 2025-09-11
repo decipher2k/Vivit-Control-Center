@@ -1,0 +1,89 @@
+<local:BaseSimpleModule x:Class="Vivit_Control_Center.Views.Modules.SftpModule"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Vivit_Control_Center.Views.Modules"
+             mc:Ignorable="d"
+             d:DesignWidth="1000"
+             d:DesignHeight="600"
+             Background="White">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Top bar: SFTP connection fields -->
+        <ToolBarTray Grid.Row="0">
+            <ToolBar>
+                <TextBlock Text="Host:" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                <TextBox Name="txtHost" Width="200" ToolTip="Hostname oder IP"/>
+                <TextBlock Text="User:" VerticalAlignment="Center" Margin="8,0,4,0"/>
+                <TextBox Name="txtUser" Width="140"/>
+                <TextBlock Text="Pass:" VerticalAlignment="Center" Margin="8,0,4,0"/>
+                <PasswordBox Name="txtPassword" Width="140"/>
+                <TextBlock Text="Port:" VerticalAlignment="Center" Margin="8,0,4,0"/>
+                <TextBox Name="txtPort" Width="60" Text="22"/>
+                <Separator/>
+                <Button Name="btnLogin" Click="btnLogin_Click" Padding="8,2">Login</Button>
+                <Button Name="btnLogout" Click="btnLogout_Click" Padding="8,2" Margin="6,0,0,0" IsEnabled="False">Logout</Button>
+                <Separator/>
+                <TextBlock Name="txtStatus" VerticalAlignment="Center"/>
+            </ToolBar>
+        </ToolBarTray>
+
+        <!-- Split view: local (left) / remote (right) -->
+        <Grid Grid.Row="1" Margin="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Local panel -->
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <DockPanel Grid.Row="0" Margin="0,0,0,6">
+                    <Button Content="Up" Width="48" Margin="0,0,6,0" Click="btnLocalUp_Click"/>
+                    <TextBox Name="txtLocalPath" IsReadOnly="True" VerticalAlignment="Center"/>
+                </DockPanel>
+                <ListView Name="lvLocal" Grid.Row="1" MouseDoubleClick="lvLocal_MouseDoubleClick">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Name" Width="240" DisplayMemberBinding="{Binding Name}"/>
+                            <GridViewColumn Header="Groesse" Width="80" DisplayMemberBinding="{Binding SizeDisplay}"/>
+                            <GridViewColumn Header="Geaendert" Width="160" DisplayMemberBinding="{Binding ModifiedDisplay}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </Grid>
+
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="#FFE5E5E5"/>
+
+            <!-- Remote panel -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <DockPanel Grid.Row="0" Margin="0,0,0,6">
+                    <Button Content="Up" Width="48" Margin="0,0,6,0" Click="btnRemoteUp_Click"/>
+                    <TextBox Name="txtRemotePath" IsReadOnly="True" VerticalAlignment="Center"/>
+                </DockPanel>
+                <ListView Name="lvRemote" Grid.Row="1" MouseDoubleClick="lvRemote_MouseDoubleClick">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Name" Width="240" DisplayMemberBinding="{Binding Name}"/>
+                            <GridViewColumn Header="Groesse" Width="80" DisplayMemberBinding="{Binding SizeDisplay}"/>
+                            <GridViewColumn Header="Geaendert" Width="160" DisplayMemberBinding="{Binding ModifiedDisplay}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </Grid>
+        </Grid>
+    </Grid>
+</local:BaseSimpleModule>
