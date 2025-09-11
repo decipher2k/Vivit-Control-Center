@@ -15,6 +15,11 @@ namespace Vivit_Control_Center.Settings
         public string OfficeSuite { get; set; } = "MSOffice"; // MSOffice or LibreOffice
         public string LibreOfficeProgramPath { get; set; } = string.Empty; // e.g. C:\Program Files\LibreOffice\program
 
+        // New parameterized module selections
+        public string AiService { get; set; } = "ChatGPT"; // ChatGPT, Perplexity AI, Claude
+        public string MessengerService { get; set; } = "WhatsApp"; // WhatsApp, Telegram
+        public string ChatService { get; set; } = "Discord"; // Discord, IRC IRCNet, IRC QuakeNet
+
         public static string GetSettingsPath()
         {
             var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "VivitControlCenter");

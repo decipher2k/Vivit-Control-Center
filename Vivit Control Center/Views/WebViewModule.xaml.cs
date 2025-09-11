@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Web.WebView2.Core;
+using Vivit_Control_Center.Settings;
 
 namespace Vivit_Control_Center.Views
 {
@@ -19,8 +20,6 @@ namespace Vivit_Control_Center.Views
         private bool _loadSignaled;
         private bool _preloadStarted; // Guard gegen mehrfaches Preload
 
-        // Debounce-Mechanismus: erst "geladen", wenn nach erfolgreichem Completed
-        // für eine kurze Zeit keine neue Top-Level-Navigation mehr startet.
         private readonly object _gate = new object();
         private CancellationTokenSource _stabilityCts;
 
@@ -31,12 +30,9 @@ namespace Vivit_Control_Center.Views
 
         public FrameworkElement View => this;
 
-        private static readonly (string Tag, string Url)[] Routes = new[]
+        private static readonly (string Tag, string Url)[] StaticRoutes = new[]
         {
-            ("AI", "https://www.bing.com/search?q=AI"),
             ("News", "https://news.google.com/?hl=de"),
-            ("Messenger", "https://web.whatsapp.com/"),
-            ("Chat", "https://chat.openai.com/"),
             ("Media Player", "https://music.youtube.com/"),
             ("Order Food", "https://www.lieferando.de/"),
             ("eBay", "https://www.ebay.de/"),
@@ -164,7 +160,39 @@ namespace Vivit_Control_Center.Views
 
         private static string ResolveUrl(string tag)
         {
-            var match = Routes.FirstOrDefault(r => string.Equals(r.Tag, tag, StringComparison.OrdinalIgnoreCase));
+            var settings = AppSettings.Load();
+
+            if (string.Equals(tag, "AI", StringComparison.OrdinalIgnoreCase))
+            {
+                switch (settings.AiService)
+                {
+                    case "Perplexity AI": return "https://perplexity.ai";
+                    case "Claude": return "https://claude.ai";
+                    case "ChatGPT":
+                    default: return "https://chatgpt.com";
+                }
+            }
+            if (string.Equals(tag, "Messenger", StringComparison.OrdinalIgnoreCase))
+            {
+                switch (settings.MessengerService)
+                {
+                    case "Telegram": return "https://web.telegram.org";
+                    case "WhatsApp":
+                    default: return "https://web.whatsapp.com";
+                }
+            }
+            if (string.Equals(tag, "Chat", StringComparison.OrdinalIgnoreCase))
+            {
+                switch (settings.ChatService)
+                {
+                    case "IRC IRCNet": return "https://webchat.ircnet.net";
+                    case "IRC QuakeNet": return "https://webchat.quakenet.org";
+                    case "Discord":
+                    default: return "https://discord.com/channels/@me";
+                }
+            }
+
+            var match = StaticRoutes.FirstOrDefault(r => string.Equals(r.Tag, tag, StringComparison.OrdinalIgnoreCase));
             return string.IsNullOrEmpty(match.Tag) ? null : match.Url;
         }
 

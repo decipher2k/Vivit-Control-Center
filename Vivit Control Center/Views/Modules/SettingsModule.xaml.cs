@@ -38,6 +38,11 @@ namespace Vivit_Control_Center.Views.Modules
             cmbOffice.SelectedItem = _settings.OfficeSuite ?? "MSOffice";
             txtLoPath.Text = _settings.LibreOfficeProgramPath ?? string.Empty;
 
+            // Parameter selections
+            SelectComboItem(aiServiceSelector, _settings.AiService, "ChatGPT");
+            SelectComboItem(messengerServiceSelector, _settings.MessengerService, "WhatsApp");
+            SelectComboItem(chatServiceSelector, _settings.ChatService, "Discord");
+
             // Paths
             txtLocalPath.Text = _settings.DefaultLocalPath ?? string.Empty;
             txtScriptsPath.Text = _settings.DefaultScriptsPath ?? string.Empty;
@@ -55,6 +60,22 @@ namespace Vivit_Control_Center.Views.Modules
                 };
                 modulesPanel.Children.Add(cb);
             }
+        }
+
+        private void SelectComboItem(ComboBox combo, string value, string fallback)
+        {
+            if (combo == null) return;
+            string target = string.IsNullOrWhiteSpace(value) ? fallback : value;
+            combo.SelectedIndex = -1;
+            foreach (var item in combo.Items.OfType<ComboBoxItem>())
+            {
+                if (string.Equals(item.Content?.ToString(), target, StringComparison.OrdinalIgnoreCase))
+                {
+                    combo.SelectedItem = item;
+                    return;
+                }
+            }
+            if (combo.Items.Count > 0) combo.SelectedIndex = 0;
         }
 
         private void btnPickLocalPath_Click(object sender, RoutedEventArgs e)
@@ -99,6 +120,10 @@ namespace Vivit_Control_Center.Views.Modules
             _settings.LibreOfficeProgramPath = txtLoPath.Text ?? string.Empty;
             _settings.DefaultLocalPath = txtLocalPath.Text ?? string.Empty;
             _settings.DefaultScriptsPath = txtScriptsPath.Text ?? string.Empty;
+
+            _settings.AiService = (aiServiceSelector.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? _settings.AiService;
+            _settings.MessengerService = (messengerServiceSelector.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? _settings.MessengerService;
+            _settings.ChatService = (chatServiceSelector.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? _settings.ChatService;
 
             var enabled = new List<string>();
             foreach (var child in modulesPanel.Children)

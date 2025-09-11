@@ -30,6 +30,34 @@
                 </StackPanel>
             </GroupBox>
 
+            <!-- Parametrisierte Module -->
+            <GroupBox Header="AI Module" Margin="0,0,0,12">
+                <StackPanel Margin="8">
+                    <ComboBox x:Name="aiServiceSelector" Width="260">
+                        <ComboBoxItem Content="ChatGPT"/>
+                        <ComboBoxItem Content="Perplexity AI"/>
+                        <ComboBoxItem Content="Claude"/>
+                    </ComboBox>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Messenger Module" Margin="0,0,0,12">
+                <StackPanel Margin="8">
+                    <ComboBox x:Name="messengerServiceSelector" Width="260">
+                        <ComboBoxItem Content="WhatsApp"/>
+                        <ComboBoxItem Content="Telegram"/>
+                    </ComboBox>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Chat Module" Margin="0,0,0,12">
+                <StackPanel Margin="8">
+                    <ComboBox x:Name="chatServiceSelector" Width="260">
+                        <ComboBoxItem Content="Discord"/>
+                        <ComboBoxItem Content="IRC IRCNet"/>
+                        <ComboBoxItem Content="IRC QuakeNet"/>
+                    </ComboBox>
+                </StackPanel>
+            </GroupBox>
+
             <!-- Standardpfade -->
             <GroupBox Header="Standardpfade" Margin="0,0,0,12">
                 <Grid Margin="8">
