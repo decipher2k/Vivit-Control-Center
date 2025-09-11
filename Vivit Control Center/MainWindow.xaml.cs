@@ -8,6 +8,7 @@ using System.Windows.Threading;
 using Vivit_Control_Center.Views;
 using Vivit_Control_Center.Views.Modules;
 using Vivit_Control_Center.Settings;
+using System.Windows.Input;
 
 namespace Vivit_Control_Center
 {
@@ -47,6 +48,23 @@ namespace Vivit_Control_Center
             UpdateLoadProgress(0);
             PrecreateModules();
             Loaded += async (_, __) => await PreloadAllAndHideSplashAsync();
+            StateChanged += (_, __) => UpdateMaxRestoreIcon();
+        }
+
+        private void UpdateMaxRestoreIcon()
+        {
+            try
+            {
+                var maxIcon = this.FindName("MaxIcon") as TextBlock;
+                if (maxIcon != null)
+                {
+                    if (WindowState == WindowState.Maximized)
+                        maxIcon.Text = "❐"; // restore icon
+                    else
+                        maxIcon.Text = "□"; // maximize icon
+                }
+            }
+            catch { }
         }
 
         private void ApplyTheme(string theme)
@@ -218,6 +236,44 @@ namespace Vivit_Control_Center
             module.View.Visibility = Visibility.Visible;
             module.SetVisible(true);
             this.Title = $"Vivit Control Center - {tag}";
+        }
+
+        private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+            {
+                ToggleMaximize();
+                return;
+            }
+            try
+            {
+                DragMove();
+            }
+            catch { }
+        }
+
+        private void MinButton_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
+        private void MaxButton_Click(object sender, RoutedEventArgs e)
+        {
+            ToggleMaximize();
+        }
+
+        private void ToggleMaximize()
+        {
+            if (WindowState == WindowState.Maximized)
+                WindowState = WindowState.Normal;
+            else
+                WindowState = WindowState.Maximized;
+            UpdateMaxRestoreIcon();
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }

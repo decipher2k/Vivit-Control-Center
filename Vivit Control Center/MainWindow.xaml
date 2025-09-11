@@ -4,10 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Vivit_Control_Center"
+        xmlns:wc="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
         Title="Vivit Control Center" Height="600" Width="1024"
         WindowStartupLocation="CenterScreen"
-        Background="#121212">
+        Background="#121212"
+        WindowStyle="None" ResizeMode="CanResize">
+    <WindowChrome.WindowChrome>
+        <wc:WindowChrome CaptionHeight="0" CornerRadius="0" GlassFrameThickness="0" ResizeBorderThickness="5" UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
     <Window.Resources>
         <!-- ScrollBar Button Style (für Pfeile oben/unten) -->
         <Style x:Key="ScrollBarButton" TargetType="RepeatButton">
@@ -146,16 +151,89 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Title Bar Button Style -->
+        <Style x:Key="TitleBarButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#222222"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#444444"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CloseTitleBarButtonStyle" BasedOn="{StaticResource TitleBarButtonStyle}" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#C42B1C"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#E81123"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
+        <!-- Custom Title Bar -->
+        <Border x:Name="CustomTitleBar" Grid.Row="0" Grid.ColumnSpan="2" Background="Black" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="TitleTextBlock" Text="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}" Foreground="White" VerticalAlignment="Center" Margin="10,0,0,0" FontSize="13"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button x:Name="MinButton" Style="{StaticResource TitleBarButtonStyle}" Click="MinButton_Click" ToolTip="Minimize">
+                        <TextBlock Text="─" FontSize="14" Margin="0,-2,0,0"/>
+                    </Button>
+                    <Button x:Name="MaxButton" Style="{StaticResource TitleBarButtonStyle}" Click="MaxButton_Click" ToolTip="Maximize or Restore">
+                        <TextBlock x:Name="MaxIcon" Text="□" FontSize="12"/>
+                    </Button>
+                    <Button x:Name="CloseButton" Style="{StaticResource CloseTitleBarButtonStyle}" Click="CloseButton_Click" ToolTip="Close">
+                        <TextBlock Text="✕" FontSize="12"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
         <!-- Sidebar -->
-        <Border x:Name="SidebarRoot" Grid.Column="0" Background="#1E1E1E" BorderBrush="#2A2A2A" BorderThickness="0,0,1,0">
+        <Border x:Name="SidebarRoot" Grid.Row="1" Grid.Column="0" Background="#1E1E1E" BorderBrush="#2A2A2A" BorderThickness="0,0,1,0">
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <ScrollViewer.Resources>
                     <Style TargetType="ScrollBar" BasedOn="{StaticResource SidebarScrollBar}"/>
@@ -287,12 +365,14 @@
 
         <!-- Module-Host -->
         <Grid x:Name="ModuleHost"
+              Grid.Row="1"
               Grid.Column="1"
               Background="White"
               Panel.ZIndex="-1"/>
 
         <!-- Splash Overlay (deckt nur den Modulbereich ab) -->
         <Border x:Name="SplashOverlay"
+                Grid.Row="1"
                 Grid.Column="1"
                 Background="#CC000000"
                 Visibility="Visible"
