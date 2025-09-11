@@ -22,7 +22,7 @@ namespace Vivit_Control_Center
         private static readonly string[] Tags = new[]
         {
             "AI","News","Messenger","Chat","Explorer","Office","Notes","Media Player","Steam",
-            "Webbrowser","Order Food","eBay","Temu","Terminal","Scripting","SSH","SFTP","Settings"
+            "Webbrowser","Order Food","eBay","Temu","Terminal","Scripting","SSH","SFTP","Social","Settings"
         };
 
         private const string DefaultTag = "Webbrowser";
@@ -169,6 +169,7 @@ namespace Vivit_Control_Center
                 case "Settings":      return (IModule) new SettingsModule();
                 case "Notes":         return (IModule) new NotesModule();
                 case "Office":        return (IModule) new OfficeModule();
+                case "Social":        return (IModule) new SocialModule();
                 case "News":
                     var settings = Settings.AppSettings.Load();
                     if (string.Equals(settings.NewsMode, "RSS", StringComparison.OrdinalIgnoreCase))

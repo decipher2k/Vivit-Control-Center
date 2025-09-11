@@ -8,13 +8,6 @@
         <StackPanel Margin="16" MaxWidth="720">
             <TextBlock Text="Einstellungen" FontSize="20" FontWeight="Bold" Margin="0,0,0,16"/>
 
-            <!-- Theme Auswahl -->
-            <GroupBox Header="Theme" Margin="0,0,0,12">
-                <StackPanel Margin="8">
-                    <ComboBox x:Name="cmbTheme" Width="200"/>
-                </StackPanel>
-            </GroupBox>
-
             <!-- News Module Auswahl -->
             <GroupBox Header="News Module" Margin="0,0,0,12">
                 <StackPanel Margin="8">
@@ -26,6 +19,11 @@
                     <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                         <TextBlock Text="Max. Artikel gesamt:" VerticalAlignment="Center" Margin="0,0,6,0"/>
                         <TextBox x:Name="txtRssMax" Width="70"/>
+                    </StackPanel>
+                    <Separator Margin="0,12,0,12"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="Fediverse URL:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBox x:Name="txtFediverseUrl" Width="320" />
                     </StackPanel>
                 </StackPanel>
             </GroupBox>

@@ -238,7 +238,6 @@
                 <ScrollViewer.Resources>
                     <Style TargetType="ScrollBar" BasedOn="{StaticResource SidebarScrollBar}"/>
                 </ScrollViewer.Resources>
-                <!-- ScrollBar-Styles ... (unverändert wie zuvor) -->
                 <StackPanel Margin="0">
                     <!-- Buttons (unverändert) -->
                     <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="AI" ToolTip="AI">
@@ -293,6 +292,12 @@
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
                             <TextBlock Text="🎮" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
                             <TextBlock Text="Steam" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Social" ToolTip="Social">
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                            <TextBlock Text="👥" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Social" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
                         </StackPanel>
                     </Button>
 
@@ -386,7 +391,7 @@
 
                 <!-- Fortschrittsanzeige: X von Y Modulen geladen -->
                 <TextBlock x:Name="LoadProgressText"
-                           Text="0 von 17 Modulen geladen"
+                           Text="0 von 19 Modulen geladen"
                            Foreground="#B0B0B0"
                            FontSize="12"
                            HorizontalAlignment="Center"
@@ -395,7 +400,7 @@
                 <ProgressBar x:Name="LoadProgressBar"
                              Height="6"
                              Minimum="0"
-                             Maximum="17"
+                             Maximum="19"
                              Value="0"
                              Foreground="#FFFFFF"
                              Background="#333333"/>

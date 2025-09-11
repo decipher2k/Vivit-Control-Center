@@ -34,8 +34,8 @@ namespace Vivit_Control_Center.Views
         {
             ("News", "https://news.google.com/?hl=de"),
             ("Media Player", "https://music.youtube.com/"),
-            ("Order Food", "https://www.lieferando.de/"),
-            ("eBay", "https://www.ebay.de/"),
+            ("Order Food", "https://www.ubereats.com/"),
+            ("eBay", "https://www.ebay.com/"),
             ("Temu", "https://www.temu.com/")
         };
 
@@ -158,11 +158,36 @@ namespace Vivit_Control_Center.Views
             Browser.IsHitTestVisible = visible;
         }
 
+        public async Task NavigateToAsync(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url)) return;
+            try
+            {
+                await EnsureInitializedAsync();
+                Browser.Source = new Uri(url);
+                _navigated = true; // mark as navigated so NavigateOnceAsync won't overwrite
+            }
+            catch { }
+        }
+
         private static string ResolveUrl(string tag)
         {
             var settings = AppSettings.Load();
 
-            if (string.Equals(tag, "AI", StringComparison.OrdinalIgnoreCase))
+            // Social module aggregation: if tag == Social use last stored network
+            if (string.Equals(tag, "Social", StringComparison.OrdinalIgnoreCase))
+            {
+                var last = settings.SocialLastNetwork ?? "Fediverse";
+                tag = last; // fall through to individual mapping
+            }
+
+            // Individual social network mappings
+            if (string.Equals(tag, "Facebook", StringComparison.OrdinalIgnoreCase)) return "https://facebook.com";
+            if (string.Equals(tag, "X.com", StringComparison.OrdinalIgnoreCase)) return "http://x.com";
+            if (string.Equals(tag, "Bluesky", StringComparison.OrdinalIgnoreCase)) return "https://bsky.app";
+            if (string.Equals(tag, "Fediverse", StringComparison.OrdinalIgnoreCase)) return string.IsNullOrWhiteSpace(settings.CustomFediverseUrl) ? "https://mastodon.social" : settings.CustomFediverseUrl.Trim();
+
+            if (string.Equals(tag, "AI", System.StringComparison.OrdinalIgnoreCase))
             {
                 switch (settings.AiService)
                 {
@@ -172,7 +197,7 @@ namespace Vivit_Control_Center.Views
                     default: return "https://chatgpt.com";
                 }
             }
-            if (string.Equals(tag, "Messenger", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(tag, "Messenger", System.StringComparison.OrdinalIgnoreCase))
             {
                 switch (settings.MessengerService)
                 {
@@ -181,7 +206,7 @@ namespace Vivit_Control_Center.Views
                     default: return "https://web.whatsapp.com";
                 }
             }
-            if (string.Equals(tag, "Chat", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(tag, "Chat", System.StringComparison.OrdinalIgnoreCase))
             {
                 switch (settings.ChatService)
                 {
@@ -191,12 +216,16 @@ namespace Vivit_Control_Center.Views
                     default: return "https://discord.com/channels/@me";
                 }
             }
-            if (string.Equals(tag, "News", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(tag, "News", System.StringComparison.OrdinalIgnoreCase))
             {
-                if (string.Equals(settings.NewsMode, "RSS", StringComparison.OrdinalIgnoreCase))
-                    return "about:blank"; // actual RSS handled by different module variant
+                if (string.Equals(settings.NewsMode, "RSS", System.StringComparison.OrdinalIgnoreCase))
+                    return "about:blank";
                 return "https://news.google.com/?hl=de";
             }
+
+            // Custom override for other web modules
+            var custom = settings.CustomWebModuleUrls?.FirstOrDefault(c => string.Equals(c.Tag, tag, System.StringComparison.OrdinalIgnoreCase))?.Url;
+            if (!string.IsNullOrWhiteSpace(custom)) return custom;
 
             var match = StaticRoutes.FirstOrDefault(r => string.Equals(r.Tag, tag, StringComparison.OrdinalIgnoreCase));
             return string.IsNullOrEmpty(match.Tag) ? null : match.Url;

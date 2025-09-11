@@ -30,6 +30,12 @@ namespace Vivit_Control_Center.Settings
         public List<string> RssFeeds { get; set; } = new List<string>();
         public int RssMaxArticles { get; set; } = 60;
 
+        // Custom Web Module URLs (user overrides) excluding AI/Messenger/Chat/News
+        public List<CustomWebModuleUrl> CustomWebModuleUrls { get; set; } = new List<CustomWebModuleUrl>();
+
+        public string CustomFediverseUrl { get; set; } = "https://mastodon.social"; // override for Fediverse in Social module
+        public string SocialLastNetwork { get; set; } = "Fediverse"; // persists last selected social network
+
         private static readonly List<string> DefaultFeeds = new List<string>
         {
             "https://rss.dw.com/rdf/rss-en-world",
@@ -57,7 +63,8 @@ namespace Vivit_Control_Center.Settings
                 {
                     var loaded = (AppSettings)ser.Deserialize(fs);
                     if (loaded.RssFeeds == null) loaded.RssFeeds = new List<string>();
-                    // Force MSOffice
+                    if (loaded.CustomWebModuleUrls == null) loaded.CustomWebModuleUrls = new List<CustomWebModuleUrl>();
+                    if (string.IsNullOrWhiteSpace(loaded.SocialLastNetwork)) loaded.SocialLastNetwork = "Fediverse";
                     loaded.OfficeSuite = "MSOffice";
                     loaded.LibreOfficeProgramPath = string.Empty;
                     return loaded;
@@ -65,7 +72,7 @@ namespace Vivit_Control_Center.Settings
             }
             catch
             {
-                return new AppSettings { RssFeeds = new List<string>() };
+                return new AppSettings { RssFeeds = new List<string>(), CustomWebModuleUrls = new List<CustomWebModuleUrl>() };
             }
         }
 
@@ -73,9 +80,9 @@ namespace Vivit_Control_Center.Settings
         {
             try
             {
-                // enforce defaults before save
                 OfficeSuite = "MSOffice";
                 LibreOfficeProgramPath = string.Empty;
+                if (string.IsNullOrWhiteSpace(SocialLastNetwork)) SocialLastNetwork = "Fediverse";
                 var path = GetSettingsPath();
                 var ser = new XmlSerializer(typeof(AppSettings));
                 using (var fs = File.Create(path))
@@ -85,5 +92,12 @@ namespace Vivit_Control_Center.Settings
             }
             catch { }
         }
+    }
+
+    [Serializable]
+    public class CustomWebModuleUrl
+    {
+        public string Tag { get; set; }
+        public string Url { get; set; }
     }
 }
