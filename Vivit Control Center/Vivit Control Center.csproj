@@ -137,6 +137,9 @@
     <Compile Include="Views\Modules\ExplorerModule.xaml.cs">
       <DependentUpon>ExplorerModule.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Modules\LaunchModule.xaml.cs">
+      <DependentUpon>LaunchModule.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Modules\MediaPlayerModule.xaml.cs">
       <DependentUpon>MediaPlayerModule.xaml</DependentUpon>
     </Compile>
@@ -147,6 +150,9 @@
       <DependentUpon>OfficeModule.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Modules\OfficeModule_Fixed.xaml.cs" />
+    <Compile Include="Views\Modules\ProgramsDialog.xaml.cs">
+      <DependentUpon>ProgramsDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Modules\RssFeedsDialog.xaml.cs">
       <DependentUpon>RssFeedsDialog.xaml</DependentUpon>
     </Compile>
@@ -198,6 +204,9 @@
     <Page Include="Views\Modules\ExplorerModule.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Modules\LaunchModule.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Modules\MediaPlayerModule.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -205,6 +214,9 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Modules\OfficeModule.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Modules\ProgramsDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Modules\RssFeedsDialog.xaml">

@@ -80,6 +80,15 @@
                     <StackPanel x:Name="modulesPanel" Margin="8"/>
                 </GroupBox>
 
+                <!-- Shell configuration -->
+                <GroupBox Header="Windows Shell" Margin="0,0,0,12">
+                    <StackPanel Margin="8" Orientation="Horizontal">
+                        <Button x:Name="btnSetShell" Content="Als Shell setzen" Width="140" Margin="0,0,8,0" Click="btnSetShell_Click"/>
+                        <Button x:Name="btnRestoreShell" Content="Standard Shell wiederherstellen" Width="210" Click="btnRestoreShell_Click" Visibility="Collapsed"/>
+                        <TextBlock x:Name="txtShellStatus" Margin="12,0,0,0" VerticalAlignment="Center" Foreground="Gray"/>
+                    </StackPanel>
+                </GroupBox>
+
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="Speichern" Padding="12,4" Margin="0,0,8,0" Click="btnSave_Click"/>
                     <Button Content="Abbrechen" Padding="12,4" Click="btnCancel_Click"/>

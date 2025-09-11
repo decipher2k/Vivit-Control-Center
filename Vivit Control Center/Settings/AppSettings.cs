@@ -30,11 +30,15 @@ namespace Vivit_Control_Center.Settings
         public List<string> RssFeeds { get; set; } = new List<string>();
         public int RssMaxArticles { get; set; } = 60;
 
-        // Custom Web Module URLs (user overrides) excluding AI/Messenger/Chat/News
         public List<CustomWebModuleUrl> CustomWebModuleUrls { get; set; } = new List<CustomWebModuleUrl>();
 
         public string CustomFediverseUrl { get; set; } = "https://mastodon.social"; // override for Fediverse in Social module
         public string SocialLastNetwork { get; set; } = "Fediverse"; // persists last selected social network
+
+        // Legacy list (paths only) kept for migration
+        public List<string> ExternalPrograms { get; set; } = new List<string>();
+        // New detailed list with captions
+        public List<ExternalProgram> ExternalProgramsDetailed { get; set; } = new List<ExternalProgram>();
 
         private static readonly List<string> DefaultFeeds = new List<string>
         {
@@ -64,6 +68,21 @@ namespace Vivit_Control_Center.Settings
                     var loaded = (AppSettings)ser.Deserialize(fs);
                     if (loaded.RssFeeds == null) loaded.RssFeeds = new List<string>();
                     if (loaded.CustomWebModuleUrls == null) loaded.CustomWebModuleUrls = new List<CustomWebModuleUrl>();
+                    if (loaded.ExternalPrograms == null) loaded.ExternalPrograms = new List<string>();
+                    if (loaded.ExternalProgramsDetailed == null) loaded.ExternalProgramsDetailed = new List<ExternalProgram>();
+                    // Migration: if detailed list empty but legacy list has entries
+                    if (loaded.ExternalProgramsDetailed.Count == 0 && loaded.ExternalPrograms.Count > 0)
+                    {
+                        foreach (var p in loaded.ExternalPrograms)
+                        {
+                            if (string.IsNullOrWhiteSpace(p)) continue;
+                            loaded.ExternalProgramsDetailed.Add(new ExternalProgram
+                            {
+                                Path = p,
+                                Caption = System.IO.Path.GetFileNameWithoutExtension(p)
+                            });
+                        }
+                    }
                     if (string.IsNullOrWhiteSpace(loaded.SocialLastNetwork)) loaded.SocialLastNetwork = "Fediverse";
                     loaded.OfficeSuite = "MSOffice";
                     loaded.LibreOfficeProgramPath = string.Empty;
@@ -72,7 +91,7 @@ namespace Vivit_Control_Center.Settings
             }
             catch
             {
-                return new AppSettings { RssFeeds = new List<string>(), CustomWebModuleUrls = new List<CustomWebModuleUrl>() };
+                return new AppSettings { RssFeeds = new List<string>(), CustomWebModuleUrls = new List<CustomWebModuleUrl>(), ExternalPrograms = new List<string>(), ExternalProgramsDetailed = new List<ExternalProgram>() };
             }
         }
 
@@ -83,6 +102,13 @@ namespace Vivit_Control_Center.Settings
                 OfficeSuite = "MSOffice";
                 LibreOfficeProgramPath = string.Empty;
                 if (string.IsNullOrWhiteSpace(SocialLastNetwork)) SocialLastNetwork = "Fediverse";
+                if (ExternalProgramsDetailed == null) ExternalProgramsDetailed = new List<ExternalProgram>();
+                // Keep legacy list in sync (paths only) for backward compatibility
+                ExternalPrograms = new List<string>();
+                foreach (var p in ExternalProgramsDetailed)
+                {
+                    if (!string.IsNullOrWhiteSpace(p?.Path)) ExternalPrograms.Add(p.Path);
+                }
                 var path = GetSettingsPath();
                 var ser = new XmlSerializer(typeof(AppSettings));
                 using (var fs = File.Create(path))
@@ -99,5 +125,12 @@ namespace Vivit_Control_Center.Settings
     {
         public string Tag { get; set; }
         public string Url { get; set; }
+    }
+
+    [Serializable]
+    public class ExternalProgram
+    {
+        public string Path { get; set; }
+        public string Caption { get; set; }
     }
 }

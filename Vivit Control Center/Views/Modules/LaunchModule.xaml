@@ -1,0 +1,35 @@
+<modules:BaseSimpleModule x:Class="Vivit_Control_Center.Views.Modules.LaunchModule"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:modules="clr-namespace:Vivit_Control_Center.Views.Modules"
+    Background="White">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBlock Text="Programme" FontSize="18" FontWeight="Bold"/>
+            <Button Content="Aktualisieren" Margin="12,0,0,0" Click="Refresh_Click"/>
+        </StackPanel>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl x:Name="itemsPrograms">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel IsItemsHost="True"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Width="120" Height="110" Margin="6" Background="#F5F5F5" CornerRadius="8" Cursor="Hand" MouseLeftButtonUp="ProgramTile_Click">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Image Source="{Binding Icon}" Width="48" Height="48" Stretch="Uniform" Margin="0,4,0,4"/>
+                                <TextBlock Text="{Binding Caption}" TextWrapping="Wrap" FontSize="12" HorizontalAlignment="Center" TextAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</modules:BaseSimpleModule>

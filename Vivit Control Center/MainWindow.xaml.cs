@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Controls; // WPF Button
 using System.Windows.Threading;
 using Vivit_Control_Center.Views;
 using Vivit_Control_Center.Views.Modules;
 using Vivit_Control_Center.Settings;
 using System.Windows.Input;
+using System.Diagnostics;
 
 namespace Vivit_Control_Center
 {
@@ -22,7 +23,7 @@ namespace Vivit_Control_Center
         private static readonly string[] Tags = new[]
         {
             "AI","News","Messenger","Chat","Explorer","Office","Notes","Media Player","Steam",
-            "Webbrowser","Order Food","eBay","Temu","Terminal","Scripting","SSH","SFTP","Social","Settings"
+            "Webbrowser","Order Food","eBay","Temu","Terminal","Scripting","SSH","SFTP","Social","Launch","Settings"
         };
 
         private const string DefaultTag = "Webbrowser";
@@ -170,6 +171,7 @@ namespace Vivit_Control_Center
                 case "Notes":         return (IModule) new NotesModule();
                 case "Office":        return (IModule) new OfficeModule();
                 case "Social":        return (IModule) new SocialModule();
+                case "Launch":       return (IModule) new LaunchModule();
                 case "News":
                     var settings = Settings.AppSettings.Load();
                     if (string.Equals(settings.NewsMode, "RSS", StringComparison.OrdinalIgnoreCase))
@@ -280,6 +282,41 @@ namespace Vivit_Control_Center
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        private void RebootButton_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show("Möchten Sie den Computer wirklich neu starten?",
+                "Neustart bestätigen", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                Process.Start("shutdown", "/r /t 0");
+            }
+        }
+
+        private void ShutdownButton_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show("Möchten Sie den Computer wirklich herunterfahren?",
+                "Herunterfahren bestätigen", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                Process.Start("shutdown", "/s /t 0");
+            }
+        }
+
+        private void RebootArea_Click(object sender, RoutedEventArgs e)
+        {
+            var result = System.Windows.MessageBox.Show("Aktion wählen:\nJa = Reboot\nNein = Shutdown\nAbbrechen = Cancel", "Power", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes)
+            {
+                try { Process.Start("shutdown", "/r /t 0"); } catch { }
+            }
+            else if (result == MessageBoxResult.No)
+            {
+                try { Process.Start("shutdown", "/s /t 0"); } catch { }
+            }
         }
     }
 }

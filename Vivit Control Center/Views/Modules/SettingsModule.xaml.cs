@@ -6,6 +6,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.Win32;
+using System.Diagnostics;
+using System.Security.Principal;
 using Vivit_Control_Center.Settings;
 
 namespace Vivit_Control_Center.Views.Modules
@@ -31,6 +33,8 @@ namespace Vivit_Control_Center.Views.Modules
         { "Media Player", "eBay", "Temu" };
 
         private const double ModuleLabelColumnWidth = 180;
+        private const string WinLogonKeyPath = @"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon";
+        private string _originalShellCached;
 
         public SettingsModule()
         {
@@ -97,7 +101,71 @@ namespace Vivit_Control_Center.Views.Modules
                     grid.Children.Add(btn);
                 }
                 modulesPanel.Children.Add(grid);
-            }            
+            } 
+
+            // Add programs manage button
+            var progBtn = new Button
+            {
+                Content = "Programme verwalten",
+                Margin = new Thickness(0,12,0,0),
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+            progBtn.Click += (s, e) => { var dlg = new ProgramsDialog(_settings); dlg.Owner = Application.Current.MainWindow; dlg.ShowDialog(); };
+            modulesPanel.Children.Add(progBtn);
+
+            UpdateShellUi();
+        }
+
+        private void UpdateShellUi()
+        {
+            try
+            {
+                var btnSet = this.FindName("btnSetShell") as System.Windows.Controls.Button;
+                var btnRestore = this.FindName("btnRestoreShell") as System.Windows.Controls.Button;
+                var txtStatus = this.FindName("txtShellStatus") as System.Windows.Controls.TextBlock;
+                using (var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(WinLogonKeyPath, false))
+                {
+                    var current = key?.GetValue("Shell") as string;
+                    if (string.IsNullOrWhiteSpace(_originalShellCached))
+                        _originalShellCached = current;
+                    var exe = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+                    bool isShell = string.Equals(current?.Trim('"'), exe, StringComparison.OrdinalIgnoreCase);
+                    if (btnSet != null) btnSet.Visibility = isShell ? Visibility.Collapsed : Visibility.Visible;
+                    if (btnRestore != null) btnRestore.Visibility = isShell ? Visibility.Visible : Visibility.Collapsed;
+                    if (txtStatus != null) txtStatus.Text = isShell ? "Aktuell als Shell gesetzt" : "Aktuelle Shell: " + (current ?? "(Standard)");
+                }
+            }
+            catch { }
+        }
+
+        private void btnSetShell_Click(object sender, RoutedEventArgs e)
+        {
+            var exe = Process.GetCurrentProcess().MainModule.FileName;
+            RunElevatedShellSetter(exe, saveOriginal:true);
+        }
+
+        private void btnRestoreShell_Click(object sender, RoutedEventArgs e)
+        {
+            RunElevatedShellSetter(_originalShellCached, saveOriginal:false, restore:true);
+        }
+
+        private void RunElevatedShellSetter(string newShell, bool saveOriginal, bool restore = false)
+        {
+            try
+            {
+                var exe = Process.GetCurrentProcess().MainModule.FileName;
+                var args = restore ? "--restore-shell" : ($"--set-shell \"{newShell}\"");
+                var psi = new ProcessStartInfo(exe, args)
+                {
+                    UseShellExecute = true,
+                    Verb = "runas"
+                };
+                Process.Start(psi);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Fehler bei Shell Änderung: " + ex.Message);
+            }
         }
 
         private void EditUrl_Click(object sender, RoutedEventArgs e)

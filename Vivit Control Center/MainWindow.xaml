@@ -234,138 +234,154 @@
 
         <!-- Sidebar -->
         <Border x:Name="SidebarRoot" Grid.Row="1" Grid.Column="0" Background="#1E1E1E" BorderBrush="#2A2A2A" BorderThickness="0,0,1,0">
-            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                <ScrollViewer.Resources>
-                    <Style TargetType="ScrollBar" BasedOn="{StaticResource SidebarScrollBar}"/>
-                </ScrollViewer.Resources>
-                <StackPanel Margin="0">
-                    <!-- Buttons (unverändert) -->
-                    <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="AI" ToolTip="AI">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
-                            <TextBlock Text="🤖" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
-                            <TextBlock Text="AI" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+            <DockPanel LastChildFill="True">
+                <StackPanel DockPanel.Dock="Bottom" Background="#252525" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0" >
+                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="Launch" Click="SidebarButton_Click" ToolTip="Launch" Margin="6,4">
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                            <TextBlock Text="🚀" FontFamily="Segoe UI Emoji" FontSize="20" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Launch" FontSize="9" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="News" ToolTip="News">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
-                            <TextBlock Text="📰" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
-                            <TextBlock Text="News" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="__reboot" Click="RebootArea_Click" ToolTip="Reboot / Shutdown" Margin="6,4">
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                            <TextBlock Text="⏻" FontFamily="Segoe UI Symbol" FontSize="20" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Power" FontSize="9" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Messenger" ToolTip="Messenger">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
-                            <TextBlock Text="📨" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Messenger" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Chat" ToolTip="Chat">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
-                            <TextBlock Text="💬" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Chat" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Explorer" ToolTip="Explorer">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
-                            <TextBlock Text="📁" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Explorer" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Office" ToolTip="Office">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
-                            <TextBlock Text="📄" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Office" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Notes" ToolTip="Notes">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
-                            <TextBlock Text="📝" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Notes" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Media Player" ToolTip="Media Player">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
-                            <TextBlock Text="🎵" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
-                            <TextBlock Text=" Media Player " FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Steam" ToolTip="Steam">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
-                            <TextBlock Text="🎮" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Steam" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Social" ToolTip="Social">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
-                            <TextBlock Text="👥" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Social" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
-                        </StackPanel>
-                    </Button>
-
-                    <Separator Style="{StaticResource SidebarSeparatorStyle}"/>
-
-                    <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Webbrowser" ToolTip="Webbrowser">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
-                            <TextBlock Text="🌐" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Webbrowser" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Order Food" ToolTip="Order Food">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
-                            <TextBlock Text="🍔" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Order Food" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="eBay" ToolTip="eBay">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
-                            <TextBlock Text="🛍️" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
-                            <TextBlock Text="eBay" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Temu" ToolTip="Temu">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
-                            <TextBlock Text="📦" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Temu" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
-                        </StackPanel>
-                    </Button>
-
-                    <Separator Style="{StaticResource SidebarSeparatorStyle}"/>
-
-                    <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Terminal" ToolTip="Terminal">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
-                            <TextBlock Text="🖥️" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Terminal" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Scripting" ToolTip="Scripting">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
-                            <TextBlock Text="📜" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Scripting" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="SSH" ToolTip="SSH">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
-                            <TextBlock Text="🔐" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
-                            <TextBlock Text="SSH" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="SFTP" ToolTip="SFTP">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
-                            <TextBlock Text="📤" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
-                            <TextBlock Text="SFTP" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
-                        </StackPanel>
-                    </Button>
-
-                    <Separator Style="{StaticResource SidebarSeparatorStyle}"/>
-
-                    <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Settings" ToolTip="Settings">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
-                            <TextBlock Text="⚙️" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Settings" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
-                        </StackPanel>
-                    </Button>
-
                 </StackPanel>
-            </ScrollViewer>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <ScrollViewer.Resources>
+                        <Style TargetType="ScrollBar" BasedOn="{StaticResource SidebarScrollBar}"/>
+                    </ScrollViewer.Resources>
+                    <StackPanel Margin="0">
+                        <!-- Buttons (unverändert) -->
+                        <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="AI" ToolTip="AI">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                                <TextBlock Text="🤖" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                                <TextBlock Text="AI" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="News" ToolTip="News">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                                <TextBlock Text="📰" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                                <TextBlock Text="News" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Messenger" ToolTip="Messenger">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                                <TextBlock Text="📨" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Messenger" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Chat" ToolTip="Chat">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                                <TextBlock Text="💬" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Chat" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Explorer" ToolTip="Explorer">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                                <TextBlock Text="📁" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Explorer" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Office" ToolTip="Office">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                                <TextBlock Text="📄" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Office" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Notes" ToolTip="Notes">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                                <TextBlock Text="📝" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Notes" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Media Player" ToolTip="Media Player">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                                <TextBlock Text="🎵" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                                <TextBlock Text=" Media Player " FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Steam" ToolTip="Steam">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                                <TextBlock Text="🎮" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Steam" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Social" ToolTip="Social">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                                <TextBlock Text="👥" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Social" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Separator Style="{StaticResource SidebarSeparatorStyle}"/>
+
+                        <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Webbrowser" ToolTip="Webbrowser">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                                <TextBlock Text="🌐" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Webbrowser" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Order Food" ToolTip="Order Food">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                                <TextBlock Text="🍔" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Order Food" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="eBay" ToolTip="eBay">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                                <TextBlock Text="🛍️" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                                <TextBlock Text="eBay" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Temu" ToolTip="Temu">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                                <TextBlock Text="📦" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Temu" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Separator Style="{StaticResource SidebarSeparatorStyle}"/>
+
+                        <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Terminal" ToolTip="Terminal">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                                <TextBlock Text="🖥️" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Terminal" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Scripting" ToolTip="Scripting">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                                <TextBlock Text="📜" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Scripting" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="SSH" ToolTip="SSH">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                                <TextBlock Text="🔐" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                                <TextBlock Text="SSH" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="SFTP" ToolTip="SFTP">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                                <TextBlock Text="📤" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                                <TextBlock Text="SFTP" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Separator Style="{StaticResource SidebarSeparatorStyle}"/>
+
+                        <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Settings" ToolTip="Settings">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                                <TextBlock Text="⚙️" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Settings" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </DockPanel>
         </Border>
 
         <!-- Module-Host -->
