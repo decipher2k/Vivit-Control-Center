@@ -97,51 +97,7 @@ namespace Vivit_Control_Center.Views.Modules
                     grid.Children.Add(btn);
                 }
                 modulesPanel.Children.Add(grid);
-            }
-
-            // Add Fediverse URL edit button
-            {
-                var grid = new Grid { Margin = new Thickness(0,2,0,2), VerticalAlignment = VerticalAlignment.Center };
-                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(ModuleLabelColumnWidth) });
-                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-                var cb = new CheckBox
-                {
-                    Content = "Fediverse",
-                    IsChecked = !_settings.DisabledModules.Contains("Social", StringComparer.OrdinalIgnoreCase),
-                    VerticalAlignment = VerticalAlignment.Center
-                };
-                Grid.SetColumn(cb, 0);
-                grid.Children.Add(cb);
-
-                // Button for editing Fediverse URL
-                {
-                    var btn = new Button
-                    {
-                        Tag = "Social",
-                        Width = 18,
-                        Height = 18,
-                        Margin = new Thickness(4,0,0,0),
-                        Padding = new Thickness(0),
-                        ToolTip = "URL für 'Fediverse' ändern",
-                        HorizontalContentAlignment = HorizontalAlignment.Center,
-                        VerticalContentAlignment = VerticalAlignment.Center
-                    };
-                    btn.Content = new TextBlock
-                    {
-                        Text = "\uE70F",
-                        FontFamily = new FontFamily("Segoe MDL2 Assets"),
-                        FontSize = 11,
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        VerticalAlignment = VerticalAlignment.Center,
-                        Margin = new Thickness(0,-1,0,0)
-                    };
-                    btn.Click += EditUrl_Click;
-                    Grid.SetColumn(btn, 1);
-                    grid.Children.Add(btn);
-                }
-                modulesPanel.Children.Add(grid);
-            }
+            }            
         }
 
         private void EditUrl_Click(object sender, RoutedEventArgs e)

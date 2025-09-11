@@ -1,92 +1,90 @@
-<modules:BaseSimpleModule
-    x:Class="Vivit_Control_Center.Views.Modules.SettingsModule"
+<modules:BaseSimpleModule x:Class="Vivit_Control_Center.Views.Modules.SettingsModule"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:modules="clr-namespace:Vivit_Control_Center.Views.Modules"
-    Background="White">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="16" MaxWidth="720">
-            <TextBlock Text="Einstellungen" FontSize="20" FontWeight="Bold" Margin="0,0,0,16"/>
-
-            <!-- News Module Auswahl -->
-            <GroupBox Header="News Module" Margin="0,0,0,12">
-                <StackPanel Margin="8">
-                    <ComboBox x:Name="newsModeSelector" Width="260" SelectionChanged="newsModeSelector_SelectionChanged">
-                        <ComboBoxItem Content="Webnews"/>
-                        <ComboBoxItem Content="RSS"/>
-                    </ComboBox>
-                    <Button x:Name="btnEditFeeds" Content="RSS Feeds bearbeiten" Width="180" Margin="0,8,0,0" Click="btnEditFeeds_Click" Visibility="Collapsed"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <TextBlock Text="Max. Artikel gesamt:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                        <TextBox x:Name="txtRssMax" Width="70"/>
+    xmlns:modules="clr-namespace:Vivit_Control_Center.Views.Modules">
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="16" MaxWidth="720">
+                <TextBlock Text="Einstellungen" FontSize="20" FontWeight="Bold" Margin="0,0,0,16"/>
+                <GroupBox Header="News Module" Margin="0,0,0,12">
+                    <StackPanel Margin="8">
+                        <ComboBox x:Name="newsModeSelector" Width="260" SelectionChanged="newsModeSelector_SelectionChanged">
+                            <ComboBoxItem Content="Webnews"/>
+                            <ComboBoxItem Content="RSS"/>
+                        </ComboBox>
+                        <Button x:Name="btnEditFeeds" Content="RSS Feeds bearbeiten" Width="180" Margin="0,8,0,0" Click="btnEditFeeds_Click" Visibility="Collapsed"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <TextBlock Text="Max. Artikel gesamt:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBox x:Name="txtRssMax" Width="70"/>
+                        </StackPanel>
                     </StackPanel>
-                    <Separator Margin="0,12,0,12"/>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                </GroupBox>
+                <GroupBox Header="Fediverse" Margin="0,0,0,12">
+                    <StackPanel Margin="8" Orientation="Horizontal">
                         <TextBlock Text="Fediverse URL:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                        <TextBox x:Name="txtFediverseUrl" Width="320" />
+                        <TextBox x:Name="txtFediverseUrl" Width="360"/>
                     </StackPanel>
+                </GroupBox>
+                <GroupBox Header="AI Module" Margin="0,0,0,12">
+                    <StackPanel Margin="8">
+                        <ComboBox x:Name="aiServiceSelector" Width="260">
+                            <ComboBoxItem Content="ChatGPT"/>
+                            <ComboBoxItem Content="Perplexity AI"/>
+                            <ComboBoxItem Content="Claude"/>
+                        </ComboBox>
+                    </StackPanel>
+                </GroupBox>
+                <!-- Messenger -->
+                <GroupBox Header="Messenger Module" Margin="0,0,0,12">
+                    <StackPanel Margin="8">
+                        <ComboBox x:Name="messengerServiceSelector" Width="260">
+                            <ComboBoxItem Content="WhatsApp"/>
+                            <ComboBoxItem Content="Telegram"/>
+                        </ComboBox>
+                    </StackPanel>
+                </GroupBox>
+                <!-- Chat -->
+                <GroupBox Header="Chat Module" Margin="0,0,0,12">
+                    <StackPanel Margin="8">
+                        <ComboBox x:Name="chatServiceSelector" Width="260">
+                            <ComboBoxItem Content="Discord"/>
+                            <ComboBoxItem Content="IRC IRCNet"/>
+                            <ComboBoxItem Content="IRC QuakeNet"/>
+                        </ComboBox>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Pfade -->
+                <GroupBox Header="Standardpfade" Margin="0,0,0,12">
+                    <Grid Margin="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Lokaler Pfad:" VerticalAlignment="Center" Margin="0,0,6,6"/>
+                        <TextBox x:Name="txtLocalPath" Grid.Row="0" Grid.Column="1" Margin="0,0,6,6"/>
+                        <Button Grid.Row="0" Grid.Column="2" Content="..." Width="28" Margin="0,0,0,6" Click="btnPickLocalPath_Click"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Scripts Pfad:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBox x:Name="txtScriptsPath" Grid.Row="1" Grid.Column="1" Margin="0,0,6,0"/>
+                        <Button Grid.Row="1" Grid.Column="2" Content="..." Width="28" Click="btnPickScriptsPath_Click"/>
+                    </Grid>
+                </GroupBox>
+
+                <!-- Module toggles -->
+                <GroupBox Header="Module" Margin="0,0,0,12">
+                    <StackPanel x:Name="modulesPanel" Margin="8"/>
+                </GroupBox>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Speichern" Padding="12,4" Margin="0,0,8,0" Click="btnSave_Click"/>
+                    <Button Content="Abbrechen" Padding="12,4" Click="btnCancel_Click"/>
                 </StackPanel>
-            </GroupBox>
-
-            <!-- Parametrisierte Module -->
-            <GroupBox Header="AI Module" Margin="0,0,0,12">
-                <StackPanel Margin="8">
-                    <ComboBox x:Name="aiServiceSelector" Width="260">
-                        <ComboBoxItem Content="ChatGPT"/>
-                        <ComboBoxItem Content="Perplexity AI"/>
-                        <ComboBoxItem Content="Claude"/>
-                    </ComboBox>
-                </StackPanel>
-            </GroupBox>
-            <GroupBox Header="Messenger Module" Margin="0,0,0,12">
-                <StackPanel Margin="8">
-                    <ComboBox x:Name="messengerServiceSelector" Width="260">
-                        <ComboBoxItem Content="WhatsApp"/>
-                        <ComboBoxItem Content="Telegram"/>
-                    </ComboBox>
-                </StackPanel>
-            </GroupBox>
-            <GroupBox Header="Chat Module" Margin="0,0,0,12">
-                <StackPanel Margin="8">
-                    <ComboBox x:Name="chatServiceSelector" Width="260">
-                        <ComboBoxItem Content="Discord"/>
-                        <ComboBoxItem Content="IRC IRCNet"/>
-                        <ComboBoxItem Content="IRC QuakeNet"/>
-                    </ComboBox>
-                </StackPanel>
-            </GroupBox>
-
-            <!-- Standardpfade -->
-            <GroupBox Header="Standardpfade" Margin="0,0,0,12">
-                <Grid Margin="8">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Lokaler Pfad:" VerticalAlignment="Center" Margin="0,0,6,6"/>
-                    <TextBox x:Name="txtLocalPath" Grid.Row="0" Grid.Column="1" Margin="0,0,6,6"/>
-                    <Button Grid.Row="0" Grid.Column="2" Content="..." Width="28" Margin="0,0,0,6" Click="btnPickLocalPath_Click"/>
-
-                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Scripts Pfad:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <TextBox x:Name="txtScriptsPath" Grid.Row="1" Grid.Column="1" Margin="0,0,6,0"/>
-                    <Button Grid.Row="1" Grid.Column="2" Content="..." Width="28" Click="btnPickScriptsPath_Click"/>
-                </Grid>
-            </GroupBox>
-
-            <!-- Module aktivieren/deaktivieren -->
-            <GroupBox Header="Module" Margin="0,0,0,12">
-                <StackPanel x:Name="modulesPanel" Margin="8"/>
-            </GroupBox>
-
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Speichern" Padding="12,4" Margin="0,0,8,0" Click="btnSave_Click"/>
-                <Button Content="Abbrechen" Padding="12,4" Click="btnCancel_Click"/>
             </StackPanel>
-        </StackPanel>
-    </ScrollViewer>
+        </ScrollViewer>
+    </Grid>
 </modules:BaseSimpleModule>
