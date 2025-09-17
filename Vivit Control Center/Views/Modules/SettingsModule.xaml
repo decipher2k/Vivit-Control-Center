@@ -5,27 +5,45 @@
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="16" MaxWidth="720">
-                <TextBlock Text="Einstellungen" FontSize="20" FontWeight="Bold" Margin="0,0,0,16"/>
-                <GroupBox Header="News Module" Margin="0,0,0,12">
+                <TextBlock Text="{DynamicResource Settings.Title}" FontSize="20" FontWeight="Bold" Margin="0,0,0,16"/>
+
+                <!-- Language -->
+                <GroupBox Header="{DynamicResource Settings.Language}" Margin="0,0,0,12">
+                    <StackPanel Margin="8" Orientation="Horizontal">
+                        <ComboBox x:Name="languageSelector" Width="260" SelectionChanged="languageSelector_SelectionChanged">
+                            <ComboBoxItem Tag="en" Content="English" />
+                            <ComboBoxItem Tag="de" Content="German" />
+                            <ComboBoxItem Tag="fr" Content="French" />
+                            <ComboBoxItem Tag="es" Content="Spanish" />
+                            <ComboBoxItem Tag="ru" Content="Russian" />
+                            <ComboBoxItem Tag="zh" Content="Chinese" />
+                            <ComboBoxItem Tag="ja" Content="Japanese" />
+                            <ComboBoxItem Tag="eo" Content="Esperanto" />
+                        </ComboBox>
+                        <TextBlock Text="{DynamicResource Settings.RestartNotice}" Margin="8,0,0,0" VerticalAlignment="Center" Foreground="Gray"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="{DynamicResource Settings.NewsModule}" Margin="0,0,0,12">
                     <StackPanel Margin="8">
                         <ComboBox x:Name="newsModeSelector" Width="260" SelectionChanged="newsModeSelector_SelectionChanged">
                             <ComboBoxItem Content="Webnews"/>
                             <ComboBoxItem Content="RSS"/>
                         </ComboBox>
-                        <Button x:Name="btnEditFeeds" Content="RSS Feeds bearbeiten" Width="180" Margin="0,8,0,0" Click="btnEditFeeds_Click" Visibility="Collapsed"/>
+                        <Button x:Name="btnEditFeeds" Content="{DynamicResource Settings.RssFeedsEdit}" Width="180" Margin="0,8,0,0" Click="btnEditFeeds_Click" Visibility="Collapsed"/>
                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                            <TextBlock Text="Max. Artikel gesamt:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="{DynamicResource Settings.MaxArticles}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                             <TextBox x:Name="txtRssMax" Width="70"/>
                         </StackPanel>
                     </StackPanel>
                 </GroupBox>
-                <GroupBox Header="Fediverse" Margin="0,0,0,12">
+                <GroupBox Header="{DynamicResource Settings.Fediverse}" Margin="0,0,0,12">
                     <StackPanel Margin="8" Orientation="Horizontal">
-                        <TextBlock Text="Fediverse URL:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Text="{DynamicResource Settings.FediverseUrl}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                         <TextBox x:Name="txtFediverseUrl" Width="360"/>
                     </StackPanel>
                 </GroupBox>
-                <GroupBox Header="AI Module" Margin="0,0,0,12">
+                <GroupBox Header="{DynamicResource Settings.AIModule}" Margin="0,0,0,12">
                     <StackPanel Margin="8">
                         <ComboBox x:Name="aiServiceSelector" Width="260">
                             <ComboBoxItem Content="ChatGPT"/>
@@ -35,7 +53,7 @@
                     </StackPanel>
                 </GroupBox>
                 <!-- Messenger -->
-                <GroupBox Header="Messenger Module" Margin="0,0,0,12">
+                <GroupBox Header="{DynamicResource Settings.MessengerModule}" Margin="0,0,0,12">
                     <StackPanel Margin="8">
                         <ComboBox x:Name="messengerServiceSelector" Width="260">
                             <ComboBoxItem Content="WhatsApp"/>
@@ -44,7 +62,7 @@
                     </StackPanel>
                 </GroupBox>
                 <!-- Chat -->
-                <GroupBox Header="Chat Module" Margin="0,0,0,12">
+                <GroupBox Header="{DynamicResource Settings.ChatModule}" Margin="0,0,0,12">
                     <StackPanel Margin="8">
                         <ComboBox x:Name="chatServiceSelector" Width="260">
                             <ComboBoxItem Content="Discord"/>
@@ -55,7 +73,7 @@
                 </GroupBox>
 
                 <!-- Pfade -->
-                <GroupBox Header="Standardpfade" Margin="0,0,0,12">
+                <GroupBox Header="{DynamicResource Settings.Paths}" Margin="0,0,0,12">
                     <Grid Margin="8">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -66,32 +84,32 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Lokaler Pfad:" VerticalAlignment="Center" Margin="0,0,6,6"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource Settings.LocalPath}" VerticalAlignment="Center" Margin="0,0,6,6"/>
                         <TextBox x:Name="txtLocalPath" Grid.Row="0" Grid.Column="1" Margin="0,0,6,6"/>
                         <Button Grid.Row="0" Grid.Column="2" Content="..." Width="28" Margin="0,0,0,6" Click="btnPickLocalPath_Click"/>
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Scripts Pfad:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource Settings.ScriptPath}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                         <TextBox x:Name="txtScriptsPath" Grid.Row="1" Grid.Column="1" Margin="0,0,6,0"/>
                         <Button Grid.Row="1" Grid.Column="2" Content="..." Width="28" Click="btnPickScriptsPath_Click"/>
                     </Grid>
                 </GroupBox>
 
                 <!-- Module toggles -->
-                <GroupBox Header="Module" Margin="0,0,0,12">
+                <GroupBox Header="{DynamicResource Settings.Modules}" Margin="0,0,0,12">
                     <StackPanel x:Name="modulesPanel" Margin="8"/>
                 </GroupBox>
 
                 <!-- Shell configuration -->
-                <GroupBox Header="Windows Shell" Margin="0,0,0,12">
+                <GroupBox Header="{DynamicResource Settings.Shell}" Margin="0,0,0,12">
                     <StackPanel Margin="8" Orientation="Horizontal">
-                        <Button x:Name="btnSetShell" Content="Als Shell setzen" Width="140" Margin="0,0,8,0" Click="btnSetShell_Click"/>
-                        <Button x:Name="btnRestoreShell" Content="Standard Shell wiederherstellen" Width="210" Click="btnRestoreShell_Click" Visibility="Collapsed"/>
+                        <Button x:Name="btnSetShell" Content="{DynamicResource Settings.SetShell}" Width="140" Margin="0,0,8,0" Click="btnSetShell_Click"/>
+                        <Button x:Name="btnRestoreShell" Content="{DynamicResource Settings.RestoreShell}" Width="210" Click="btnRestoreShell_Click" Visibility="Collapsed"/>
                         <TextBlock x:Name="txtShellStatus" Margin="12,0,0,0" VerticalAlignment="Center" Foreground="Gray"/>
                     </StackPanel>
                 </GroupBox>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="Speichern" Padding="12,4" Margin="0,0,8,0" Click="btnSave_Click"/>
-                    <Button Content="Abbrechen" Padding="12,4" Click="btnCancel_Click"/>
+                    <Button Content="{DynamicResource Settings.Save}" Padding="12,4" Margin="0,0,8,0" Click="btnSave_Click"/>
+                    <Button Content="{DynamicResource Settings.Cancel}" Padding="12,4" Click="btnCancel_Click"/>
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>

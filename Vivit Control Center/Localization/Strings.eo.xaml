@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <!-- Esperanto ASCII -->
+  <sys:String x:Key="Settings.Title">Agordoj</sys:String>
+  <sys:String x:Key="Settings.Language">Lingvo</sys:String>
+  <sys:String x:Key="Settings.NewsModule">Novajhoj Modulo</sys:String>
+  <sys:String x:Key="Settings.RssFeedsEdit">Redakti RSS Fluo</sys:String>
+  <sys:String x:Key="Settings.MaxArticles">Maks. artikoloj:</sys:String>
+  <sys:String x:Key="Settings.Fediverse">Fediverse</sys:String>
+  <sys:String x:Key="Settings.FediverseUrl">Fediverse URL:</sys:String>
+  <sys:String x:Key="Settings.AIModule">AI Modulo</sys:String>
+  <sys:String x:Key="Settings.MessengerModule">Mesaghilo Modulo</sys:String>
+  <sys:String x:Key="Settings.ChatModule">Babilejo Modulo</sys:String>
+  <sys:String x:Key="Settings.Paths">Defa?ltaj Vojoj</sys:String>
+  <sys:String x:Key="Settings.LocalPath">Loka Vojo:</sys:String>
+  <sys:String x:Key="Settings.ScriptPath">Skriptoj Vojo:</sys:String>
+  <sys:String x:Key="Settings.Modules">Moduloj</sys:String>
+  <sys:String x:Key="Settings.Shell">Windows Shelo</sys:String>
+  <sys:String x:Key="Settings.SetShell">Agordi kiel Shelo</sys:String>
+  <sys:String x:Key="Settings.RestoreShell">Restauri Standardan Shelon</sys:String>
+  <sys:String x:Key="Settings.Save">Konservi</sys:String>
+  <sys:String x:Key="Settings.Cancel">Nuligi</sys:String>
+  <sys:String x:Key="Settings.ManagePrograms">Mastrumi Programojn</sys:String>
+  <sys:String x:Key="Settings.CurrentShell">Aktuala Shelo:</sys:String>
+  <sys:String x:Key="Settings.CurrentlyShell">Aktuale Shelo Agordita</sys:String>
+  <sys:String x:Key="Settings.RestartNotice">(Rellanco bezonata)</sys:String>
+</ResourceDictionary>

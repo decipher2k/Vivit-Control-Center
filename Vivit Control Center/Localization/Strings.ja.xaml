@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <!-- Japanese Romaji -->
+  <sys:String x:Key="Settings.Title">Settei</sys:String>
+  <sys:String x:Key="Settings.Language">Gengo</sys:String>
+  <sys:String x:Key="Settings.NewsModule">Nyusu Mojyuru</sys:String>
+  <sys:String x:Key="Settings.RssFeedsEdit">RSS Fiido Henshu</sys:String>
+  <sys:String x:Key="Settings.MaxArticles">Saida Kiji Su:</sys:String>
+  <sys:String x:Key="Settings.Fediverse">Fediverse</sys:String>
+  <sys:String x:Key="Settings.FediverseUrl">Fediverse URL:</sys:String>
+  <sys:String x:Key="Settings.AIModule">AI Mojyuru</sys:String>
+  <sys:String x:Key="Settings.MessengerModule">Messenga Mojyuru</sys:String>
+  <sys:String x:Key="Settings.ChatModule">Chatto Mojyuru</sys:String>
+  <sys:String x:Key="Settings.Paths">Kitei Pasu</sys:String>
+  <sys:String x:Key="Settings.LocalPath">Rokaru Pasu:</sys:String>
+  <sys:String x:Key="Settings.ScriptPath">Sukuriputo Pasu:</sys:String>
+  <sys:String x:Key="Settings.Modules">Mojyuru</sys:String>
+  <sys:String x:Key="Settings.Shell">Windows Sheru</sys:String>
+  <sys:String x:Key="Settings.SetShell">Sheru ni settei</sys:String>
+  <sys:String x:Key="Settings.RestoreShell">Hyojun Sheru fukugen</sys:String>
+  <sys:String x:Key="Settings.Save">Hozon</sys:String>
+  <sys:String x:Key="Settings.Cancel">Kyanseru</sys:String>
+  <sys:String x:Key="Settings.ManagePrograms">Puroguramu Kanri</sys:String>
+  <sys:String x:Key="Settings.CurrentShell">Genzai no Sheru:</sys:String>
+  <sys:String x:Key="Settings.CurrentlyShell">Sheru ni settei zumi</sys:String>
+  <sys:String x:Key="Settings.RestartNotice">(Sai kido hitsuyo)</sys:String>
+</ResourceDictionary>

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Vivit_Control_Center.Settings;
+using Vivit_Control_Center.Localization;
 
 namespace Vivit_Control_Center.Views.Modules
 {
@@ -29,6 +30,7 @@ namespace Vivit_Control_Center.Views.Modules
                     _working.Add(new ExternalProgram { Path = p, Caption = System.IO.Path.GetFileNameWithoutExtension(p) });
                 }
             }
+            this.Title = LocalizationManager.GetString("Programs.Title", this.Title);
             RefreshGrid();
         }
 
@@ -39,7 +41,7 @@ namespace Vivit_Control_Center.Views.Modules
 
         private void Add_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new OpenFileDialog { Filter = "Programme (*.exe)|*.exe|Alle Dateien (*.*)|*.*" };
+            var dlg = new OpenFileDialog { Filter = LocalizationManager.GetString("Programs.FileFilterExe", "Programs (*.exe)|*.exe|All Files (*.*)|*.*") };
             if (dlg.ShowDialog() == true)
             {
                 if (!_working.Any(p => string.Equals(p.Path, dlg.FileName, StringComparison.OrdinalIgnoreCase)))
@@ -57,7 +59,9 @@ namespace Vivit_Control_Center.Views.Modules
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            _settings.ExternalProgramsDetailed = _working.Where(p => !string.IsNullOrWhiteSpace(p.Path)).Select(p => new ExternalProgram { Path = p.Path, Caption = p.Caption?.Trim() }).ToList(); _settings.Save(); MessageBox.Show("Gespeichert.");
+            _settings.ExternalProgramsDetailed = _working.Where(p => !string.IsNullOrWhiteSpace(p.Path)).Select(p => new ExternalProgram { Path = p.Path, Caption = p.Caption?.Trim() }).ToList();
+            _settings.Save();
+            MessageBox.Show(LocalizationManager.GetString("Programs.Saved", "Saved."));
         }
 
         private void Close_Click(object sender, RoutedEventArgs e) => Close();

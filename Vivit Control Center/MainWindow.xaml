@@ -399,19 +399,10 @@
                 Visibility="Visible"
                 Panel.ZIndex="100">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="320">
-                <TextBlock Text="Lade Module..."
-                           Foreground="#FFFFFF"
-                           FontSize="16"
-                           HorizontalAlignment="Center"
-                           Margin="0,0,0,8"/>
+                <TextBlock Text="{DynamicResource App.LoadingModules}" Foreground="#FFFFFF" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,8"/>
 
                 <!-- Fortschrittsanzeige: X von Y Modulen geladen -->
-                <TextBlock x:Name="LoadProgressText"
-                           Text="0 von 19 Modulen geladen"
-                           Foreground="#B0B0B0"
-                           FontSize="12"
-                           HorizontalAlignment="Center"
-                           Margin="0,0,0,12"/>
+                <TextBlock x:Name="LoadProgressText" Text="0" Foreground="#B0B0B0" FontSize="12" HorizontalAlignment="Center" Margin="0,0,0,12"/>
 
                 <ProgressBar x:Name="LoadProgressBar"
                              Height="6"
@@ -421,11 +412,11 @@
                              Foreground="#FFFFFF"
                              Background="#333333"/>
 
-                <TextBlock Text="Ausstehende Module:" Foreground="#D0D0D0" FontSize="12" Margin="0,12,0,4"/>
+                <TextBlock Text="{DynamicResource App.PendingModules}" Foreground="#D0D0D0" FontSize="12" Margin="0,12,0,4"/>
                 <ItemsControl x:Name="PendingList">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding StringFormat=• {0}}" Foreground="#B0B0B0" FontSize="12"/>
+                            <TextBlock Text="{Binding}" Foreground="#B0B0B0" FontSize="12"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>

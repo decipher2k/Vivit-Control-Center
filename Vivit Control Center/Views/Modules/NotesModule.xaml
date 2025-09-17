@@ -22,14 +22,14 @@
                 <Button Padding="6,2" Click="Italic_Click"><TextBlock Text="I" FontStyle="Italic"/></Button>
                 <Button Padding="6,2" Click="Underline_Click"><TextBlock Text="U" TextDecorations="Underline"/></Button>
                 <Separator/>
-                <Button Padding="6,2" Click="Bullets_Click">&#8226; Liste</Button>
-                <Button Padding="6,2" Click="Numbering_Click">1. Liste</Button>
+                <Button Padding="6,2" Click="Bullets_Click" Content="{DynamicResource Notes.Bullets}"/>
+                <Button Padding="6,2" Click="Numbering_Click" Content="{DynamicResource Notes.Numbered}"/>
                 <Separator/>
-                <Button Padding="6,2" Click="AlignLeft_Click">Links</Button>
-                <Button Padding="6,2" Click="AlignCenter_Click">Zentriert</Button>
-                <Button Padding="6,2" Click="AlignRight_Click">Rechts</Button>
+                <Button Padding="6,2" Click="AlignLeft_Click" Content="{DynamicResource Notes.AlignLeft}"/>
+                <Button Padding="6,2" Click="AlignCenter_Click" Content="{DynamicResource Notes.AlignCenter}"/>
+                <Button Padding="6,2" Click="AlignRight_Click" Content="{DynamicResource Notes.AlignRight}"/>
                 <Separator/>
-                <TextBlock Text="Schriftgr.:" VerticalAlignment="Center" Margin="8,0,4,0"/>
+                <TextBlock Text="{DynamicResource Notes.FontSize}" VerticalAlignment="Center" Margin="8,0,4,0"/>
                 <ComboBox x:Name="cmbFontSize" Width="70" SelectionChanged="cmbFontSize_SelectionChanged">
                     <ComboBoxItem Content="10"/>
                     <ComboBoxItem Content="12"/>
@@ -46,12 +46,12 @@
             <TreeView x:Name="tvTopics" SelectedItemChanged="tvTopics_SelectedItemChanged">
                 <TreeView.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Neu" Click="AddTopic_Click"/>
-                        <MenuItem Header="Umbenennen" Click="RenameTopic_Click"/>
-                        <MenuItem Header="Entfernen" Click="DeleteTopic_Click"/>
+                        <MenuItem Header="{DynamicResource Notes.Context.New}" Click="AddTopic_Click"/>
+                        <MenuItem Header="{DynamicResource Notes.Context.Rename}" Click="RenameTopic_Click"/>
+                        <MenuItem Header="{DynamicResource Notes.Context.Delete}" Click="DeleteTopic_Click"/>
                         <Separator/>
-                        <MenuItem Header="Nach oben" Click="MoveUp_Click"/>
-                        <MenuItem Header="Nach unten" Click="MoveDown_Click"/>
+                        <MenuItem Header="{DynamicResource Notes.Context.Up}" Click="MoveUp_Click"/>
+                        <MenuItem Header="{DynamicResource Notes.Context.Down}" Click="MoveDown_Click"/>
                     </ContextMenu>
                 </TreeView.ContextMenu>
             </TreeView>

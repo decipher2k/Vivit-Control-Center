@@ -10,6 +10,8 @@ using Vivit_Control_Center.Views.Modules;
 using Vivit_Control_Center.Settings;
 using System.Windows.Input;
 using System.Diagnostics;
+using Microsoft.Win32; // autorun registry
+using System.IO; // path handling
 
 namespace Vivit_Control_Center
 {
@@ -23,7 +25,7 @@ namespace Vivit_Control_Center
         private static readonly string[] Tags = new[]
         {
             "AI","News","Messenger","Chat","Explorer","Office","Notes","Media Player","Steam",
-            "Webbrowser","Order Food","eBay","Temu","Terminal","Scripting","SSH","SFTP","Social","Launch","Settings"
+            "Webbrowser","Order Food","eBay","Temu","Terminal","Scripting","SSH","SFTP","Social","Launch","Programs","Settings"
         };
 
         private const string DefaultTag = "Webbrowser";
@@ -38,6 +40,8 @@ namespace Vivit_Control_Center
 
         private readonly HashSet<string> _pending = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+        private const double ShellTaskbarHeight = 40; // keep in sync with TaskbarWindow height
+
         public MainWindow()
         {
             InitializeComponent();
@@ -48,13 +52,19 @@ namespace Vivit_Control_Center
 
             // Shell Mode Anpassungen
             if (App.IsShellMode)
-            {                
+            {
                 MinButton.Visibility = Visibility.Collapsed;
                 MaxButton.Visibility = Visibility.Collapsed;
-                CloseButton.Visibility=Visibility.Collapsed;
+                CloseButton.Visibility = Visibility.Collapsed;
                 WindowStyle = WindowStyle.None;
                 ResizeMode = ResizeMode.NoResize;
-                WindowState = WindowState.Maximized;  
+                WindowState = WindowState.Normal; // don't maximize - we will size below excluding taskbar
+                AdjustShellWorkspaceArea();
+                Loaded += (_, __) => AdjustShellWorkspaceArea(); // ensure final adjustment after layout
+                TaskbarWindow w=new TaskbarWindow();
+                w.Show();
+                // Autoruns laden nach UI-Initialisierung
+                Loaded += async (_, __) => await LoadShellAutoRunsAsync();
             }
 
             SidebarRoot.IsEnabled = false;
@@ -62,6 +72,177 @@ namespace Vivit_Control_Center
             PrecreateModules();
             Loaded += async (_, __) => await PreloadAllAndHideSplashAsync();
             StateChanged += (_, __) => UpdateMaxRestoreIcon();
+        }
+
+        // Lädt AutoRun Anwendungen (Run-Keys + Startup Folder) nur im Shell Mode
+        private async Task LoadShellAutoRunsAsync()
+        {
+            if (!App.IsShellMode) return;
+            try
+            {
+                await Task.Delay(500); // kleinen Puffer für Stabilität
+                var entries = new List<(string exe, string args)>();
+                void AddFromRegistry(RegistryKey root, string subKey)
+                {
+                    try
+                    {
+                        using (var k = root.OpenSubKey(subKey, false))
+                        {
+                            if (k == null) return;
+                            foreach (var name in k.GetValueNames())
+                            {
+                                var raw = k.GetValue(name) as string;
+                                if (string.IsNullOrWhiteSpace(raw)) continue;
+                                ParseCommand(raw, out var path, out var args);
+                                if (IsExecutableEligible(path))
+                                    entries.Add((path, args));
+                            }
+                        }
+                    }
+                    catch { }
+                }
+
+                AddFromRegistry(Registry.CurrentUser, "Software\\Microsoft\\Windows\\CurrentVersion\\Run");
+                AddFromRegistry(Registry.LocalMachine, "Software\\Microsoft\\Windows\\CurrentVersion\\Run");
+
+                // Startup Folder (user + common)
+                void AddFromFolder(Environment.SpecialFolder sf)
+                {
+                    try
+                    {
+                        var dir = Environment.GetFolderPath(sf);
+                        if (Directory.Exists(dir))
+                        {
+                            foreach (var file in Directory.EnumerateFiles(dir))
+                            {
+                                var ext = Path.GetExtension(file)?.ToLowerInvariant();
+                                if (ext == ".lnk" || ext == ".exe" || ext == ".bat" || ext == ".cmd")
+                                {
+                                    // For .lnk we try resolve; quick fallback just treat as shell execute
+                                    if (ext == ".lnk")
+                                    {
+                                        // simplest: let shell handle .lnk via Process.Start(file)
+                                        entries.Add((file, ""));
+                                    }
+                                    else if (IsExecutableEligible(file))
+                                        entries.Add((file, ""));
+                                }
+                            }
+                        }
+                    }
+                    catch { }
+                }
+                AddFromFolder(Environment.SpecialFolder.Startup);
+                AddFromFolder(Environment.SpecialFolder.CommonStartup);
+
+                // Remove duplicates (by exe path + args)
+                var distinct = entries
+                    .GroupBy(e => (e.exe ?? "") + "|" + (e.args ?? ""), StringComparer.OrdinalIgnoreCase)
+                    .Select(g => g.First())
+                    .ToList();
+
+                foreach (var entry in distinct)
+                {
+                    try
+                    {
+                        var psi = new ProcessStartInfo
+                        {
+                            FileName = entry.exe,
+                            Arguments = entry.args,
+                            UseShellExecute = true,
+                            WorkingDirectory = SafeDir(entry.exe)
+                        };
+                        Process.Start(psi);
+                        await Task.Delay(150); // throttle a bit
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+        }
+
+        private static string SafeDir(string path)
+        {
+            try { var d = Path.GetDirectoryName(path); return string.IsNullOrWhiteSpace(d) ? Environment.CurrentDirectory : d; } catch { return Environment.CurrentDirectory; }
+        }
+
+        private static bool IsExecutableEligible(string path)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(path)) return false;
+                path = Environment.ExpandEnvironmentVariables(path).Trim().Trim('"');
+                if (!File.Exists(path)) return false;
+                var exeSelf = Process.GetCurrentProcess().MainModule.FileName;
+                if (string.Equals(path, exeSelf, StringComparison.OrdinalIgnoreCase)) return false; // skip self
+                if (string.Equals(Path.GetFileName(path), "explorer.exe", StringComparison.OrdinalIgnoreCase)) return false; // don't auto-start explorer in shell mode
+                return true;
+            }
+            catch { return false; }
+        }
+
+        private static void ParseCommand(string raw, out string path, out string args)
+        {
+            path = null; args = "";
+            try
+            {
+                raw = Environment.ExpandEnvironmentVariables(raw).Trim();
+                if (raw.StartsWith("\""))
+                {
+                    int end = raw.IndexOf('"', 1);
+                    if (end > 1)
+                    {
+                        path = raw.Substring(1, end - 1);
+                        args = raw.Substring(end + 1).Trim();
+                        return;
+                    }
+                }
+                // no quotes: split on first space if file exists
+                var firstSpace = raw.IndexOf(' ');
+                if (firstSpace > 0)
+                {
+                    var potential = raw.Substring(0, firstSpace).Trim();
+                    if (File.Exists(potential))
+                    {
+                        path = potential;
+                        args = raw.Substring(firstSpace + 1).Trim();
+                        return;
+                    }
+                }
+                // fallback entire string as path
+                path = raw;
+            }
+            catch { path = null; args = ""; }
+        }
+
+        // Public helper for external activation (e.g., taskbar button)
+        public void ActivateModule(string tag)
+        {
+            try
+            {
+                ShowModule(tag);
+                if (WindowState == WindowState.Minimized)
+                    WindowState = WindowState.Normal;
+                Activate();
+                Focus();
+            }
+            catch { }
+        }
+
+        private void AdjustShellWorkspaceArea()
+        {
+            try
+            {
+                // Position full width, exclude taskbar height at bottom
+                Left = 0;
+                Top = 0;
+                Width = SystemParameters.PrimaryScreenWidth;
+                var fullHeight = SystemParameters.PrimaryScreenHeight;
+                var targetHeight = Math.Max(300, fullHeight - ShellTaskbarHeight); // safety min height
+                Height = targetHeight;
+                MaxHeight = targetHeight; // prevent user resize overlapping taskbar
+            }
+            catch { }
         }
 
         private void UpdateMaxRestoreIcon()
@@ -183,7 +364,8 @@ namespace Vivit_Control_Center
                 case "Notes":         return (IModule) new NotesModule();
                 case "Office":        return (IModule) new OfficeModule();
                 case "Social":        return (IModule) new SocialModule();
-                case "Launch":       return (IModule) new LaunchModule();
+                case "Launch":        return (IModule) new LaunchModule();
+                case "Programs":      return (IModule) new LaunchModule(); // alias for Launch
                 case "News":
                     var settings = Settings.AppSettings.Load();
                     if (string.Equals(settings.NewsMode, "RSS", StringComparison.OrdinalIgnoreCase))

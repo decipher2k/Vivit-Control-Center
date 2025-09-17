@@ -1,0 +1,69 @@
+<Window x:Class="Vivit_Control_Center.TaskbarWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Taskbar" Height="40" Width="800" WindowStyle="None" ResizeMode="NoResize"
+        ShowInTaskbar="False" Topmost="True" Background="#222222" AllowsTransparency="False" Focusable="False">
+    <Border Background="#222222" BorderBrush="#333333" BorderThickness="0,1,0,0">
+        <DockPanel LastChildFill="True" Margin="6,0,6,0">
+            <!-- Left side: App button + running process icons -->
+            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button x:Name="AppButton" Width="40" Height="34" Padding="0" Margin="0,3,6,3" Background="Transparent" BorderBrush="Transparent" ToolTip="Vivit Control Center" Click="AppButton_Click">
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="◎" FontSize="16" HorizontalAlignment="Center" Foreground="White"/>
+                        <TextBlock Text="Apps" FontSize="9" Foreground="#DDDDDD" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
+                    <StackPanel Orientation="Horizontal" x:Name="ProcessIconsPanel" />
+                </ScrollViewer>
+            </StackPanel>
+
+            <!-- Right area: tray icons + volume + clock -->
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center" x:Name="RightPanel">
+                <!-- Tray area -->
+                <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" Margin="0,0,8,0">
+                    <StackPanel Orientation="Horizontal" x:Name="TrayAreaPanel" />
+                </ScrollViewer>
+                <!-- Volume -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0" x:Name="VolumePanel">
+                    <Button x:Name="VolumeButton" Click="VolumeButton_Click" Width="28" Height="28" Padding="0" Margin="0" Background="Transparent" BorderBrush="Transparent" ToolTip="Volume">
+                        <!-- Use Segoe MDL2 Assets glyphs instead of emoji to avoid rendering as '??' -->
+                        <TextBlock x:Name="VolumeIcon" Text="" FontSize="16" FontFamily="Segoe MDL2 Assets"/>
+                    </Button>
+                    <Popup x:Name="VolumePopup" Placement="Top" StaysOpen="False">
+                        <Border Background="#333333" Padding="8" CornerRadius="4" BorderBrush="#555555" BorderThickness="1">
+                            <StackPanel Width="160">
+                                <TextBlock Text="Volume" Foreground="White" FontSize="12" Margin="0,0,0,4"/>
+                                <Slider x:Name="VolumeSlider" Minimum="0" Maximum="100" ValueChanged="VolumeSlider_ValueChanged" />
+                            </StackPanel>
+                        </Border>
+                    </Popup>
+                </StackPanel>
+                <!-- Clock -->
+                <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,4 ,0">
+                    <TextBlock x:Name="TimeText" Foreground="White" FontSize="14" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="DateText" Foreground="#CCCCCC" FontSize="10" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Shared popup for windows of hovered process -->
+            <Popup x:Name="WindowsPopup" Placement="Top" StaysOpen="False" AllowsTransparency="True">
+                <Border Background="#2B2B2B" BorderBrush="#555555" BorderThickness="1" Padding="4" CornerRadius="4">
+                    <StackPanel>
+                        <TextBlock x:Name="PopupProcessTitle" Foreground="White" FontWeight="Bold" FontSize="11" Margin="2,0,2,4" />
+                        <ListBox x:Name="WindowsListBox" Background="#2B2B2B" BorderThickness="0" Foreground="White" MouseLeave="WindowsListBox_MouseLeave" MouseLeftButtonUp="WindowsListBox_MouseLeftButtonUp">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="0,1">
+                                        <Image Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,6,0"/>
+                                        <TextBlock Text="{Binding Title}" FontSize="12" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                </Border>
+            </Popup>
+        </DockPanel>
+    </Border>
+</Window>

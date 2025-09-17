@@ -13,27 +13,27 @@
         <!-- Top toolbar -->
         <ToolBarTray Grid.Row="0">
             <ToolBar>
-                <Button Name="btnRun" Click="btnRun_Click" ToolTip="Ausfuehren (F5 / Ctrl+Enter)" Padding="6,2">
+                <Button Name="btnRun" Click="btnRun_Click" ToolTip="{DynamicResource Scripting.RunTooltip}" Padding="6,2">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text=">>" Margin="0,0,6,0" />
-                        <TextBlock Text="Ausfuehren" />
+                        <TextBlock Text="{DynamicResource Scripting.Run}" />
                     </StackPanel>
                 </Button>
                 <Separator />
-                <Button Name="btnOpen" Click="btnOpen_Click" ToolTip="Oeffnen (Ctrl+O)" Padding="6,2">Oeffnen</Button>
-                <Button Name="btnSave" Click="btnSave_Click" ToolTip="Speichern (Ctrl+S)" Padding="6,2">Speichern</Button>
-                <Button Name="btnSaveAs" Click="btnSaveAs_Click" ToolTip="Speichern unter" Padding="6,2">Speichern unter</Button>
+                <Button Name="btnOpen" Click="btnOpen_Click" ToolTip="{DynamicResource Scripting.OpenTooltip}" Padding="6,2" Content="{DynamicResource Scripting.Open}" />
+                <Button Name="btnSave" Click="btnSave_Click" ToolTip="{DynamicResource Scripting.SaveTooltip}" Padding="6,2" Content="{DynamicResource Scripting.Save}" />
+                <Button Name="btnSaveAs" Click="btnSaveAs_Click" ToolTip="{DynamicResource Scripting.SaveAsTooltip}" Padding="6,2" Content="{DynamicResource Scripting.SaveAs}" />
                 <Separator />
-                <Button Command="ApplicationCommands.Undo" Padding="6,2">Rueckgaengig</Button>
-                <Button Command="ApplicationCommands.Redo" Padding="6,2">Wiederholen</Button>
+                <Button Command="ApplicationCommands.Undo" Padding="6,2" Content="{DynamicResource Scripting.Undo}" />
+                <Button Command="ApplicationCommands.Redo" Padding="6,2" Content="{DynamicResource Scripting.Redo}" />
                 <Separator />
-                <Button Command="ApplicationCommands.Cut" Padding="6,2">Ausschneiden</Button>
-                <Button Command="ApplicationCommands.Copy" Padding="6,2">Kopieren</Button>
-                <Button Command="ApplicationCommands.Paste" Padding="6,2">Einfuegen</Button>
+                <Button Command="ApplicationCommands.Cut" Padding="6,2" Content="{DynamicResource Scripting.Cut}" />
+                <Button Command="ApplicationCommands.Copy" Padding="6,2" Content="{DynamicResource Scripting.Copy}" />
+                <Button Command="ApplicationCommands.Paste" Padding="6,2" Content="{DynamicResource Scripting.Paste}" />
                 <Separator />
-                <Button Name="btnClear" Click="btnClear_Click" Padding="6,2">Leeren</Button>
+                <Button Name="btnClear" Click="btnClear_Click" Padding="6,2" Content="{DynamicResource Scripting.Clear}" />
                 <Separator />
-                <TextBlock Text="Sprache:" VerticalAlignment="Center" Margin="8,0,4,0" />
+                <TextBlock Text="{DynamicResource Scripting.LanguageLabel}" VerticalAlignment="Center" Margin="8,0,4,0" />
                 <TextBlock Name="txtDetectedLanguage" FontWeight="Bold" VerticalAlignment="Center" />
             </ToolBar>
         </ToolBarTray>

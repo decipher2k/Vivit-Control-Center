@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <!-- Russkiy -->
+  <sys:String x:Key="Settings.Title">Nastroiki</sys:String>
+  <sys:String x:Key="Settings.Language">Yazyk</sys:String>
+  <sys:String x:Key="Settings.NewsModule">Modul novostey</sys:String>
+  <sys:String x:Key="Settings.RssFeedsEdit">Izmenit RSS lenty</sys:String>
+  <sys:String x:Key="Settings.MaxArticles">Maks. statey:</sys:String>
+  <sys:String x:Key="Settings.Fediverse">Fediverse</sys:String>
+  <sys:String x:Key="Settings.FediverseUrl">URL Fediverse:</sys:String>
+  <sys:String x:Key="Settings.AIModule">Modul II</sys:String>
+  <sys:String x:Key="Settings.MessengerModule">Modul messendzhera</sys:String>
+  <sys:String x:Key="Settings.ChatModule">Modul chata</sys:String>
+  <sys:String x:Key="Settings.Paths">Puti po umolchaniyu</sys:String>
+  <sys:String x:Key="Settings.LocalPath">Lokalny put:</sys:String>
+  <sys:String x:Key="Settings.ScriptPath">Put skriptov:</sys:String>
+  <sys:String x:Key="Settings.Modules">Moduli</sys:String>
+  <sys:String x:Key="Settings.Shell">Obolochka Windows</sys:String>
+  <sys:String x:Key="Settings.SetShell">Ispolzovat kak obolochku</sys:String>
+  <sys:String x:Key="Settings.RestoreShell">Vosstanovit standarnuyu obolochku</sys:String>
+  <sys:String x:Key="Settings.Save">Sohranit</sys:String>
+  <sys:String x:Key="Settings.Cancel">Otmena</sys:String>
+  <sys:String x:Key="Settings.ManagePrograms">Upravlenie programmami</sys:String>
+  <sys:String x:Key="Settings.CurrentShell">Tekushchaya obolochka:</sys:String>
+  <sys:String x:Key="Settings.CurrentlyShell">Ustanovleno kak obolochka</sys:String>
+  <sys:String x:Key="Settings.RestartNotice">(Trebuetsya per????usk)</sys:String>
+</ResourceDictionary>

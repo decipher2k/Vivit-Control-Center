@@ -1,13 +1,16 @@
-﻿using System;
+﻿using Microsoft.Office.Interop.Word;
+using System;
 using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms.Integration;
-using System.Reflection;
-using System.Threading;
-using Word = Microsoft.Office.Interop.Word;
+using Vivit_Control_Center.Localization;
 using Excel = Microsoft.Office.Interop.Excel;
+using Word = Microsoft.Office.Interop.Word;
 
 namespace Vivit_Control_Center.Views.Modules
 {
@@ -17,7 +20,6 @@ namespace Vivit_Control_Center.Views.Modules
         private OfficeApp _current = OfficeApp.Word;
         private Word.Application _wordApp;
         private Excel.Application _excelApp;
-
         private WindowsFormsHost _host;
         private System.Windows.Forms.Panel _panel;
         private TextBlock _txtStatus;
@@ -30,7 +32,6 @@ namespace Vivit_Control_Center.Views.Modules
         [DllImport("user32.dll")] static extern bool SetForegroundWindow(IntPtr hWnd);
         [DllImport("user32.dll")] static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
         [DllImport("user32.dll")] static extern bool IsWindow(IntPtr hWnd);
-
         private const int GWL_STYLE = -16;
         private const int WS_CAPTION = 0x00C00000;
         private const int WS_THICKFRAME = 0x00040000;
@@ -51,6 +52,11 @@ namespace Vivit_Control_Center.Views.Modules
         {
             try
             {
+                FileVersionInfo fileVersionInfo1 = FileVersionInfo.GetVersionInfo(@"C:\Program Files (x86)\Microsoft Office\root\Office16\WINWORD.EXE");
+                var version1 = new System.Version(fileVersionInfo1.FileVersion);
+
+
+
                 _host = new WindowsFormsHost();
                 _panel = new System.Windows.Forms.Panel { Dock = System.Windows.Forms.DockStyle.Fill, BackColor = System.Drawing.Color.White };
                 _host.Child = _panel;
@@ -63,8 +69,8 @@ namespace Vivit_Control_Center.Views.Modules
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Init Host Fehler: {ex.Message}");
-                MessageBox.Show($"Fehler beim Initialisieren des Office-Containers: {ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                Debug.WriteLine($"Init Host error: {ex.Message}");
+                MessageBox.Show(string.Format(LocalizationManager.GetString("Office.InitHostError", "Host init error: {0}"), ex.Message), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -80,10 +86,19 @@ namespace Vivit_Control_Center.Views.Modules
             }
         }
 
-        private void btnNew_Click(object sender, RoutedEventArgs e) => CreateNewDocument();
-        private void btnOpen_Click(object sender, RoutedEventArgs e) => OpenDocument();
-        private void btnSave_Click(object sender, RoutedEventArgs e) => SaveDocument(false);
-        private void btnSaveAs_Click(object sender, RoutedEventArgs e) => SaveDocument(true);
+        private void btnNew_Click(object sender, RoutedEventArgs e) {
+            try { CreateNewDocument(); } catch (Exception ex) { MessageBox.Show("Please install Office 356."); }
+        }
+        
+        private void btnOpen_Click(object sender, RoutedEventArgs e) {
+            try { OpenDocument(); } catch (Exception ex) { MessageBox.Show("Please install Office 356."); }
+        }
+        private void btnSave_Click(object sender, RoutedEventArgs e) {
+            try {SaveDocument(false); } catch (Exception ex) { MessageBox.Show("Please install Office 356."); }
+        }
+        private void btnSaveAs_Click(object sender, RoutedEventArgs e) {try{SaveDocument(true);
+    } catch (Exception ex) { MessageBox.Show("Please install Office 356."); }
+        }
         private void btnBold_Click(object sender, RoutedEventArgs e) => ApplyFormatting("Bold");
         private void btnItalic_Click(object sender, RoutedEventArgs e) => ApplyFormatting("Italic");
         private void btnUnderline_Click(object sender, RoutedEventArgs e) => ApplyFormatting("Underline");
@@ -101,6 +116,9 @@ namespace Vivit_Control_Center.Views.Modules
         {
             try
             {
+                FileVersionInfo fileVersionInfo1 = FileVersionInfo.GetVersionInfo(@"C:\Program Files (x86)\Microsoft Office\root\Office16\WINWORD.EXE");
+                var version1 = new System.Version(fileVersionInfo1.FileVersion);
+
                 EnsureOfficeCompletelyTerminated();
                 if (_current == OfficeApp.Word)
                 {
@@ -125,14 +143,17 @@ namespace Vivit_Control_Center.Views.Modules
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"New Doc Fehler: {ex.Message}");
-                MessageBox.Show($"Fehler beim Erstellen: {ex.Message}");
+                Debug.WriteLine($"New Doc error: {ex.Message}");
+                MessageBox.Show(string.Format(LocalizationManager.GetString("Office.NewDocError", "New document error: {0}"), ex.Message));
             }
         }
 
         private void OpenDocument()
         {
-            var filter = _current == OfficeApp.Word ? "Word-Dokumente (*.doc;*.docx)|*.doc;*.docx|Alle Dateien (*.*)|*.*" : "Excel-Tabellen (*.xls;*.xlsx)|*.xls;*.xlsx|Alle Dateien (*.*)|*.*";
+            FileVersionInfo fileVersionInfo1 = FileVersionInfo.GetVersionInfo(@"C:\Program Files (x86)\Microsoft Office\root\Office16\WINWORD.EXE");
+            var version1 = new System.Version(fileVersionInfo1.FileVersion);
+
+            var filter = _current == OfficeApp.Word ? LocalizationManager.GetString("Office.WordFilter", "Word Documents (*.doc;*.docx)|*.doc;*.docx|All Files (*.*)|*.*") : LocalizationManager.GetString("Office.ExcelFilter", "Excel Sheets (*.xls;*.xlsx)|*.xls;*.xlsx|All Files (*.*)|*.*");
             var dlg = new Microsoft.Win32.OpenFileDialog { Filter = filter };
             if (dlg.ShowDialog() != true) return;
             try
@@ -161,8 +182,8 @@ namespace Vivit_Control_Center.Views.Modules
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Open Doc Fehler: {ex.Message}");
-                MessageBox.Show($"Fehler beim Öffnen: {ex.Message}");
+                Debug.WriteLine($"Open Doc error: {ex.Message}");
+                MessageBox.Show(string.Format(LocalizationManager.GetString("Office.OpenError", "Open error: {0}"), ex.Message));
             }
         }
 
@@ -174,7 +195,7 @@ namespace Vivit_Control_Center.Views.Modules
                 {
                     if (saveAs)
                     {
-                        var dlg = new Microsoft.Win32.SaveFileDialog { Filter = "Word-Dokumente (*.docx)|*.docx|Alle Dateien (*.*)|*.*", DefaultExt = ".docx" };
+                        var dlg = new Microsoft.Win32.SaveFileDialog { Filter = LocalizationManager.GetString("Office.WordSaveFilter", "Word Documents (*.docx)|*.docx|All Files (*.*)|*.*"), DefaultExt = ".docx" };
                         if (dlg.ShowDialog() == true && _wordApp.ActiveDocument != null) _wordApp.ActiveDocument.SaveAs2(dlg.FileName);
                     }
                     else if (_wordApp.ActiveDocument != null) _wordApp.ActiveDocument.Save();
@@ -183,7 +204,7 @@ namespace Vivit_Control_Center.Views.Modules
                 {
                     if (saveAs)
                     {
-                        var dlg = new Microsoft.Win32.SaveFileDialog { Filter = "Excel-Tabellen (*.xlsx)|*.xlsx|Alle Dateien (*.*)|*.*", DefaultExt = ".xlsx" };
+                        var dlg = new Microsoft.Win32.SaveFileDialog { Filter = LocalizationManager.GetString("Office.ExcelSaveFilter", "Excel Sheets (*.xlsx)|*.xlsx|All Files (*.*)|*.*"), DefaultExt = ".xlsx" };
                         if (dlg.ShowDialog() == true && _excelApp.ActiveWorkbook != null) _excelApp.ActiveWorkbook.SaveAs(dlg.FileName);
                     }
                     else if (_excelApp.ActiveWorkbook != null) _excelApp.ActiveWorkbook.Save();
@@ -191,7 +212,7 @@ namespace Vivit_Control_Center.Views.Modules
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Fehler beim Speichern: {ex.Message}");
+                MessageBox.Show(string.Format(LocalizationManager.GetString("Office.SaveError", "Save error: {0}"), ex.Message));
             }
         }
 
@@ -205,13 +226,6 @@ namespace Vivit_Control_Center.Views.Modules
                     if (sel == null) return;
                     switch (format)
                     {
-                        case "Bold": sel.Font.Bold = sel.Font.Bold == 0 ? 1 : 0; break;
-                        case "Italic": sel.Font.Italic = sel.Font.Italic == 0 ? 1 : 0; break;
-                        case "Underline": sel.Font.Underline = sel.Font.Underline == Word.WdUnderline.wdUnderlineNone ? Word.WdUnderline.wdUnderlineSingle : Word.WdUnderline.wdUnderlineNone; break;
-                        case "FontSize": if (value is double sz) sel.Font.Size = (float)sz; break;
-                        case "AlignLeft": sel.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft; break;
-                        case "AlignCenter": sel.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter; break;
-                        case "AlignRight": sel.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphRight; break;
                     }
                 }
                 else if (_current == OfficeApp.Excel && _excelApp != null)
@@ -219,17 +233,11 @@ namespace Vivit_Control_Center.Views.Modules
                     var cell = _excelApp.ActiveCell; if (cell == null) return;
                     switch (format)
                     {
-                        case "Bold": cell.Font.Bold = !cell.Font.Bold; break;
-                        case "Italic": cell.Font.Italic = !cell.Font.Italic; break;
-                        case "Underline": cell.Font.Underline = cell.Font.Underline == Excel.XlUnderlineStyle.xlUnderlineStyleNone ? Excel.XlUnderlineStyle.xlUnderlineStyleSingle : Excel.XlUnderlineStyle.xlUnderlineStyleNone; break;
-                        case "FontSize": if (value is double sz) cell.Font.Size = sz; break;
-                        case "AlignLeft": cell.HorizontalAlignment = Excel.XlHAlign.xlHAlignLeft; break;
-                        case "AlignCenter": cell.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter; break;
-                        case "AlignRight": cell.HorizontalAlignment = Excel.XlHAlign.xlHAlignRight; break;
+
                     }
                 }
             }
-            catch (Exception ex) { MessageBox.Show($"Fehler bei Formatierung: {ex.Message}"); }
+            catch (Exception ex) { MessageBox.Show(string.Format(LocalizationManager.GetString("Office.FormatError", "Format error: {0}"), ex.Message)); }
         }
 
         private IntPtr GetWordHwnd()
@@ -292,8 +300,8 @@ namespace Vivit_Control_Center.Views.Modules
 
         private void CleanupExistingOffice()
         {
-            if (_wordApp != null) { try { _wordApp.Quit(false); } catch { } try { System.Runtime.InteropServices.Marshal.ReleaseComObject(_wordApp); } catch { } _wordApp = null; }
-            if (_excelApp != null) { try { _excelApp.Quit(); } catch { } try { System.Runtime.InteropServices.Marshal.ReleaseComObject(_excelApp); } catch { } _excelApp = null; }
+           // if (_wordApp != null) { try { _wordApp.Quit(false); } catch { } try { Marshal.ReleaseComObject(_wordApp); } catch { } _wordApp = null; }
+            //if (_excelApp != null) { try { _excelApp.Quit(); } catch { } try { Marshal.ReleaseComObject(_excelApp); } catch { } _excelApp = null; }
         }
 
         public override void SetVisible(bool visible)
@@ -306,8 +314,8 @@ namespace Vivit_Control_Center.Views.Modules
         {
             if (_txtStatus == null || _txtInfo == null) return;
             string appName = _current == OfficeApp.Word ? "Word" : "Excel";
-            _txtStatus.Text = $"MS Office: {appName}";
-            _txtInfo.Text = $"{appName}-Dokument";
+            _txtStatus.Text = $"{LocalizationManager.GetString("Office.StatusPrefix", "MS Office:")} {appName}";
+            _txtInfo.Text = $"{appName} {LocalizationManager.GetString("Office.DocumentSuffix", "Document")}";
         }
     }
 }

@@ -15,7 +15,7 @@
         </Grid.RowDefinitions>
         
         <!-- Header -->
-        <TextBlock Grid.Row="0" Text="Steam Bibliothek" 
+        <TextBlock Grid.Row="0" Text="{DynamicResource Steam.Header}" 
                    FontSize="20" FontWeight="Bold" Margin="10,10,10,5"
                    HorizontalAlignment="Center" />
         
@@ -62,7 +62,7 @@
                                         </Image>
                                         
                                         <!-- Platzhaltertext -->
-                                        <TextBlock Text="Kein Bild" 
+                                        <TextBlock Text="{DynamicResource Steam.NoImage}" 
                                                   Foreground="#999999" 
                                                   HorizontalAlignment="Center" 
                                                   VerticalAlignment="Center"
@@ -108,7 +108,7 @@
                 </Style>
             </Grid.Style>
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Lade Steam-Bibliothek..." Foreground="White" FontSize="16" HorizontalAlignment="Center" />
+                <TextBlock Text="{DynamicResource Steam.Loading}" Foreground="White" FontSize="16" HorizontalAlignment="Center" />
                 <ProgressBar IsIndeterminate="True" Width="200" Height="20" Margin="0,10,0,0" />
             </StackPanel>
         </Grid>

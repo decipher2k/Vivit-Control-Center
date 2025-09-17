@@ -1,13 +1,14 @@
+using Microsoft.Win32;
+using Renci.SshNet;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Principal;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using Microsoft.Win32;
-using System.Diagnostics;
-using System.Security.Principal;
 using Vivit_Control_Center.Settings;
 
 namespace Vivit_Control_Center.Views.Modules
@@ -42,6 +43,16 @@ namespace Vivit_Control_Center.Views.Modules
             Loaded += (_, __) => Init();
         }
 
+        private string GetRes(string key, string fallback)
+        {
+            try
+            {
+                var val = Application.Current.TryFindResource(key) as string;
+                return string.IsNullOrWhiteSpace(val) ? fallback : val;
+            }
+            catch { return fallback; }
+        }
+
         private void Init()
         {
             _settings = AppSettings.Load();
@@ -50,6 +61,21 @@ namespace Vivit_Control_Center.Views.Modules
             SelectComboItem(messengerServiceSelector, _settings.MessengerService, "WhatsApp");
             SelectComboItem(chatServiceSelector, _settings.ChatService, "Discord");
             SelectComboItem(newsModeSelector, _settings.NewsMode, "Webnews");
+            // Language selector by Tag (language code)
+            if (languageSelector != null)
+            {
+                languageSelector.SelectedIndex = -1;
+                foreach (var item in languageSelector.Items.OfType<ComboBoxItem>())
+                {
+                    var code = item.Tag as string;
+                    if (string.Equals(code, _settings.Language, StringComparison.OrdinalIgnoreCase))
+                    {
+                        languageSelector.SelectedItem = item;
+                        break;
+                    }
+                }
+                if (languageSelector.SelectedIndex < 0 && languageSelector.Items.Count > 0) languageSelector.SelectedIndex = 0;
+            }
             btnEditFeeds.Visibility = IsRssSelected() ? Visibility.Visible : Visibility.Collapsed;
             if (txtRssMax != null) txtRssMax.Text = (_settings.RssMaxArticles > 0 ? _settings.RssMaxArticles : 60).ToString();
             if (txtLocalPath != null) txtLocalPath.Text = _settings.DefaultLocalPath ?? string.Empty;
@@ -83,7 +109,7 @@ namespace Vivit_Control_Center.Views.Modules
                         Height = 18,
                         Margin = new Thickness(4,0,0,0),
                         Padding = new Thickness(0),
-                        ToolTip = $"URL für '{tag}' ändern",
+                        ToolTip = $"URL for '{tag}'",
                         HorizontalContentAlignment = HorizontalAlignment.Center,
                         VerticalContentAlignment = VerticalAlignment.Center
                     };
@@ -106,7 +132,7 @@ namespace Vivit_Control_Center.Views.Modules
             // Add programs manage button
             var progBtn = new Button
             {
-                Content = "Programme verwalten",
+                Content = GetRes("Settings.ManagePrograms", "Manage Programs"),
                 Margin = new Thickness(0,12,0,0),
                 HorizontalAlignment = HorizontalAlignment.Left
             };
@@ -132,7 +158,10 @@ namespace Vivit_Control_Center.Views.Modules
                     bool isShell = string.Equals(current?.Trim('"'), exe, StringComparison.OrdinalIgnoreCase);
                     if (btnSet != null) btnSet.Visibility = isShell ? Visibility.Collapsed : Visibility.Visible;
                     if (btnRestore != null) btnRestore.Visibility = isShell ? Visibility.Visible : Visibility.Collapsed;
-                    if (txtStatus != null) txtStatus.Text = isShell ? "Aktuell als Shell gesetzt" : "Aktuelle Shell: " + (current ?? "(Standard)");
+                    if (txtStatus != null)
+                    {
+                        txtStatus.Text = isShell ? GetRes("Settings.CurrentlyShell", "Currently set as shell") : (GetRes("Settings.CurrentShell", "Current shell:") + " " + (current ?? "(Default)"));
+                    }
                 }
             }
             catch { }
@@ -141,8 +170,8 @@ namespace Vivit_Control_Center.Views.Modules
         private void btnSetShell_Click(object sender, RoutedEventArgs e)
         {
 
-            String text = File.ReadAllText(".\\shell.reg");
-            File.WriteAllText(".\\shell_tmp.reg", text.Replace("explorer.exe", Process.GetCurrentProcess().MainModule.FileName.Replace("\\","\\\\")));            
+            String text = File.ReadAllText(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + "\\shell.reg");
+            File.WriteAllText(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + "\\shell_tmp.reg", text.Replace("explorer.exe", Process.GetCurrentProcess().MainModule.FileName.Replace("\\","\\\\")));            
             var psi = new ProcessStartInfo("regedit.exe","\""+Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName)+ "\\shell_tmp.reg\"")
             {
                 UseShellExecute = true,
@@ -153,7 +182,7 @@ namespace Vivit_Control_Center.Views.Modules
 
         private void btnRestoreShell_Click(object sender, RoutedEventArgs e)
         {                    
-            var psi = new ProcessStartInfo("regedit.exe", "\"" + Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + ".\\shell.reg\"")
+            var psi = new ProcessStartInfo("regedit.exe", "\"" + Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + "\\shell.reg\"")
             {
                 UseShellExecute = true,
                 Verb = "runas"
@@ -176,7 +205,7 @@ namespace Vivit_Control_Center.Views.Modules
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Fehler bei Shell Änderung: " + ex.Message);
+                MessageBox.Show("Shell change failed: " + ex.Message);
             }
         }
 
@@ -184,31 +213,30 @@ namespace Vivit_Control_Center.Views.Modules
         {
             if (!(sender is Button b) || b.Tag == null) return;
             string tag = b.Tag.ToString();
-            // Social module Fediverse override uses separate textbox; ignore here
             if (string.Equals(tag, "Social", StringComparison.OrdinalIgnoreCase))
             {
-                MessageBox.Show("Fediverse URL bitte im Feld unter News konfigurieren.");
+                MessageBox.Show("Configure Fediverse URL in the field under News.");
                 return;
             }
             var existing = _settings.CustomWebModuleUrls.FirstOrDefault(u => string.Equals(u.Tag, tag, StringComparison.OrdinalIgnoreCase));
             string currentUrl = existing?.Url ?? string.Empty;
             string input = PromptForUrl(tag, currentUrl);
             if (string.IsNullOrWhiteSpace(input)) return;
-            if (!input.StartsWith("http", StringComparison.OrdinalIgnoreCase)) { MessageBox.Show("Bitte eine gültige URL (http/https) eingeben."); return; }
+            if (!input.StartsWith("http", StringComparison.OrdinalIgnoreCase)) { MessageBox.Show("Enter valid http/https URL."); return; }
             if (existing == null) _settings.CustomWebModuleUrls.Add(new CustomWebModuleUrl { Tag = tag, Url = input.Trim() }); else existing.Url = input.Trim();
             _settings.Save();
         }
 
         private string PromptForUrl(string tag, string current)
         {
-            var win = new Window { Title = $"URL für Modul '{tag}'", SizeToContent = SizeToContent.WidthAndHeight, WindowStartupLocation = WindowStartupLocation.CenterOwner, ResizeMode = ResizeMode.NoResize, Owner = Application.Current?.MainWindow };
+            var win = new Window { Title = $"URL for module '{tag}'", SizeToContent = SizeToContent.WidthAndHeight, WindowStartupLocation = WindowStartupLocation.CenterOwner, ResizeMode = ResizeMode.NoResize, Owner = Application.Current?.MainWindow };
             var stack = new StackPanel { Margin = new Thickness(12), MinWidth = 420 };
-            stack.Children.Add(new TextBlock { Text = "Bitte URL eingeben (http/https):", Margin = new Thickness(0,0,0,6) });
+            stack.Children.Add(new TextBlock { Text = "Enter URL (http/https):", Margin = new Thickness(0,0,0,6) });
             var tb = new TextBox { Text = current ?? string.Empty, Margin = new Thickness(0,0,0,12) };
             stack.Children.Add(tb);
             var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
             var ok = new Button { Content = "OK", Width = 80, Margin = new Thickness(0,0,8,0), IsDefault = true };
-            var cancel = new Button { Content = "Abbrechen", Width = 80, IsCancel = true };
+            var cancel = new Button { Content = "Cancel", Width = 80, IsCancel = true };
             string result = null;
             ok.Click += (_, __) => { result = tb.Text; win.DialogResult = true; };
             cancel.Click += (_, __) => { win.DialogResult = false; };
@@ -231,7 +259,7 @@ namespace Vivit_Control_Center.Views.Modules
 
         private string PickFolder()
         {
-            var dlg = new OpenFileDialog { CheckFileExists = false, CheckPathExists = true, ValidateNames = false, FileName = "Ordner auswaehlen" }; var res = dlg.ShowDialog(); if (res == true) { try { return Path.GetDirectoryName(dlg.FileName); } catch { } } return null;
+            var dlg = new OpenFileDialog { CheckFileExists = false, CheckPathExists = true, ValidateNames = false, FileName = "Select Folder" }; var res = dlg.ShowDialog(); if (res == true) { try { return Path.GetDirectoryName(dlg.FileName); } catch { } } return null;
         }
 
         private void btnSave_Click(object sender, RoutedEventArgs e)
@@ -240,12 +268,17 @@ namespace Vivit_Control_Center.Views.Modules
             _settings.MessengerService = (messengerServiceSelector.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? _settings.MessengerService;
             _settings.ChatService = (chatServiceSelector.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? _settings.ChatService;
             _settings.NewsMode = (newsModeSelector.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? _settings.NewsMode;
+            if (languageSelector != null && languageSelector.SelectedItem is ComboBoxItem langItem)
+            {
+                var code = langItem.Tag as string;
+                if (!string.IsNullOrWhiteSpace(code)) _settings.Language = code;
+            }
             if (txtFediverseUrl != null && !string.IsNullOrWhiteSpace(txtFediverseUrl.Text) && txtFediverseUrl.Text.StartsWith("http", StringComparison.OrdinalIgnoreCase))
                 _settings.CustomFediverseUrl = txtFediverseUrl.Text.Trim();
             int max; if (txtRssMax != null && int.TryParse(txtRssMax.Text, out max) && max > 0) _settings.RssMaxArticles = max; else if (_settings.RssMaxArticles <= 0) _settings.RssMaxArticles = 60;
             _settings.DefaultLocalPath = txtLocalPath.Text ?? string.Empty; _settings.DefaultScriptsPath = txtScriptsPath.Text ?? string.Empty;
             var enabled = new List<string>(); foreach (var child in modulesPanel.Children) if (child is Grid g) { var chk = g.Children.OfType<CheckBox>().FirstOrDefault(); if (chk!=null && chk.IsChecked==true) enabled.Add(chk.Content.ToString()); }
-            var disabled = AllTags.Where(t => !enabled.Contains(t, StringComparer.OrdinalIgnoreCase)).ToList(); disabled.RemoveAll(t => string.Equals(t, "Settings", StringComparison.OrdinalIgnoreCase)); _settings.DisabledModules = disabled; _settings.Save(); MessageBox.Show("Einstellungen gespeichert. Neustart empfohlen.");
+            var disabled = AllTags.Where(t => !enabled.Contains(t, StringComparer.OrdinalIgnoreCase)).ToList(); disabled.RemoveAll(t => string.Equals(t, "Settings", StringComparison.OrdinalIgnoreCase)); _settings.DisabledModules = disabled; _settings.Save(); MessageBox.Show("Settings saved. Restart recommended.");
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e) => Init();
@@ -257,6 +290,11 @@ namespace Vivit_Control_Center.Views.Modules
             {
                 var lines = (dlg.FeedsText ?? string.Empty).Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(l => l.Trim()).Where(l => l.StartsWith("http", StringComparison.OrdinalIgnoreCase)).Distinct(StringComparer.OrdinalIgnoreCase).ToList(); _settings.RssFeeds = lines; _settings.Save();
             }
+        }
+
+        private void languageSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // no live update
         }
     }
 }

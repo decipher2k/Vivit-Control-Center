@@ -12,14 +12,12 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        
         <ToolBar Grid.Row="0">
-            <Button x:Name="btnClear" Content="Loeschen" Click="btnClear_Click" ToolTip="Terminal-Ausgabe loeschen"/>
-            <Button x:Name="btnStop" Content="Stoppen" Click="btnStop_Click" ToolTip="Aktuellen Befehl abbrechen" IsEnabled="False"/>
+            <Button x:Name="btnClear" Content="{DynamicResource Terminal.Clear}" Click="btnClear_Click" ToolTip="{DynamicResource Terminal.Clear}"/>
+            <Button x:Name="btnStop" Content="{DynamicResource Terminal.Stop}" Click="btnStop_Click" ToolTip="{DynamicResource Terminal.Stop}" IsEnabled="False"/>
             <ComboBox x:Name="cmbHistory" Width="200" Margin="5,0" 
-                      ToolTip="Befehlsverlauf" SelectionChanged="cmbHistory_SelectionChanged"/>
+                      ToolTip="{DynamicResource Terminal.History}" SelectionChanged="cmbHistory_SelectionChanged"/>
         </ToolBar>
-        
         <RichTextBox x:Name="txtOutput" Grid.Row="1" IsReadOnly="True" 
                      VerticalScrollBarVisibility="Auto" FontFamily="Consolas" 
                      Background="Black" Foreground="White" BorderThickness="0">
@@ -29,12 +27,11 @@
                 </Style>
             </RichTextBox.Resources>
         </RichTextBox>
-
         <DockPanel Grid.Row="2" Margin="5">
-            <TextBlock DockPanel.Dock="Left" Text="PS>" Foreground="LightBlue" 
+            <TextBlock DockPanel.Dock="Left" Text="{DynamicResource Terminal.Prompt}" Foreground="LightBlue" 
                       FontFamily="Consolas" FontWeight="Bold" Margin="0,0,5,0" 
                       VerticalAlignment="Center"/>
-            <Button DockPanel.Dock="Right" Content="Ausfuehren" Margin="5,0,0,0"
+            <Button DockPanel.Dock="Right" Content="{DynamicResource Terminal.Execute}" Margin="5,0,0,0"
                     x:Name="btnExecute" Click="btnExecute_Click"/>
             <TextBox x:Name="txtCommand" FontFamily="Consolas" 
                      KeyDown="txtCommand_KeyDown"/>

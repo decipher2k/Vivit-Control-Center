@@ -9,25 +9,21 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-
         <ToolBarTray Grid.Row="0">
             <ToolBar>
-                <TextBlock Text="App:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <TextBlock Text="{DynamicResource Office.AppLabel}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                 <ComboBox x:Name="cmbApp" Width="120" SelectionChanged="cmbApp_SelectionChanged">
                     <ComboBoxItem Content="Word"/>
                     <ComboBoxItem Content="Excel"/>
                 </ComboBox>
                 <Separator/>
-                <Button Padding="8,2" Click="btnNew_Click">Neu</Button>
-                <Button Padding="8,2" Click="btnOpen_Click" Margin="6,0,0,0">Oeffnen</Button>
-                <Button Padding="8,2" Click="btnSave_Click" Margin="6,0,0,0">Speichern</Button>
-                <Button Padding="8,2" Click="btnSaveAs_Click" Margin="6,0,0,0">Speichern unter</Button>
+                <Button Padding="8,2" Click="btnNew_Click" Content="{DynamicResource Office.New}"/>
+                <Button Padding="8,2" Click="btnOpen_Click" Margin="6,0,0,0" Content="{DynamicResource Office.Open}"/>
+                
                 <Separator/>
-                <Button Padding="6,2" Click="btnBold_Click"><TextBlock Text="B" FontWeight="Bold"/></Button>
-                <Button Padding="6,2" Click="btnItalic_Click"><TextBlock Text="I" FontStyle="Italic"/></Button>
-                <Button Padding="6,2" Click="btnUnderline_Click"><TextBlock Text="U" TextDecorations="Underline"/></Button>
+               
                 <Separator/>
-                <TextBlock Text="Gr.:" VerticalAlignment="Center" Margin="8,0,4,0"/>
+                <TextBlock Text="{DynamicResource Office.SizeLabel}" VerticalAlignment="Center" Margin="8,0,4,0"/>
                 <ComboBox x:Name="cmbSize" Width="70" SelectionChanged="cmbSize_SelectionChanged">
                     <ComboBoxItem Content="10"/>
                     <ComboBoxItem Content="12"/>
@@ -37,14 +33,13 @@
                     <ComboBoxItem Content="24"/>
                 </ComboBox>
                 <Separator/>
-                <Button Padding="8,2" Click="btnAlignLeft_Click">Links</Button>
-                <Button Padding="8,2" Click="btnAlignCenter_Click" Margin="6,0,0,0">Zentriert</Button>
-                <Button Padding="8,2" Click="btnAlignRight_Click" Margin="6,0,0,0">Rechts</Button>
+                <Button Padding="8,2" Click="btnAlignLeft_Click" Content="{DynamicResource Office.AlignLeft}"/>
+                <Button Padding="8,2" Click="btnAlignCenter_Click" Margin="6,0,0,0" Content="{DynamicResource Office.AlignCenter}"/>
+                <Button Padding="8,2" Click="btnAlignRight_Click" Margin="6,0,0,0" Content="{DynamicResource Office.AlignRight}"/>
                 <Separator/>
                 <TextBlock x:Name="txtStatus" VerticalAlignment="Center"/>
             </ToolBar>
         </ToolBarTray>
-
         <Grid x:Name="hostContainer" Grid.Row="1" Background="White" />
     </Grid>
 </modules:BaseSimpleModule>

@@ -4,9 +4,13 @@
              xmlns:local="clr-namespace:Vivit_Control_Center" xmlns:converters="clr-namespace:Vivit_Control_Center.Converters"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
-        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
-
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Default language (will be replaced at runtime) -->
+                <ResourceDictionary Source="/Vivit Control Center;component/Localization/Strings.en.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+        </ResourceDictionary>
     </Application.Resources>
-   
 </Application>

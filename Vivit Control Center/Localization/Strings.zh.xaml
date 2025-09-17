@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <!-- Chinese Simplified (ASCII fallback) -->
+  <sys:String x:Key="Settings.Title">Shezhi</sys:String>
+  <sys:String x:Key="Settings.Language">Yuyan</sys:String>
+  <sys:String x:Key="Settings.NewsModule">Xinwen Mokuai</sys:String>
+  <sys:String x:Key="Settings.RssFeedsEdit">Bianji RSS Yuan</sys:String>
+  <sys:String x:Key="Settings.MaxArticles">Zuida wenzhang shu:</sys:String>
+  <sys:String x:Key="Settings.Fediverse">Fediverse</sys:String>
+  <sys:String x:Key="Settings.FediverseUrl">Fediverse Dizhi:</sys:String>
+  <sys:String x:Key="Settings.AIModule">AI Mokuai</sys:String>
+  <sys:String x:Key="Settings.MessengerModule">Xiaoxi Mokuai</sys:String>
+  <sys:String x:Key="Settings.ChatModule">Liaotian Mokuai</sys:String>
+  <sys:String x:Key="Settings.Paths">Moren Lujing</sys:String>
+  <sys:String x:Key="Settings.LocalPath">Bendi Lujing:</sys:String>
+  <sys:String x:Key="Settings.ScriptPath">Jiaoben Lujing:</sys:String>
+  <sys:String x:Key="Settings.Modules">Mokuai</sys:String>
+  <sys:String x:Key="Settings.Shell">Windows Shell</sys:String>
+  <sys:String x:Key="Settings.SetShell">She wei Shell</sys:String>
+  <sys:String x:Key="Settings.RestoreShell">Huifu moren Shell</sys:String>
+  <sys:String x:Key="Settings.Save">Baocun</sys:String>
+  <sys:String x:Key="Settings.Cancel">Quxiao</sys:String>
+  <sys:String x:Key="Settings.ManagePrograms">Guanli Chengxu</sys:String>
+  <sys:String x:Key="Settings.CurrentShell">Dangqian Shell:</sys:String>
+  <sys:String x:Key="Settings.CurrentlyShell">Yishe wei Shell</sys:String>
+  <sys:String x:Key="Settings.RestartNotice">(Xuyao Chongqi)</sys:String>
+</ResourceDictionary>

@@ -35,6 +35,9 @@ namespace Vivit_Control_Center.Settings
         public string CustomFediverseUrl { get; set; } = "https://mastodon.social"; // override for Fediverse in Social module
         public string SocialLastNetwork { get; set; } = "Fediverse"; // persists last selected social network
 
+        // NEW: UI language (IETF code e.g. en, de, fr, es, ru, zh, ja, eo)
+        public string Language { get; set; } = "en";
+
         // Legacy list (paths only) kept for migration
         public List<string> ExternalPrograms { get; set; } = new List<string>();
         // New detailed list with captions
@@ -84,6 +87,7 @@ namespace Vivit_Control_Center.Settings
                         }
                     }
                     if (string.IsNullOrWhiteSpace(loaded.SocialLastNetwork)) loaded.SocialLastNetwork = "Fediverse";
+                    if (string.IsNullOrWhiteSpace(loaded.Language)) loaded.Language = "en";
                     loaded.OfficeSuite = "MSOffice";
                     loaded.LibreOfficeProgramPath = string.Empty;
                     return loaded;
@@ -102,6 +106,7 @@ namespace Vivit_Control_Center.Settings
                 OfficeSuite = "MSOffice";
                 LibreOfficeProgramPath = string.Empty;
                 if (string.IsNullOrWhiteSpace(SocialLastNetwork)) SocialLastNetwork = "Fediverse";
+                if (string.IsNullOrWhiteSpace(Language)) Language = "en";
                 if (ExternalProgramsDetailed == null) ExternalProgramsDetailed = new List<ExternalProgram>();
                 // Keep legacy list in sync (paths only) for backward compatibility
                 ExternalPrograms = new List<string>();

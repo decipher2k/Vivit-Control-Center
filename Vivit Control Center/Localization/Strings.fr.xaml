@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <!-- Francais -->
+  <sys:String x:Key="Settings.Title">Parametres</sys:String>
+  <sys:String x:Key="Settings.Language">Langue</sys:String>
+  <sys:String x:Key="Settings.NewsModule">Module Actualites</sys:String>
+  <sys:String x:Key="Settings.RssFeedsEdit">Modifier flux RSS</sys:String>
+  <sys:String x:Key="Settings.MaxArticles">Articles max.:</sys:String>
+  <sys:String x:Key="Settings.Fediverse">Fediverse</sys:String>
+  <sys:String x:Key="Settings.FediverseUrl">URL Fediverse :</sys:String>
+  <sys:String x:Key="Settings.AIModule">Module IA</sys:String>
+  <sys:String x:Key="Settings.MessengerModule">Module Messagerie</sys:String>
+  <sys:String x:Key="Settings.ChatModule">Module Chat</sys:String>
+  <sys:String x:Key="Settings.Paths">Chemins par defaut</sys:String>
+  <sys:String x:Key="Settings.LocalPath">Chemin local :</sys:String>
+  <sys:String x:Key="Settings.ScriptPath">Chemin scripts :</sys:String>
+  <sys:String x:Key="Settings.Modules">Modules</sys:String>
+  <sys:String x:Key="Settings.Shell">Shell Windows</sys:String>
+  <sys:String x:Key="Settings.SetShell">Definir comme Shell</sys:String>
+  <sys:String x:Key="Settings.RestoreShell">Restaurer Shell standard</sys:String>
+  <sys:String x:Key="Settings.Save">Enregistrer</sys:String>
+  <sys:String x:Key="Settings.Cancel">Annuler</sys:String>
+  <sys:String x:Key="Settings.ManagePrograms">Gerer programmes</sys:String>
+  <sys:String x:Key="Settings.CurrentShell">Shell actuel :</sys:String>
+  <sys:String x:Key="Settings.CurrentlyShell">Actuellement defini comme shell</sys:String>
+  <sys:String x:Key="Settings.RestartNotice">(Redemarrage requis)</sys:String>
+</ResourceDictionary>
