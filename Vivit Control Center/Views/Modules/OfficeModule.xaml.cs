@@ -69,8 +69,7 @@ namespace Vivit_Control_Center.Views.Modules
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Init Host error: {ex.Message}");
-                MessageBox.Show(string.Format(LocalizationManager.GetString("Office.InitHostError", "Host init error: {0}"), ex.Message), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+              
             }
         }
 
