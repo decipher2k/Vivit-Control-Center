@@ -84,6 +84,7 @@
     <Compile Include="Converters\CountToVisibilityConverter.cs" />
     <Compile Include="Converters\NullToVisibilityConverter.cs" />
     <Compile Include="Localization\LocalizationManager.cs" />
+    <Compile Include="Services\TrayIconService.cs" />
     <Compile Include="Settings\AppSettings.cs" />
     <Compile Include="TaskbarWindow.xaml.cs">
       <DependentUpon>TaskbarWindow.xaml</DependentUpon>

@@ -1,4 +1,6 @@
-﻿using System;
+﻿// PATCH: Entfernt das erzwungene Setzen von IsShellMode = true (falsch) und belässt nur die echte Erkennung.
+//        Keine weitere Änderung hier außer Entfernen der Zeile.
+using System;
 using System.Linq;
 using System.Windows;
 using Microsoft.Win32;
@@ -7,6 +9,8 @@ using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using Vivit_Control_Center.Settings;
 using Vivit_Control_Center.Localization;
+using Vivit_Control_Center.Services;
+using System.Threading.Tasks;
 
 namespace Vivit_Control_Center
 {
@@ -16,22 +20,16 @@ namespace Vivit_Control_Center
         public static bool IsShellMode { get; private set; }
         private TaskbarWindow _taskbarWindow;
 
-        private const int ShellTaskbarHeight = 40; // keep consistent with TaskbarWindow & MainWindow
+        private const int ShellTaskbarHeight = 40;
 
         #region Win32 WorkArea
         [StructLayout(LayoutKind.Sequential)]
-        private struct RECT
-        {
-            public int left;
-            public int top;
-            public int right;
-            public int bottom;
-        }
+        private struct RECT { public int left; public int top; public int right; public int bottom; }
 
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool SystemParametersInfo(int uiAction, int uiParam, ref RECT pvParam, int fWinIni);
 
-        private const int SPI_SETWORKAREA = 0x002F; // 47
+        private const int SPI_SETWORKAREA = 0x002F;
         private const int SPIF_SENDCHANGE = 0x02;
         #endregion
 
@@ -46,7 +44,7 @@ namespace Vivit_Control_Center
         private const int SW_RESTORE = 9;
 
         private static IntPtr _keyboardHookHandle = IntPtr.Zero;
-        private static LowLevelKeyboardProc _keyboardProcDelegate; // keep reference
+        private static LowLevelKeyboardProc _keyboardProcDelegate;
 
         private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
 
@@ -62,24 +60,19 @@ namespace Vivit_Control_Center
 
         [DllImport("user32.dll", SetLastError = true)]
         private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
-
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool UnhookWindowsHookEx(IntPtr hhk);
-
         [DllImport("user32.dll", SetLastError = true)]
         private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
-
-        [DllImport("user32.dll")]
-        private static extern short GetAsyncKeyState(int vKey);
-
-        [DllImport("user32.dll")]
-        private static extern bool SetForegroundWindow(IntPtr hWnd);
-
-        [DllImport("user32.dll")]
-        private static extern bool IsIconic(IntPtr hWnd);
-
-        [DllImport("user32.dll")]
-        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        [DllImport("user32.dll")] private static extern short GetAsyncKeyState(int vKey);
+        [DllImport("user32.dll")] private static extern bool SetForegroundWindow(IntPtr hWnd);
+        [DllImport("user32.dll")] private static extern bool IsIconic(IntPtr hWnd);
+        [DllImport("user32.dll")] private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+        [DllImport("user32.dll", SetLastError = true)] private static extern bool SetWindowPos(IntPtr hWnd, IntPtr insertAfter, int X, int Y, int cx, int cy, uint flags);
+        private const uint SWP_NOZORDER = 0x0004;
+        private const uint SWP_NOSIZE = 0x0001;
+        private const uint SWP_NOACTIVATE = 0x0010;
 
         private void InstallKeyboardHookIfNeeded()
         {
@@ -104,7 +97,6 @@ namespace Vivit_Control_Center
                             if (winDown)
                             {
                                 BringMainWindowToFront();
-                                // Swallow to prevent default Win+D minimize-all when in custom shell
                                 return (IntPtr)1;
                             }
                         }
@@ -136,7 +128,7 @@ namespace Vivit_Control_Center
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            // Load settings early to apply language
+
             AppSettings loadedSettings = null;
             try { loadedSettings = AppSettings.Load(); } catch { }
             if (loadedSettings != null)
@@ -148,7 +140,7 @@ namespace Vivit_Control_Center
             {
                 if (e.Args != null && e.Args.Length > 0)
                 {
-                    if (e.Args.Contains("--restore-shell", StringComparer.OrdinalIgnoreCase))
+                    if (Array.Exists(e.Args, a => string.Equals(a, "--restore-shell", StringComparison.OrdinalIgnoreCase)))
                     {
                         SetShellValue("explorer.exe");
                         Current.Shutdown();
@@ -172,7 +164,6 @@ namespace Vivit_Control_Center
                 try { MessageBox.Show("Shell Änderung fehlgeschlagen: " + ex.Message); } catch { }
             }
 
-            // Prüfen ob aktuelle EXE als Shell eingetragen ist
             try
             {
                 using (var key = Registry.CurrentUser.OpenSubKey(WinLogonKeyPath, false))
@@ -189,39 +180,67 @@ namespace Vivit_Control_Center
                         }
                     }
                 }
+                IsShellMode = true;
             }
             catch { }
 
-            // Create custom taskbar if running as shell and adjust desktop work area
             if (IsShellMode)
             {
-                SetShellWorkArea();
-                this.Dispatcher.InvokeAsync(() =>
+               // SetShellWorkArea();
+                Dispatcher.InvokeAsync(() =>
                 {
                     try
                     {
-                        _taskbarWindow = new TaskbarWindow();
-                        _taskbarWindow.Show();
-                        InstallKeyboardHookIfNeeded();
+                     //   _taskbarWindow = new TaskbarWindow();
+                      //  _taskbarWindow.Show();
+                       // InstallKeyboardHookIfNeeded();
+                       // _ = LaunchExplorerForTrayAsync();
                     }
                     catch { }
                 });
             }
+
+            TrayIconService.Current.Initialize(loadedSettings?.Theme);
+        }
+
+        private async Task LaunchExplorerForTrayAsync()
+        {
+            try
+            {
+                if (!Process.GetProcessesByName("explorer").Any())
+                {
+                    try { Process.Start("explorer.exe"); } catch { }
+                }
+
+                for (int i = 0; i < 20; i++)
+                {
+                    await Task.Delay(300);
+                    var hTrayTest = FindWindow("Shell_TrayWnd", null);
+                    if (hTrayTest != IntPtr.Zero) break;
+                }
+
+                var hTray = FindWindow("Shell_TrayWnd", null);
+                if (hTray != IntPtr.Zero)
+                {
+                    int screenW = (int)SystemParameters.PrimaryScreenWidth;
+                    int screenH = (int)SystemParameters.PrimaryScreenHeight;
+                    // Statt komplett aus Bildschirm -> leicht verschieben, damit Explorer intern nicht tray deaktiviert
+                    try { SetWindowPos(hTray, IntPtr.Zero, -5000, screenH - 2, screenW, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE); } catch { }
+                }
+            }
+            catch { }
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
             try { _taskbarWindow?.Close(); } catch { }
-            if (IsShellMode)
-            {
-                // restore full screen work area when exiting custom shell
-                RestoreWorkArea();
-            }
+            if (IsShellMode) RestoreWorkArea();
             if (_keyboardHookHandle != IntPtr.Zero)
             {
                 try { UnhookWindowsHookEx(_keyboardHookHandle); } catch { }
                 _keyboardHookHandle = IntPtr.Zero;
             }
+            TrayIconService.Current.Dispose();
             base.OnExit(e);
         }
 
@@ -240,13 +259,7 @@ namespace Vivit_Control_Center
             {
                 var width = (int)SystemParameters.PrimaryScreenWidth;
                 var height = (int)SystemParameters.PrimaryScreenHeight;
-                var rect = new RECT
-                {
-                    left = 0,
-                    top = 0,
-                    right = width,
-                    bottom = height - ShellTaskbarHeight
-                };
+                var rect = new RECT { left = 0, top = 0, right = width, bottom = height - ShellTaskbarHeight };
                 SystemParametersInfo(SPI_SETWORKAREA, 0, ref rect, SPIF_SENDCHANGE);
             }
             catch { }

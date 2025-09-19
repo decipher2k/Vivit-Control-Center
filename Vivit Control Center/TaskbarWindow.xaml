@@ -18,9 +18,13 @@
                 </ScrollViewer>
             </StackPanel>
 
-            <!-- Right area: tray icons + volume + clock -->
+            <!-- Right area: explorer tray toggle + custom tray icons + volume + clock -->
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center" x:Name="RightPanel">
-                <!-- Tray area -->
+                <!-- Button to toggle real explorer tray -->
+                <Button x:Name="ShowExplorerTrayButton" Width="28" Height="28" Padding="0" Margin="0,0,6,0" Background="Transparent" BorderBrush="Transparent" ToolTip="Explorer Tray anzeigen" Click="ShowExplorerTrayButton_Click">
+                    <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="White"/>
+                </Button>
+                <!-- Tray area (custom enumerated) -->
                 <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" Margin="0,0,8,0">
                     <StackPanel Orientation="Horizontal" x:Name="TrayAreaPanel" />
                 </ScrollViewer>

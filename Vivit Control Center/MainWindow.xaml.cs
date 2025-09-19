@@ -12,6 +12,7 @@ using System.Windows.Input;
 using System.Diagnostics;
 using Microsoft.Win32; // autorun registry
 using System.IO; // path handling
+using System.ComponentModel;
 
 namespace Vivit_Control_Center
 {
@@ -51,21 +52,7 @@ namespace Vivit_Control_Center
             FilterSidebarBySettings();
 
             // Shell Mode Anpassungen
-            if (App.IsShellMode)
-            {
-                MinButton.Visibility = Visibility.Collapsed;
-                MaxButton.Visibility = Visibility.Collapsed;
-                CloseButton.Visibility = Visibility.Collapsed;
-                WindowStyle = WindowStyle.None;
-                ResizeMode = ResizeMode.NoResize;
-                WindowState = WindowState.Normal; // don't maximize - we will size below excluding taskbar
-                AdjustShellWorkspaceArea();
-                Loaded += (_, __) => AdjustShellWorkspaceArea(); // ensure final adjustment after layout
-                TaskbarWindow w=new TaskbarWindow();
-                w.Show();
-                // Autoruns laden nach UI-Initialisierung
-                Loaded += async (_, __) => await LoadShellAutoRunsAsync();
-            }
+           
 
             SidebarRoot.IsEnabled = false;
             UpdateLoadProgress(0);
@@ -122,10 +109,10 @@ namespace Vivit_Control_Center
                                     if (ext == ".lnk")
                                     {
                                         // simplest: let shell handle .lnk via Process.Start(file)
-                                        entries.Add((file, ""));
+                                        entries.Add((file, "")); 
                                     }
                                     else if (IsExecutableEligible(file))
-                                        entries.Add((file, ""));
+                                        entries.Add((file, "")); 
                                 }
                             }
                         }
@@ -442,7 +429,7 @@ namespace Vivit_Control_Center
 
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (App.IsShellMode) return; // Drag/Max disable in Shell mode
+            // Enable double-click maximize/restore and dragging in all modes
             if (e.ClickCount == 2)
             {
                 ToggleMaximize();
@@ -457,13 +444,12 @@ namespace Vivit_Control_Center
 
         private void MinButton_Click(object sender, RoutedEventArgs e)
         {
-            if (App.IsShellMode) return; // keine Minimierung als Shell
+            // Allow minimizing even in shell mode
             WindowState = WindowState.Minimized;
         }
 
         private void MaxButton_Click(object sender, RoutedEventArgs e)
         {
-            if (App.IsShellMode) return;
             ToggleMaximize();
         }
 
@@ -519,6 +505,27 @@ namespace Vivit_Control_Center
             {
                 try { Process.Start("shutdown", "/s /t 0"); } catch { }
             }
+        }
+
+        protected override void OnStateChanged(EventArgs e)
+        {
+            base.OnStateChanged(e);
+            // Do not hide window on minimize; let it minimize to the taskbar
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            // Wenn wirklich beendet werden soll: nicht abbrechen
+            // Falls nur ins Tray: auskommentieren und stattdessen:
+            // e.Cancel = true; Hide();
+            base.OnClosing(e);
+        }
+
+        public void RestoreFromTray()
+        {
+            Show();
+            if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
+            Activate();
         }
     }
 }
