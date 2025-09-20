@@ -14,6 +14,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Diagnostics;
 using System.Reflection;
+using Vivit_Control_Center.Localization;
 
 namespace Vivit_Control_Center.Views.Modules
 {
@@ -28,7 +29,7 @@ namespace Vivit_Control_Center.Views.Modules
             InitializeComponent();
             _localPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             LoadLocal(_localPath);
-            SetStatus("Bereit.");
+            SetStatus(LocalizationManager.GetString("SFTP.Status.Ready", "Bereit."));
         }
 
         private void SetStatus(string text)
@@ -77,7 +78,7 @@ namespace Vivit_Control_Center.Views.Modules
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lokales Verzeichnis kann nicht geladen werden: " + ex.Message);
+                MessageBox.Show(string.Format(LocalizationManager.GetString("SFTP.LocalLoadError", "Lokales Verzeichnis kann nicht geladen werden: {0}"), ex.Message));
             }
         }
 
@@ -147,7 +148,7 @@ namespace Vivit_Control_Center.Views.Modules
             if (_connected) return;
             if (!TryLoadSshNetSftp())
             {
-                MessageBox.Show("SSH.NET (Renci.SshNet) nicht gefunden. Bitte die Bibliothek bereitstellen.");
+                MessageBox.Show(LocalizationManager.GetString("SFTP.SshNetMissing", "SSH.NET (Renci.SshNet) not found. Please provide the library."));
                 return;
             }
 
@@ -157,13 +158,13 @@ namespace Vivit_Control_Center.Views.Modules
             int port = 22; int.TryParse(txtPort.Text, out port);
             if (string.IsNullOrEmpty(host) || string.IsNullOrEmpty(user))
             {
-                MessageBox.Show("Host und Benutzer sind erforderlich.");
+                MessageBox.Show(LocalizationManager.GetString("SFTP.CredentialsRequired", "Host und Benutzer sind erforderlich."));
                 return;
             }
 
             try
             {
-                SetStatus("Verbinden...");
+                SetStatus(LocalizationManager.GetString("SFTP.Status.Connecting", "Verbinden..."));
                 await Task.Run(() =>
                 {
                     _sftpClient = Activator.CreateInstance(_sftpRefs.SftpClient, host, port, user, pass);
@@ -172,13 +173,13 @@ namespace Vivit_Control_Center.Views.Modules
                 _connected = true;
                 btnLogin.IsEnabled = false; btnLogout.IsEnabled = true;
                 txtHost.IsEnabled = txtUser.IsEnabled = txtPassword.IsEnabled = txtPort.IsEnabled = false;
-                SetStatus("Verbunden");
+                SetStatus(LocalizationManager.GetString("SFTP.Status.Connected", "Verbunden"));
                 await LoadRemoteAsync(".");
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Login fehlgeschlagen: " + ex.Message);
-                SetStatus("Fehler");
+                MessageBox.Show(string.Format(LocalizationManager.GetString("SFTP.LoginFailed", "Login fehlgeschlagen: {0}"), ex.Message));
+                SetStatus(LocalizationManager.GetString("SFTP.Status.Error", "Fehler"));
             }
         }
 
@@ -194,7 +195,7 @@ namespace Vivit_Control_Center.Views.Modules
             txtHost.IsEnabled = txtUser.IsEnabled = txtPassword.IsEnabled = txtPort.IsEnabled = true;
             lvRemote.ItemsSource = null;
             txtRemotePath.Text = string.Empty;
-            SetStatus("Getrennt");
+            SetStatus(LocalizationManager.GetString("SFTP.Status.Disconnected", "Getrennt"));
         }
 
         private async Task LoadRemoteAsync(string path)
@@ -233,7 +234,7 @@ namespace Vivit_Control_Center.Views.Modules
                 }
                 catch (Exception ex)
                 {
-                    Dispatcher.Invoke(() => MessageBox.Show("Remote laden fehlgeschlagen: " + ex.Message));
+                    Dispatcher.Invoke(() => MessageBox.Show(string.Format(LocalizationManager.GetString("SFTP.RemoteLoadFailed", "Remote laden fehlgeschlagen: {0}"), ex.Message)));
                 }
             });
         }
@@ -284,7 +285,7 @@ namespace Vivit_Control_Center.Views.Modules
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Upload fehlgeschlagen: " + ex.Message);
+                MessageBox.Show(string.Format(LocalizationManager.GetString("SFTP.UploadFailed", "Upload fehlgeschlagen: {0}"), ex.Message));
             }
         }
 
@@ -305,7 +306,7 @@ namespace Vivit_Control_Center.Views.Modules
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Download fehlgeschlagen: " + ex.Message);
+                MessageBox.Show(string.Format(LocalizationManager.GetString("SFTP.DownloadFailed", "Download fehlgeschlagen: {0}"), ex.Message));
             }
         }
     }

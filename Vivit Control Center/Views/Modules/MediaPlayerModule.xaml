@@ -6,13 +6,170 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Vivit_Control_Center.Views.Modules"
     mc:Ignorable="d"
-    d:DesignWidth="800"
-    d:DesignHeight="450">
-    <Grid>
-        <TextBlock Text="Media Player Modul"
-                   Foreground="Black"
-                   FontSize="16"
-                   VerticalAlignment="Center"
-                   HorizontalAlignment="Center"/>
+    d:DesignWidth="900"
+    d:DesignHeight="540">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header: Now Playing + Time -->
+        <Border Grid.Row="0" Background="#0F000000" Padding="8" CornerRadius="6" BorderBrush="#22000000" BorderThickness="1" Margin="0,0,0,10">
+            <DockPanel LastChildFill="True">
+                <TextBlock x:Name="txtNowPlaying"
+                           Text="Now Playing: -"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
+                <TextBlock x:Name="txtTime"
+                           Text="00:00 / 00:00"
+                           FontSize="14"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right"
+                           DockPanel.Dock="Right"/>
+            </DockPanel>
+        </Border>
+
+        <!-- Main: Playlist -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2.3*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Playlist + buttons -->
+            <GroupBox Grid.Column="0" Header="Playlist" Margin="0,0,10,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <ListBox x:Name="lstPlaylist"
+                             Grid.Row="0"
+                             BorderThickness="1"
+                             DisplayMemberPath="DisplayName"
+                             SelectionMode="Single"
+                             MouseDoubleClick="lstPlaylist_MouseDoubleClick">
+                        <ListBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Add" Click="btnAdd_Click"/>
+                                <MenuItem Header="Remove" Click="btnRemove_Click"/>
+                                <MenuItem Header="Clear" Click="btnClear_Click"/>
+                            </ContextMenu>
+                        </ListBox.ContextMenu>
+                    </ListBox>
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,8,0,0">
+                        <Button x:Name="btnAdd" Width="100" Margin="0,0,8,0" Click="btnAdd_Click" ToolTip="Add to playlist">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Path Data="M 10,4 L 10,10 L 4,10 L 4,14 L 10,14 L 10,20 L 14,20 L 14,14 L 20,14 L 20,10 L 14,10 L 14,4 Z"
+                                      Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Width="14" Height="14" Stretch="Uniform" Margin="0,0,6,0"/>
+                                <TextBlock Text="Add"/>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="btnRemove" Width="100" Margin="0,0,8,0" Click="btnRemove_Click" ToolTip="Remove selected">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Path Data="M 6,6 L 22,6 L 22,10 L 6,10 Z"
+                                      Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Width="14" Height="14" Stretch="Uniform" Margin="0,0,6,0"/>
+                                <TextBlock Text="Remove"/>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="btnClear" Width="100" Click="btnClear_Click" ToolTip="Clear playlist">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Path Data="M 6,6 L 22,6 L 22,10 L 6,10 Z M 6,14 L 22,14 L 22,18 L 6,18 Z"
+                                      Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Width="14" Height="14" Stretch="Uniform" Margin="0,0,6,0"/>
+                                <TextBlock Text="Clear"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+
+            <!-- Right: Artwork/placeholder -->
+            <Border Grid.Column="1" BorderBrush="#22000000" BorderThickness="1" CornerRadius="6" Background="#06000000">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Viewbox Stretch="Uniform" Margin="18" Grid.Row="0">
+                        <Grid Width="180" Height="180">
+                            <Ellipse Fill="#22007ACC" Stroke="#33007ACC" StrokeThickness="2"/>
+                            <Ellipse Width="22" Height="22" Fill="#44000000" Stroke="#22000000" StrokeThickness="1"/>
+                        </Grid>
+                    </Viewbox>
+                    <TextBlock Text="No artwork" Opacity="0.5" HorizontalAlignment="Center" Margin="0,0,0,12" Grid.Row="1"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Controls: Prev / PlayPause / Stop / Next, position + volume -->
+        <Grid Grid.Row="2" Margin="0,10,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <!-- Prev -->
+                <Button x:Name="btnPrev" Width="44" Height="36" Margin="0,0,8,0" Click="btnPrev_Click" ToolTip="Previous">
+                    <Grid Width="24" Height="24">
+                        <Path Data="M 20,2 L 20,22 L 6,12 Z" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Stretch="Uniform"/>
+                        <Rectangle Width="2" Height="18" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" HorizontalAlignment="Right" Margin="0,3,2,3"/>
+                    </Grid>
+                </Button>
+                <!-- Play/Pause -->
+                <Button x:Name="btnPlayPause" Width="60" Height="36" Margin="0,0,8,0" Click="btnPlayPause_Click" ToolTip="Play/Pause">
+                    <Grid Width="26" Height="26">
+                        <Path x:Name="iconPlay" Data="M 6,4 L 6,22 L 22,13 Z" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Stretch="Uniform"/>
+                        <Grid x:Name="iconPause" Visibility="Collapsed">
+                            <Rectangle Width="6" Height="18" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" HorizontalAlignment="Left" Margin="3,4,0,4" RadiusX="1" RadiusY="1"/>
+                            <Rectangle Width="6" Height="18" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" HorizontalAlignment="Right" Margin="0,4,3,4" RadiusX="1" RadiusY="1"/>
+                        </Grid>
+                    </Grid>
+                </Button>
+                <!-- Stop -->
+                <Button x:Name="btnStop" Width="44" Height="36" Click="btnStop_Click" ToolTip="Stop">
+                    <Grid Width="24" Height="24">
+                        <Rectangle Width="16" Height="16" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
+                </Button>
+                <!-- Next -->
+                <Button x:Name="btnNext" Width="44" Height="36" Margin="8,0,0,0" Click="btnNext_Click" ToolTip="Next">
+                    <Grid Width="24" Height="24">
+                        <Path Data="M 4,2 L 4,22 L 18,12 Z" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Stretch="Uniform"/>
+                        <Rectangle Width="2" Height="18" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" HorizontalAlignment="Left" Margin="2,3,0,3"/>
+                    </Grid>
+                </Button>
+            </StackPanel>
+
+            <Grid Grid.Row="1" Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="220"/>
+                </Grid.ColumnDefinitions>
+                <Slider x:Name="posSlider" Grid.Column="0" Minimum="0" Maximum="100"
+                        ValueChanged="posSlider_ValueChanged"
+                        PreviewMouseDown="posSlider_PreviewMouseDown"
+                        PreviewMouseUp="posSlider_PreviewMouseUp"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="Volume" Margin="0,0,8,0"/>
+                    <Slider x:Name="volSlider" Width="160" Minimum="0" Maximum="1" SmallChange="0.01" LargeChange="0.1" ValueChanged="volSlider_ValueChanged"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+        <!-- Hidden MediaElement -->
+        <MediaElement x:Name="media"
+                      LoadedBehavior="Manual"
+                      UnloadedBehavior="Manual"
+                      MediaOpened="media_MediaOpened"
+                      MediaEnded="media_MediaEnded"
+                      MediaFailed="media_MediaFailed"
+                      Volume="0.5"
+                      Visibility="Collapsed"/>
     </Grid>
 </local:BaseSimpleModule>

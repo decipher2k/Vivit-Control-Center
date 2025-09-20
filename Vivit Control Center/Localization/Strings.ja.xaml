@@ -5,25 +5,219 @@
   <!-- Japanese Romaji -->
   <sys:String x:Key="Settings.Title">Settei</sys:String>
   <sys:String x:Key="Settings.Language">Gengo</sys:String>
-  <sys:String x:Key="Settings.NewsModule">Nyusu Mojyuru</sys:String>
-  <sys:String x:Key="Settings.RssFeedsEdit">RSS Fiido Henshu</sys:String>
-  <sys:String x:Key="Settings.MaxArticles">Saida Kiji Su:</sys:String>
+  <sys:String x:Key="Settings.NewsModule">Nyūsu Mōjūru</sys:String>
+  <sys:String x:Key="Settings.RssFeedsEdit">RSS Fīdo Henshū</sys:String>
+  <sys:String x:Key="Settings.MaxArticles">Saidai Kiji Su:</sys:String>
   <sys:String x:Key="Settings.Fediverse">Fediverse</sys:String>
   <sys:String x:Key="Settings.FediverseUrl">Fediverse URL:</sys:String>
-  <sys:String x:Key="Settings.AIModule">AI Mojyuru</sys:String>
-  <sys:String x:Key="Settings.MessengerModule">Messenga Mojyuru</sys:String>
-  <sys:String x:Key="Settings.ChatModule">Chatto Mojyuru</sys:String>
-  <sys:String x:Key="Settings.Paths">Kitei Pasu</sys:String>
-  <sys:String x:Key="Settings.LocalPath">Rokaru Pasu:</sys:String>
-  <sys:String x:Key="Settings.ScriptPath">Sukuriputo Pasu:</sys:String>
-  <sys:String x:Key="Settings.Modules">Mojyuru</sys:String>
+  <sys:String x:Key="Settings.AIModule">AI Mōjūru</sys:String>
+  <sys:String x:Key="Settings.MessengerModule">Messenjā Mōjūru</sys:String>
+  <sys:String x:Key="Settings.ChatModule">Chatto Mōjūru</sys:String>
+  <sys:String x:Key="Settings.Paths">Kitei Pāsu</sys:String>
+  <sys:String x:Key="Settings.LocalPath">Rokaru Pāsu:</sys:String>
+  <sys:String x:Key="Settings.ScriptPath">Sukuriputo Pāsu:</sys:String>
+  <sys:String x:Key="Settings.Modules">Mōjūru</sys:String>
   <sys:String x:Key="Settings.Shell">Windows Sheru</sys:String>
   <sys:String x:Key="Settings.SetShell">Sheru ni settei</sys:String>
-  <sys:String x:Key="Settings.RestoreShell">Hyojun Sheru fukugen</sys:String>
+  <sys:String x:Key="Settings.RestoreShell">Hyōjun Sheru fukugen</sys:String>
   <sys:String x:Key="Settings.Save">Hozon</sys:String>
   <sys:String x:Key="Settings.Cancel">Kyanseru</sys:String>
   <sys:String x:Key="Settings.ManagePrograms">Puroguramu Kanri</sys:String>
   <sys:String x:Key="Settings.CurrentShell">Genzai no Sheru:</sys:String>
   <sys:String x:Key="Settings.CurrentlyShell">Sheru ni settei zumi</sys:String>
-  <sys:String x:Key="Settings.RestartNotice">(Sai kido hitsuyo)</sys:String>
+  <sys:String x:Key="Settings.RestartNotice">(Sai-kidō hitsuyō)</sys:String>
+  <!-- Settings new -->
+  <sys:String x:Key="Settings.UrlForModuleTitle">Mojūru '{0}' no URL</sys:String>
+  <sys:String x:Key="Settings.EnterUrlPrompt">URL (http/https) o nyūryoku:</sys:String>
+  <sys:String x:Key="Settings.ConfigureFediverseHint">Nyūsu no shita no fīrudo de Fediverse URL o settei shite kudasai.</sys:String>
+  <sys:String x:Key="Settings.InvalidUrl">yūkōna http/https URL o nyūryoku shite kudasai.</sys:String>
+  <sys:String x:Key="Settings.SavedRestartRecommended">Hozon shimashita. Sai-kidō o osusume shimasu.</sys:String>
+  <sys:String x:Key="Settings.ShellChangeFailed">Sheru no henkō shippai: {0}</sys:String>
+
+  <!-- Dialog/common -->
+  <sys:String x:Key="Dialog.OK">OK</sys:String>
+  <sys:String x:Key="Dialog.Error">Erā</sys:String>
+  <sys:String x:Key="Dialog.Confirm">Kakunin</sys:String>
+  <sys:String x:Key="Dialog.Default">(Deforuto)</sys:String>
+  <sys:String x:Key="Dialog.SelectFolder">Forudā Sentaku</sys:String>
+
+  <!-- App general -->
+  <sys:String x:Key="App.LoadingModules">Mōjūru o rōdo chū...</sys:String>
+  <sys:String x:Key="App.PendingModules">Machi Mōjūru:</sys:String>
+  <sys:String x:Key="App.ModulesLoadedFormat">{0}/{1} Mōjūru rōdo sumī</sys:String>
+  <sys:String x:Key="App.ExitShellQuestion">Sheru mōdo o shuuryō shite tojimasu ka? (Explorer wa jidō de kidō shimasen)</sys:String>
+  <sys:String x:Key="App.ExitTitle">Shūryō</sys:String>
+  <sys:String x:Key="App.RebootConfirm">Hontō ni saikidō shimasu ka?</sys:String>
+  <sys:String x:Key="App.RebootConfirmTitle">Saikidō Kakunin</sys:String>
+  <sys:String x:Key="App.ShutdownConfirm">Hontō ni shut down shimasu ka?</sys:String>
+  <sys:String x:Key="App.ShutdownConfirmTitle">Shut down Kakunin</sys:String>
+  <sys:String x:Key="App.PowerChoicePrompt">Sagyō o sentaku:\nYes = Saikidō\nNo = Shut down\nCancel = Torikeshi</sys:String>
+  <sys:String x:Key="App.PowerTitle">Pawā</sys:String>
+
+  <!-- Explorer -->
+  <sys:String x:Key="Explorer.Cut">Kiru</sys:String>
+  <sys:String x:Key="Explorer.Copy">Kopī</sys:String>
+  <sys:String x:Key="Explorer.Paste">Peisut</sys:String>
+  <sys:String x:Key="Explorer.Delete">Sakujo</sys:String>
+  <sys:String x:Key="Explorer.Properties">Puropatī</sys:String>
+  <sys:String x:Key="Explorer.ParentFolder">Ōya Forudā</sys:String>
+  <sys:String x:Key="Explorer.Refresh">Kōshin</sys:String>
+  <sys:String x:Key="Explorer.GoTo">Iku</sys:String>
+  <sys:String x:Key="Explorer.Col.Name">Namae</sys:String>
+  <sys:String x:Key="Explorer.Col.Size">Saizu</sys:String>
+  <sys:String x:Key="Explorer.Col.Modified">Henkō-bi</sys:String>
+  <sys:String x:Key="Explorer.DeleteConfirmSingle">"{0}" o sakujo shimasu ka?</sys:String>
+  <sys:String x:Key="Explorer.DeleteConfirmMultiple">Kore-ra {0} kōmoku o sakujo?\n{1}</sys:String>
+  <sys:String x:Key="Explorer.DeleteConfirmTitle">Sakujo Kakunin</sys:String>
+  <sys:String x:Key="Explorer.DeleteError">Sakujo erā {0}: {1}</sys:String>
+  <sys:String x:Key="Explorer.NavigateError">Nabigēshon erā: {0}</sys:String>
+  <sys:String x:Key="Explorer.OpenError">Kaisetsu erā: {0}</sys:String>
+  <sys:String x:Key="Explorer.PropertiesError">Puropatī hyōji erā: {0}</sys:String>
+  <sys:String x:Key="Explorer.PasteError">Peisut erā: {0}</sys:String>
+  <sys:String x:Key="Explorer.NetworkRoot">Nettowāku</sys:String>
+  <sys:String x:Key="Explorer.DirAccessError">Forudā akusesu erā: {0}</sys:String>
+  <sys:String x:Key="Explorer.FileAccessError">Fuaru akusesu erā: {0}</sys:String>
+
+  <!-- Notes -->
+  <sys:String x:Key="Notes.Title">Nōto</sys:String>
+  <sys:String x:Key="Notes.Bullets">• Risto</sys:String>
+  <sys:String x:Key="Notes.Numbered">1. Risto</sys:String>
+  <sys:String x:Key="Notes.AlignLeft">Hidari</sys:String>
+  <sys:String x:Key="Notes.AlignCenter">Chūō</sys:String>
+  <sys:String x:Key="Notes.AlignRight">Migi</sys:String>
+  <sys:String x:Key="Notes.FontSize">Fonto Saizu:</sys:String>
+  <sys:String x:Key="Notes.Context.New">Shin</sys:String>
+  <sys:String x:Key="Notes.Context.Rename">Namae Henkō</sys:String>
+  <sys:String x:Key="Notes.Context.Delete">Sakujo</sys:String>
+  <sys:String x:Key="Notes.Context.Up">Ue e</sys:String>
+  <sys:String x:Key="Notes.Context.Down">Shita e</sys:String>
+  <sys:String x:Key="Notes.DefaultRoot">Ippan</sys:String>
+  <sys:String x:Key="Notes.Unnamed">Mumei</sys:String>
+  <sys:String x:Key="Notes.Prompt.TopicName">Tema no namae:</sys:String>
+  <sys:String x:Key="Notes.Prompt.NewName">Atarashii namae:</sys:String>
+  <sys:String x:Key="Notes.NameExists">Namae wa sudeni sonzai shimasu.</sys:String>
+  <sys:String x:Key="Notes.RenameFailed">Henkō shippai: {0}</sys:String>
+  <sys:String x:Key="Notes.DeleteConfirm">'{0}' o sakujo?</sys:String>
+  <sys:String x:Key="Notes.DeleteTitle">Kakunin</sys:String>
+  <sys:String x:Key="Notes.DeleteFailed">Sakujo shippai: {0}</sys:String>
+
+  <!-- Steam -->
+  <sys:String x:Key="Steam.Header">Steam Raiburari</sys:String>
+  <sys:String x:Key="Steam.Loading">Steam raiburari rōdo chū...</sys:String>
+  <sys:String x:Key="Steam.NoImage">Gazō nashi</sys:String>
+  <sys:String x:Key="Steam.InstallNotFound">Steam insutōru ga mitsukarimasen.</sys:String>
+  <sys:String x:Key="Steam.ErrorTitle">Erā</sys:String>
+
+  <!-- Terminal -->
+  <sys:String x:Key="Terminal.Clear">Kurīa</sys:String>
+  <sys:String x:Key="Terminal.Stop">Stop</sys:String>
+  <sys:String x:Key="Terminal.History">Rireki</sys:String>
+  <sys:String x:Key="Terminal.Execute">Jikkō</sys:String>
+  <sys:String x:Key="Terminal.Prompt">PS&gt;</sys:String>
+
+  <!-- Scripting -->
+  <sys:String x:Key="Scripting.Run">Jikkō</sys:String>
+  <sys:String x:Key="Scripting.RunTooltip">Jikkō (F5 / Ctrl+Enter)</sys:String>
+  <sys:String x:Key="Scripting.Open">Hiraku</sys:String>
+  <sys:String x:Key="Scripting.OpenTooltip">Hiraku (Ctrl+O)</sys:String>
+  <sys:String x:Key="Scripting.Save">Hozon</sys:String>
+  <sys:String x:Key="Scripting.SaveTooltip">Hozon (Ctrl+S)</sys:String>
+  <sys:String x:Key="Scripting.SaveAs">Namae o tsukete hozon</sys:String>
+  <sys:String x:Key="Scripting.SaveAsTooltip">Namae o tsukete hozon</sys:String>
+  <sys:String x:Key="Scripting.Undo">Torikeshi</sys:String>
+  <sys:String x:Key="Scripting.Redo">Yarinaoshi</sys:String>
+  <sys:String x:Key="Scripting.Cut">Kiritori</sys:String>
+  <sys:String x:Key="Scripting.Copy">Kopī</sys:String>
+  <sys:String x:Key="Scripting.Paste">Peisut</sys:String>
+  <sys:String x:Key="Scripting.Clear">Kurīa</sys:String>
+  <sys:String x:Key="Scripting.LanguageLabel">Gengo:</sys:String>
+  <sys:String x:Key="Scripting.InitialReady">Scripting junbi kanryō. Gengo jidō handan.</sys:String>
+  <sys:String x:Key="Scripting.OpenedFile">Kaijō: {0}</sys:String>
+  <sys:String x:Key="Scripting.SavedFile">Hozon: {0}</sys:String>
+  <sys:String x:Key="Scripting.EditorCleared">Edita kurīa.</sys:String>
+  <sys:String x:Key="Scripting.LanguagePrefix">Gengo: {0}</sys:String>
+  <sys:String x:Key="Scripting.LanguageUnknown">Gengo mikaku.</sys:String>
+  <sys:String x:Key="Scripting.NoEntryPoint">Entry point (Main/Run) mitsukaranai.</sys:String>
+  <sys:String x:Key="Scripting.CSharpException">C# Exception: {0}</sys:String>
+  <sys:String x:Key="Scripting.PythonException">Python Exception: {0}</sys:String>
+  <sys:String x:Key="Scripting.UnknownCompilerError">Fumei na konpirā erā.</sys:String>
+  <sys:String x:Key="Scripting.EntryPointMissing">Entry point (Main/Run) mitsukaranai.</sys:String>
+
+  <!-- Programs Dialog -->
+  <sys:String x:Key="Programs.Title">Puroguramu</sys:String>
+  <sys:String x:Key="Programs.Add">Tsui-ka</sys:String>
+  <sys:String x:Key="Programs.Remove">Sakujo</sys:String>
+  <sys:String x:Key="Programs.Save">Hozon</sys:String>
+  <sys:String x:Key="Programs.Close">Tojiru</sys:String>
+  <sys:String x:Key="Programs.Path">Pāsu</sys:String>
+  <sys:String x:Key="Programs.Caption">Hyōji-mei</sys:String>
+  <sys:String x:Key="Programs.FooterHint">Pāsu o daburu klikku de forudā o hiraku</sys:String>
+  <sys:String x:Key="Programs.Saved">Hozon shimashita.</sys:String>
+  <sys:String x:Key="Programs.FileFilterExe">Puroguramu (*.exe)|*.exe|Subete no fayru (*.*)|*.*</sys:String>
+
+  <!-- Office -->
+  <sys:String x:Key="Office.AppLabel">Apuri:</sys:String>
+  <sys:String x:Key="Office.New">Shin-ki</sys:String>
+  <sys:String x:Key="Office.Open">Hiraku</sys:String>
+  <sys:String x:Key="Office.Save">Hozon</sys:String>
+  <sys:String x:Key="Office.SaveAs">Namae o tsukete hozon</sys:String>
+  <sys:String x:Key="Office.SizeLabel">Saizu:</sys:String>
+  <sys:String x:Key="Office.AlignLeft">Hidari</sys:String>
+  <sys:String x:Key="Office.AlignCenter">Chūō</sys:String>
+  <sys:String x:Key="Office.AlignRight">Migi</sys:String>
+  <sys:String x:Key="Office.StatusPrefix">MS Office:</sys:String>
+  <sys:String x:Key="Office.InitHostError">Hōsuto shoki-ka erā: {0}</sys:String>
+  <sys:String x:Key="Office.NewDocError">Atarashii dokyumento erā: {0}</sys:String>
+  <sys:String x:Key="Office.CreateError">Sakusei erā: {0}</sys:String>
+  <sys:String x:Key="Office.OpenDocError">Dokyumento kaijo erā: {0}</sys:String>
+  <sys:String x:Key="Office.OpenError">Kaijo erā: {0}</sys:String>
+  <sys:String x:Key="Office.SaveError">Hozon erā: {0}</sys:String>
+  <sys:String x:Key="Office.FormatError">Fōmato erā: {0}</sys:String>
+  <sys:String x:Key="Office.WordFilter">Word Dokyumento (*.doc;*.docx)|*.doc;*.docx|Subete (*.*)|*.*</sys:String>
+  <sys:String x:Key="Office.ExcelFilter">Excel Shīto (*.xls;*.xlsx)|*.xls;*.xlsx|Subete (*.*)|*.*</sys:String>
+  <sys:String x:Key="Office.WordSaveFilter">Word Dokyumento (*.docx)|*.docx|Subete (*.*)|*.*</sys:String>
+  <sys:String x:Key="Office.ExcelSaveFilter">Excel Shīto (*.xlsx)|*.xlsx|Subete (*.*)|*.*</sys:String>
+  <sys:String x:Key="Office.DocumentSuffix">Dokyumento</sys:String>
+  <sys:String x:Key="Office.InstallPrompt">Microsoft Office o insutōru shite kudasai.</sys:String>
+
+  <!-- SSH -->
+  <sys:String x:Key="SSH.Server">Sābā:</sys:String>
+  <sys:String x:Key="SSH.AddressTooltip">user@host matawa host:port</sys:String>
+  <sys:String x:Key="SSH.Connect">Setsuzoku</sys:String>
+  <sys:String x:Key="SSH.Disconnect">Kaidan</sys:String>
+  <sys:String x:Key="SSH.Send">Sōshin</sys:String>
+  <sys:String x:Key="SSH.Status.Ready">Junbi kanryō.</sys:String>
+  <sys:String x:Key="SSH.Status.Connecting">Setsuzoku chū...</sys:String>
+  <sys:String x:Key="SSH.Status.Connected">Setsuzoku kanryō</sys:String>
+  <sys:String x:Key="SSH.Status.Error">Erā</sys:String>
+  <sys:String x:Key="SSH.Status.Disconnected">Kaidan sumi</sys:String>
+  <sys:String x:Key="SSH.AlreadyConnected">Sudeni setsuzoku.</sys:String>
+  <sys:String x:Key="SSH.EnterAddress">Adoresu (user@host matawa host[:port]) o nyūryoku.</sys:String>
+  <sys:String x:Key="SSH.InvalidAddress">Mujōna adoresu.</sys:String>
+  <sys:String x:Key="SSH.ConnectingTo">{0} e setsuzoku chū...</sys:String>
+  <sys:String x:Key="SSH.UsernamePrompt">Yūzāmei:</sys:String>
+  <sys:String x:Key="SSH.PasswordPrompt">{0} no pasuwādo:</sys:String>
+  <sys:String x:Key="SSH.Cancelled">Kyansel.</sys:String>
+  <sys:String x:Key="SSH.ConnectionError">Setsuzoku erā: {0}</sys:String>
+  <sys:String x:Key="SSH.SendError">Sōshin erā: {0}</sys:String>
+  <sys:String x:Key="SSH.LoginTitle">SSH Login</sys:String>
+
+  <!-- SFTP -->
+  <sys:String x:Key="SFTP.Status.Ready">Junbi kanryō.</sys:String>
+  <sys:String x:Key="SFTP.Status.Connecting">Setsuzoku chū...</sys:String>
+  <sys:String x:Key="SFTP.Status.Connected">Setsuzoku kanryō</sys:String>
+  <sys:String x:Key="SFTP.Status.Error">Erā</sys:String>
+  <sys:String x:Key="SFTP.Status.Disconnected">Kaidan sumi</sys:String>
+  <sys:String x:Key="SFTP.LocalLoadError">Rōkaru forudā o rōdo dekinai: {0}</sys:String>
+  <sys:String x:Key="SFTP.CredentialsRequired">Host to yūzā ga hitsuyō desu.</sys:String>
+  <sys:String x:Key="SFTP.LoginFailed">Login shippai: {0}</sys:String>
+  <sys:String x:Key="SFTP.RemoteLoadFailed">Rimooto rōdo shippai: {0}</sys:String>
+  <sys:String x:Key="SFTP.UploadFailed">Apurōdo shippai: {0}</sys:String>
+  <sys:String x:Key="SFTP.DownloadFailed">Dawnrōdo shippai: {0}</sys:String>
+  <sys:String x:Key="SFTP.SshNetMissing">SSH.NET (Renci.SshNet) ga mitsukarimasen. Raiburari o teikyō shite kudasai.</sys:String>
+
+  <!-- Browser -->
+  <sys:String x:Key="Browser.InitFailed">WebView2 no shoki-ka ga shippai: {0}</sys:String>
+  <sys:String x:Key="Browser.ErrorTitle">Erā</sys:String>
+  <sys:String x:Key="Browser.NavigateError">Nabigēshon erā: {0}</sys:String>
 </ResourceDictionary>

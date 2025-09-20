@@ -6,10 +6,10 @@
   <sys:String x:Key="Settings.Title">Shezhi</sys:String>
   <sys:String x:Key="Settings.Language">Yuyan</sys:String>
   <sys:String x:Key="Settings.NewsModule">Xinwen Mokuai</sys:String>
-  <sys:String x:Key="Settings.RssFeedsEdit">Bianji RSS Yuan</sys:String>
-  <sys:String x:Key="Settings.MaxArticles">Zuida wenzhang shu:</sys:String>
+  <sys:String x:Key="Settings.RssFeedsEdit">Bianji RSS Feeds</sys:String>
+  <sys:String x:Key="Settings.MaxArticles">Zuida Wenzhang Shu:</sys:String>
   <sys:String x:Key="Settings.Fediverse">Fediverse</sys:String>
-  <sys:String x:Key="Settings.FediverseUrl">Fediverse Dizhi:</sys:String>
+  <sys:String x:Key="Settings.FediverseUrl">Fediverse URL:</sys:String>
   <sys:String x:Key="Settings.AIModule">AI Mokuai</sys:String>
   <sys:String x:Key="Settings.MessengerModule">Xiaoxi Mokuai</sys:String>
   <sys:String x:Key="Settings.ChatModule">Liaotian Mokuai</sys:String>
@@ -19,11 +19,205 @@
   <sys:String x:Key="Settings.Modules">Mokuai</sys:String>
   <sys:String x:Key="Settings.Shell">Windows Shell</sys:String>
   <sys:String x:Key="Settings.SetShell">She wei Shell</sys:String>
-  <sys:String x:Key="Settings.RestoreShell">Huifu moren Shell</sys:String>
+  <sys:String x:Key="Settings.RestoreShell">Huifu Biaozhun Shell</sys:String>
   <sys:String x:Key="Settings.Save">Baocun</sys:String>
   <sys:String x:Key="Settings.Cancel">Quxiao</sys:String>
   <sys:String x:Key="Settings.ManagePrograms">Guanli Chengxu</sys:String>
   <sys:String x:Key="Settings.CurrentShell">Dangqian Shell:</sys:String>
-  <sys:String x:Key="Settings.CurrentlyShell">Yishe wei Shell</sys:String>
+  <sys:String x:Key="Settings.CurrentlyShell">Yi she wei Shell</sys:String>
   <sys:String x:Key="Settings.RestartNotice">(Xuyao Chongqi)</sys:String>
+  <!-- Settings new -->
+  <sys:String x:Key="Settings.UrlForModuleTitle">Mokuai '{0}' de URL</sys:String>
+  <sys:String x:Key="Settings.EnterUrlPrompt">Shuru URL (http/https):</sys:String>
+  <sys:String x:Key="Settings.ConfigureFediverseHint">Zai Xinwen xiafang peizhi Fediverse URL.</sys:String>
+  <sys:String x:Key="Settings.InvalidUrl">Qingshu ru hefa de http/https URL.</sys:String>
+  <sys:String x:Key="Settings.SavedRestartRecommended">Shezhi yijing baocun. Jianyi chongqi.</sys:String>
+  <sys:String x:Key="Settings.ShellChangeFailed">Shell xiugai shibai: {0}</sys:String>
+
+  <!-- Dialog/common -->
+  <sys:String x:Key="Dialog.OK">OK</sys:String>
+  <sys:String x:Key="Dialog.Error">Cuowu</sys:String>
+  <sys:String x:Key="Dialog.Confirm">Queren</sys:String>
+  <sys:String x:Key="Dialog.Default">(Moren)</sys:String>
+  <sys:String x:Key="Dialog.SelectFolder">Xuanze Wenjianjia</sys:String>
+
+  <!-- App general -->
+  <sys:String x:Key="App.LoadingModules">Zhengzai jiazai mokuai...</sys:String>
+  <sys:String x:Key="App.PendingModules">Daixu mokuai:</sys:String>
+  <sys:String x:Key="App.ModulesLoadedFormat">{0}/{1} ge mokuai yijing jiazai</sys:String>
+  <sys:String x:Key="App.ExitShellQuestion">Tuichu Shell moshi bing guanbi? (Explorer buhui zidong qidong)</sys:String>
+  <sys:String x:Key="App.ExitTitle">Tuichu</sys:String>
+  <sys:String x:Key="App.RebootConfirm">Que ren chongqi diannao?</sys:String>
+  <sys:String x:Key="App.RebootConfirmTitle">Queren Chongqi</sys:String>
+  <sys:String x:Key="App.ShutdownConfirm">Que ren guanji diannao?</sys:String>
+  <sys:String x:Key="App.ShutdownConfirmTitle">Queren Guanji</sys:String>
+  <sys:String x:Key="App.PowerChoicePrompt">Xuanze caozuo:\nShi = Chongqi\nFou = Guanji\nQuxiao = Quxiao</sys:String>
+  <sys:String x:Key="App.PowerTitle">Dianyuan</sys:String>
+
+  <!-- Explorer -->
+  <sys:String x:Key="Explorer.Cut">Jianqie</sys:String>
+  <sys:String x:Key="Explorer.Copy">Fuzhi</sys:String>
+  <sys:String x:Key="Explorer.Paste">Zhantie</sys:String>
+  <sys:String x:Key="Explorer.Delete">Shanchu</sys:String>
+  <sys:String x:Key="Explorer.Properties">Shuxing</sys:String>
+  <sys:String x:Key="Explorer.ParentFolder">Shangji wenjianjia</sys:String>
+  <sys:String x:Key="Explorer.Refresh">Shuaxin</sys:String>
+  <sys:String x:Key="Explorer.GoTo">Qianwang</sys:String>
+  <sys:String x:Key="Explorer.Col.Name">Mingcheng</sys:String>
+  <sys:String x:Key="Explorer.Col.Size">Daxiao</sys:String>
+  <sys:String x:Key="Explorer.Col.Modified">Xiugai shijian</sys:String>
+  <sys:String x:Key="Explorer.DeleteConfirmSingle">Shanchu "{0}"?</sys:String>
+  <sys:String x:Key="Explorer.DeleteConfirmMultiple">Shanchu zhexie {0} xiang?\n{1}</sys:String>
+  <sys:String x:Key="Explorer.DeleteConfirmTitle">Queren Shanchu</sys:String>
+  <sys:String x:Key="Explorer.DeleteError">Shanchu {0} cuowu: {1}</sys:String>
+  <sys:String x:Key="Explorer.NavigateError">Daohang cuowu: {0}</sys:String>
+  <sys:String x:Key="Explorer.OpenError">Dakai cuowu: {0}</sys:String>
+  <sys:String x:Key="Explorer.PropertiesError">Xianshi shuxing cuowu: {0}</sys:String>
+  <sys:String x:Key="Explorer.PasteError">Zhantie cuowu: {0}</sys:String>
+  <sys:String x:Key="Explorer.NetworkRoot">Wangluo</sys:String>
+  <sys:String x:Key="Explorer.DirAccessError">Wenjianjia fuwen quan cuowu: {0}</sys:String>
+  <sys:String x:Key="Explorer.FileAccessError">Wenjian fuwen quan cuowu: {0}</sys:String>
+
+  <!-- Notes -->
+  <sys:String x:Key="Notes.Title">Biji</sys:String>
+  <sys:String x:Key="Notes.Bullets">• Lie biao</sys:String>
+  <sys:String x:Key="Notes.Numbered">1. Lie biao</sys:String>
+  <sys:String x:Key="Notes.AlignLeft">Zuo dui qi</sys:String>
+  <sys:String x:Key="Notes.AlignCenter">Ju zhong</sys:String>
+  <sys:String x:Key="Notes.AlignRight">You dui qi</sys:String>
+  <sys:String x:Key="Notes.FontSize">Zihao:</sys:String>
+  <sys:String x:Key="Notes.Context.New">Xin jian</sys:String>
+  <sys:String x:Key="Notes.Context.Rename">Chong mingming</sys:String>
+  <sys:String x:Key="Notes.Context.Delete">Shanchu</sys:String>
+  <sys:String x:Key="Notes.Context.Up">Shang yi</sys:String>
+  <sys:String x:Key="Notes.Context.Down">Xia yi</sys:String>
+  <sys:String x:Key="Notes.DefaultRoot">Yiban</sys:String>
+  <sys:String x:Key="Notes.Unnamed">Wu ming</sys:String>
+  <sys:String x:Key="Notes.Prompt.TopicName">Zhuti mingcheng:</sys:String>
+  <sys:String x:Key="Notes.Prompt.NewName">Xin mingcheng:</sys:String>
+  <sys:String x:Key="Notes.NameExists">Mingcheng yijing cunzai.</sys:String>
+  <sys:String x:Key="Notes.RenameFailed">Chong mingming shibai: {0}</sys:String>
+  <sys:String x:Key="Notes.DeleteConfirm">Shanchu '{0}'?</sys:String>
+  <sys:String x:Key="Notes.DeleteTitle">Queren</sys:String>
+  <sys:String x:Key="Notes.DeleteFailed">Shanchu shibai: {0}</sys:String>
+
+  <!-- Steam -->
+  <sys:String x:Key="Steam.Header">Steam Tushuguan</sys:String>
+  <sys:String x:Key="Steam.Loading">Zhengzai jiazai Steam tushuguan...</sys:String>
+  <sys:String x:Key="Steam.NoImage">Wu tupian</sys:String>
+  <sys:String x:Key="Steam.InstallNotFound">Meiyou faxian Steam anzhuang.</sys:String>
+  <sys:String x:Key="Steam.ErrorTitle">Cuowu</sys:String>
+
+  <!-- Terminal -->
+  <sys:String x:Key="Terminal.Clear">Qingkong</sys:String>
+  <sys:String x:Key="Terminal.Stop">Tingzhi</sys:String>
+  <sys:String x:Key="Terminal.History">Lishi</sys:String>
+  <sys:String x:Key="Terminal.Execute">Yunxing</sys:String>
+  <sys:String x:Key="Terminal.Prompt">PS&gt;</sys:String>
+
+  <!-- Scripting -->
+  <sys:String x:Key="Scripting.Run">Yunxing</sys:String>
+  <sys:String x:Key="Scripting.RunTooltip">Yunxing (F5 / Ctrl+Enter)</sys:String>
+  <sys:String x:Key="Scripting.Open">Dakai</sys:String>
+  <sys:String x:Key="Scripting.OpenTooltip">Dakai (Ctrl+O)</sys:String>
+  <sys:String x:Key="Scripting.Save">Baocun</sys:String>
+  <sys:String x:Key="Scripting.SaveTooltip">Baocun (Ctrl+S)</sys:String>
+  <sys:String x:Key="Scripting.SaveAs">Lingcun wei</sys:String>
+  <sys:String x:Key="Scripting.SaveAsTooltip">Lingcun wei</sys:String>
+  <sys:String x:Key="Scripting.Undo">Chexiao</sys:String>
+  <sys:String x:Key="Scripting.Redo">Chongzuo</sys:String>
+  <sys:String x:Key="Scripting.Cut">Jianqie</sys:String>
+  <sys:String x:Key="Scripting.Copy">Fuzhi</sys:String>
+  <sys:String x:Key="Scripting.Paste">Zhantie</sys:String>
+  <sys:String x:Key="Scripting.Clear">Qingkong</sys:String>
+  <sys:String x:Key="Scripting.LanguageLabel">Yuyan:</sys:String>
+  <sys:String x:Key="Scripting.InitialReady">Scripting yi zhunbei. Zidong shibie yuyan.</sys:String>
+  <sys:String x:Key="Scripting.OpenedFile">Yi dakai: {0}</sys:String>
+  <sys:String x:Key="Scripting.SavedFile">Yi baocun: {0}</sys:String>
+  <sys:String x:Key="Scripting.EditorCleared">Bianjiqi yi qingkong.</sys:String>
+  <sys:String x:Key="Scripting.LanguagePrefix">Yuyan: {0}</sys:String>
+  <sys:String x:Key="Scripting.LanguageUnknown">Wei shibie yuyan.</sys:String>
+  <sys:String x:Key="Scripting.NoEntryPoint">Mei you faxian ruzhijiedian (Main/Run).</sys:String>
+  <sys:String x:Key="Scripting.CSharpException">C# yichang: {0}</sys:String>
+  <sys:String x:Key="Scripting.PythonException">Python yichang: {0}</sys:String>
+  <sys:String x:Key="Scripting.UnknownCompilerError">Weizhi bianyi cuowu.</sys:String>
+  <sys:String x:Key="Scripting.EntryPointMissing">Mei you faxian ruzhijiedian (Main/Run).</sys:String>
+
+  <!-- Programs Dialog -->
+  <sys:String x:Key="Programs.Title">Chengxu</sys:String>
+  <sys:String x:Key="Programs.Add">Tianjia</sys:String>
+  <sys:String x:Key="Programs.Remove">Shanchu</sys:String>
+  <sys:String x:Key="Programs.Save">Baocun</sys:String>
+  <sys:String x:Key="Programs.Close">Guandi</sys:String>
+  <sys:String x:Key="Programs.Path">Lujing</sys:String>
+  <sys:String x:Key="Programs.Caption">Biaoti</sys:String>
+  <sys:String x:Key="Programs.FooterHint">Shuangji lujing dakai wenjianjia</sys:String>
+  <sys:String x:Key="Programs.Saved">Yijing baocun.</sys:String>
+  <sys:String x:Key="Programs.FileFilterExe">Chengxu (*.exe)|*.exe|Suoyou wenjian (*.*)|*.*</sys:String>
+
+  <!-- Office -->
+  <sys:String x:Key="Office.AppLabel">Yingyong:</sys:String>
+  <sys:String x:Key="Office.New">Xin jian</sys:String>
+  <sys:String x:Key="Office.Open">Dakai</sys:String>
+  <sys:String x:Key="Office.Save">Baocun</sys:String>
+  <sys:String x:Key="Office.SaveAs">Lingcun wei</sys:String>
+  <sys:String x:Key="Office.SizeLabel">Daxiao:</sys:String>
+  <sys:String x:Key="Office.AlignLeft">Zuo dui qi</sys:String>
+  <sys:String x:Key="Office.AlignCenter">Ju zhong</sys:String>
+  <sys:String x:Key="Office.AlignRight">You dui qi</sys:String>
+  <sys:String x:Key="Office.StatusPrefix">MS Office:</sys:String>
+  <sys:String x:Key="Office.InitHostError">Zhuchi chuangjian cuowu: {0}</sys:String>
+  <sys:String x:Key="Office.NewDocError">Xin wenjian cuowu: {0}</sys:String>
+  <sys:String x:Key="Office.CreateError">Chuangjian cuowu: {0}</sys:String>
+  <sys:String x:Key="Office.OpenDocError">Dakai wenjian cuowu: {0}</sys:String>
+  <sys:String x:Key="Office.OpenError">Dakai cuowu: {0}</sys:String>
+  <sys:String x:Key="Office.SaveError">Baocun cuowu: {0}</sys:String>
+  <sys:String x:Key="Office.FormatError">Geshi cuowu: {0}</sys:String>
+  <sys:String x:Key="Office.WordFilter">Word Wenjian (*.doc;*.docx)|*.doc;*.docx|Suoyou Wenjian (*.*)|*.*</sys:String>
+  <sys:String x:Key="Office.ExcelFilter">Excel Biaoge (*.xls;*.xlsx)|*.xls;*.xlsx|Suoyou Wenjian (*.*)|*.*</sys:String>
+  <sys:String x:Key="Office.WordSaveFilter">Word Wenjian (*.docx)|*.docx|Suoyou Wenjian (*.*)|*.*</sys:String>
+  <sys:String x:Key="Office.ExcelSaveFilter">Excel Biaoge (*.xlsx)|*.xlsx|Suoyou Wenjian (*.*)|*.*</sys:String>
+  <sys:String x:Key="Office.DocumentSuffix">Wendang</sys:String>
+  <sys:String x:Key="Office.InstallPrompt">Qing anzhuang Microsoft Office.</sys:String>
+
+  <!-- SSH -->
+  <sys:String x:Key="SSH.Server">Fuwuqi:</sys:String>
+  <sys:String x:Key="SSH.AddressTooltip">yonghu@zhujiming huo zhuji:duankou</sys:String>
+  <sys:String x:Key="SSH.Connect">Lianjie</sys:String>
+  <sys:String x:Key="SSH.Disconnect">Duan kai</sys:String>
+  <sys:String x:Key="SSH.Send">Fasong</sys:String>
+  <sys:String x:Key="SSH.Status.Ready">Zhunbei.</sys:String>
+  <sys:String x:Key="SSH.Status.Connecting">Lianjie zhong...</sys:String>
+  <sys:String x:Key="SSH.Status.Connected">Yi lianjie</sys:String>
+  <sys:String x:Key="SSH.Status.Error">Cuowu</sys:String>
+  <sys:String x:Key="SSH.Status.Disconnected">Yi duankai</sys:String>
+  <sys:String x:Key="SSH.AlreadyConnected">Yijing lianjie.</sys:String>
+  <sys:String x:Key="SSH.EnterAddress">Shuru dizhi (yonghu@zhujiming huo zhuji[:duankou]).</sys:String>
+  <sys:String x:Key="SSH.InvalidAddress">Wuxiao dizhi.</sys:String>
+  <sys:String x:Key="SSH.ConnectingTo">Zheng lianjie dao {0}...</sys:String>
+  <sys:String x:Key="SSH.UsernamePrompt">Yonghuming:</sys:String>
+  <sys:String x:Key="SSH.PasswordPrompt">{0} de mima:</sys:String>
+  <sys:String x:Key="SSH.Cancelled">Yiquxiao.</sys:String>
+  <sys:String x:Key="SSH.ConnectionError">Lianjie cuowu: {0}</sys:String>
+  <sys:String x:Key="SSH.SendError">Fasong cuowu: {0}</sys:String>
+  <sys:String x:Key="SSH.LoginTitle">SSH Denglu</sys:String>
+
+  <!-- SFTP -->
+  <sys:String x:Key="SFTP.Status.Ready">Zhunbei.</sys:String>
+  <sys:String x:Key="SFTP.Status.Connecting">Lianjie zhong...</sys:String>
+  <sys:String x:Key="SFTP.Status.Connected">Yi lianjie</sys:String>
+  <sys:String x:Key="SFTP.Status.Error">Cuowu</sys:String>
+  <sys:String x:Key="SFTP.Status.Disconnected">Yi duankai</sys:String>
+  <sys:String x:Key="SFTP.LocalLoadError">Wufa jiazai bendiyin jianjia: {0}</sys:String>
+  <sys:String x:Key="SFTP.CredentialsRequired">Xu yao host he yonghu.</sys:String>
+  <sys:String x:Key="SFTP.LoginFailed">Denglu shibai: {0}</sys:String>
+  <sys:String x:Key="SFTP.RemoteLoadFailed">Yuan cheng jiazai shibai: {0}</sys:String>
+  <sys:String x:Key="SFTP.UploadFailed">Shangchuan shibai: {0}</sys:String>
+  <sys:String x:Key="SFTP.DownloadFailed">Xiazai shibai: {0}</sys:String>
+  <sys:String x:Key="SFTP.SshNetMissing">Wei faxian SSH.NET (Renci.SshNet). Qing tigong ku.</sys:String>
+
+  <!-- Browser -->
+  <sys:String x:Key="Browser.InitFailed">WebView2 chushihua shibai: {0}</sys:String>
+  <sys:String x:Key="Browser.ErrorTitle">Cuowu</sys:String>
+  <sys:String x:Key="Browser.NavigateError">Daohang cuowu: {0}</sys:String>
 </ResourceDictionary>

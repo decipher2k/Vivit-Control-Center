@@ -2,28 +2,222 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
-  <!-- Espanol -->
-  <sys:String x:Key="Settings.Title">Configuracion</sys:String>
+  <!-- Español -->
+  <sys:String x:Key="Settings.Title">Configuración</sys:String>
   <sys:String x:Key="Settings.Language">Idioma</sys:String>
-  <sys:String x:Key="Settings.NewsModule">Modulo de Noticias</sys:String>
+  <sys:String x:Key="Settings.NewsModule">Módulo de Noticias</sys:String>
   <sys:String x:Key="Settings.RssFeedsEdit">Editar feeds RSS</sys:String>
-  <sys:String x:Key="Settings.MaxArticles">Articulos max.:</sys:String>
+  <sys:String x:Key="Settings.MaxArticles">Artículos máx.:</sys:String>
   <sys:String x:Key="Settings.Fediverse">Fediverse</sys:String>
-  <sys:String x:Key="Settings.FediverseUrl">URL Fediverse:</sys:String>
-  <sys:String x:Key="Settings.AIModule">Modulo IA</sys:String>
-  <sys:String x:Key="Settings.MessengerModule">Modulo Mensajeria</sys:String>
-  <sys:String x:Key="Settings.ChatModule">Modulo Chat</sys:String>
+  <sys:String x:Key="Settings.FediverseUrl">URL de Fediverse:</sys:String>
+  <sys:String x:Key="Settings.AIModule">Módulo IA</sys:String>
+  <sys:String x:Key="Settings.MessengerModule">Módulo de Mensajería</sys:String>
+  <sys:String x:Key="Settings.ChatModule">Módulo de Chat</sys:String>
   <sys:String x:Key="Settings.Paths">Rutas predeterminadas</sys:String>
   <sys:String x:Key="Settings.LocalPath">Ruta local:</sys:String>
-  <sys:String x:Key="Settings.ScriptPath">Ruta scripts:</sys:String>
-  <sys:String x:Key="Settings.Modules">Modulos</sys:String>
+  <sys:String x:Key="Settings.ScriptPath">Ruta de scripts:</sys:String>
+  <sys:String x:Key="Settings.Modules">Módulos</sys:String>
   <sys:String x:Key="Settings.Shell">Shell de Windows</sys:String>
   <sys:String x:Key="Settings.SetShell">Establecer como Shell</sys:String>
-  <sys:String x:Key="Settings.RestoreShell">Restaurar Shell estandar</sys:String>
+  <sys:String x:Key="Settings.RestoreShell">Restaurar Shell estándar</sys:String>
   <sys:String x:Key="Settings.Save">Guardar</sys:String>
   <sys:String x:Key="Settings.Cancel">Cancelar</sys:String>
   <sys:String x:Key="Settings.ManagePrograms">Gestionar programas</sys:String>
   <sys:String x:Key="Settings.CurrentShell">Shell actual:</sys:String>
   <sys:String x:Key="Settings.CurrentlyShell">Actualmente establecido como shell</sys:String>
-  <sys:String x:Key="Settings.RestartNotice">(Reinicio requerido)</sys:String>
+  <sys:String x:Key="Settings.RestartNotice">(Se requiere reinicio)</sys:String>
+  <!-- Settings new -->
+  <sys:String x:Key="Settings.UrlForModuleTitle">URL para módulo '{0}'</sys:String>
+  <sys:String x:Key="Settings.EnterUrlPrompt">Introduzca URL (http/https):</sys:String>
+  <sys:String x:Key="Settings.ConfigureFediverseHint">Configure la URL de Fediverse en el campo bajo Noticias.</sys:String>
+  <sys:String x:Key="Settings.InvalidUrl">Introduzca una URL http/https válida.</sys:String>
+  <sys:String x:Key="Settings.SavedRestartRecommended">Configuración guardada. Se recomienda reiniciar.</sys:String>
+  <sys:String x:Key="Settings.ShellChangeFailed">Cambio de shell falló: {0}</sys:String>
+
+  <!-- Dialog/common -->
+  <sys:String x:Key="Dialog.OK">OK</sys:String>
+  <sys:String x:Key="Dialog.Error">Error</sys:String>
+  <sys:String x:Key="Dialog.Confirm">Confirmar</sys:String>
+  <sys:String x:Key="Dialog.Default">(Predeterminado)</sys:String>
+  <sys:String x:Key="Dialog.SelectFolder">Seleccionar carpeta</sys:String>
+
+  <!-- App general -->
+  <sys:String x:Key="App.LoadingModules">Cargando módulos...</sys:String>
+  <sys:String x:Key="App.PendingModules">Módulos pendientes:</sys:String>
+  <sys:String x:Key="App.ModulesLoadedFormat">{0} de {1} módulos cargados</sys:String>
+  <sys:String x:Key="App.ExitShellQuestion">¿Salir del modo shell y cerrar? (Explorer no se iniciará automáticamente)</sys:String>
+  <sys:String x:Key="App.ExitTitle">Salir</sys:String>
+  <sys:String x:Key="App.RebootConfirm">¿Desea reiniciar el equipo?</sys:String>
+  <sys:String x:Key="App.RebootConfirmTitle">Confirmar reinicio</sys:String>
+  <sys:String x:Key="App.ShutdownConfirm">¿Desea apagar el equipo?</sys:String>
+  <sys:String x:Key="App.ShutdownConfirmTitle">Confirmar apagado</sys:String>
+  <sys:String x:Key="App.PowerChoicePrompt">Elija acción:\nSí = Reiniciar\nNo = Apagar\nCancelar = Cancelar</sys:String>
+  <sys:String x:Key="App.PowerTitle">Energía</sys:String>
+
+  <!-- Explorer -->
+  <sys:String x:Key="Explorer.Cut">Cortar</sys:String>
+  <sys:String x:Key="Explorer.Copy">Copiar</sys:String>
+  <sys:String x:Key="Explorer.Paste">Pegar</sys:String>
+  <sys:String x:Key="Explorer.Delete">Eliminar</sys:String>
+  <sys:String x:Key="Explorer.Properties">Propiedades</sys:String>
+  <sys:String x:Key="Explorer.ParentFolder">Carpeta superior</sys:String>
+  <sys:String x:Key="Explorer.Refresh">Actualizar</sys:String>
+  <sys:String x:Key="Explorer.GoTo">Ir a</sys:String>
+  <sys:String x:Key="Explorer.Col.Name">Nombre</sys:String>
+  <sys:String x:Key="Explorer.Col.Size">Tamaño</sys:String>
+  <sys:String x:Key="Explorer.Col.Modified">Modificado</sys:String>
+  <sys:String x:Key="Explorer.DeleteConfirmSingle">¿Eliminar "{0}"?</sys:String>
+  <sys:String x:Key="Explorer.DeleteConfirmMultiple">¿Eliminar estos {0} elementos?\n{1}</sys:String>
+  <sys:String x:Key="Explorer.DeleteConfirmTitle">Confirmar eliminación</sys:String>
+  <sys:String x:Key="Explorer.DeleteError">Error eliminando {0}: {1}</sys:String>
+  <sys:String x:Key="Explorer.NavigateError">Error de navegación: {0}</sys:String>
+  <sys:String x:Key="Explorer.OpenError">Error al abrir: {0}</sys:String>
+  <sys:String x:Key="Explorer.PropertiesError">Error mostrando propiedades: {0}</sys:String>
+  <sys:String x:Key="Explorer.PasteError">Error al pegar: {0}</sys:String>
+  <sys:String x:Key="Explorer.NetworkRoot">Red</sys:String>
+  <sys:String x:Key="Explorer.DirAccessError">Error de acceso a carpeta: {0}</sys:String>
+  <sys:String x:Key="Explorer.FileAccessError">Error de acceso a archivo: {0}</sys:String>
+
+  <!-- Notes -->
+  <sys:String x:Key="Notes.Title">Notas</sys:String>
+  <sys:String x:Key="Notes.Bullets">• Lista</sys:String>
+  <sys:String x:Key="Notes.Numbered">1. Lista</sys:String>
+  <sys:String x:Key="Notes.AlignLeft">Izquierda</sys:String>
+  <sys:String x:Key="Notes.AlignCenter">Centro</sys:String>
+  <sys:String x:Key="Notes.AlignRight">Derecha</sys:String>
+  <sys:String x:Key="Notes.FontSize">Tamaño de fuente:</sys:String>
+  <sys:String x:Key="Notes.Context.New">Nuevo</sys:String>
+  <sys:String x:Key="Notes.Context.Rename">Renombrar</sys:String>
+  <sys:String x:Key="Notes.Context.Delete">Eliminar</sys:String>
+  <sys:String x:Key="Notes.Context.Up">Subir</sys:String>
+  <sys:String x:Key="Notes.Context.Down">Bajar</sys:String>
+  <sys:String x:Key="Notes.DefaultRoot">General</sys:String>
+  <sys:String x:Key="Notes.Unnamed">Sin nombre</sys:String>
+  <sys:String x:Key="Notes.Prompt.TopicName">Nombre del tema:</sys:String>
+  <sys:String x:Key="Notes.Prompt.NewName">Nombre nuevo:</sys:String>
+  <sys:String x:Key="Notes.NameExists">El nombre ya existe.</sys:String>
+  <sys:String x:Key="Notes.RenameFailed">Error al renombrar: {0}</sys:String>
+  <sys:String x:Key="Notes.DeleteConfirm">¿Eliminar '{0}'?</sys:String>
+  <sys:String x:Key="Notes.DeleteTitle">Confirmar</sys:String>
+  <sys:String x:Key="Notes.DeleteFailed">Error al eliminar: {0}</sys:String>
+
+  <!-- Steam -->
+  <sys:String x:Key="Steam.Header">Biblioteca de Steam</sys:String>
+  <sys:String x:Key="Steam.Loading">Cargando biblioteca de Steam...</sys:String>
+  <sys:String x:Key="Steam.NoImage">Sin imagen</sys:String>
+  <sys:String x:Key="Steam.InstallNotFound">Instalación de Steam no encontrada.</sys:String>
+  <sys:String x:Key="Steam.ErrorTitle">Error</sys:String>
+
+  <!-- Terminal -->
+  <sys:String x:Key="Terminal.Clear">Limpiar</sys:String>
+  <sys:String x:Key="Terminal.Stop">Detener</sys:String>
+  <sys:String x:Key="Terminal.History">Historial</sys:String>
+  <sys:String x:Key="Terminal.Execute">Ejecutar</sys:String>
+  <sys:String x:Key="Terminal.Prompt">PS&gt;</sys:String>
+
+  <!-- Scripting -->
+  <sys:String x:Key="Scripting.Run">Ejecutar</sys:String>
+  <sys:String x:Key="Scripting.RunTooltip">Ejecutar (F5 / Ctrl+Enter)</sys:String>
+  <sys:String x:Key="Scripting.Open">Abrir</sys:String>
+  <sys:String x:Key="Scripting.OpenTooltip">Abrir (Ctrl+O)</sys:String>
+  <sys:String x:Key="Scripting.Save">Guardar</sys:String>
+  <sys:String x:Key="Scripting.SaveTooltip">Guardar (Ctrl+S)</sys:String>
+  <sys:String x:Key="Scripting.SaveAs">Guardar como</sys:String>
+  <sys:String x:Key="Scripting.SaveAsTooltip">Guardar como</sys:String>
+  <sys:String x:Key="Scripting.Undo">Deshacer</sys:String>
+  <sys:String x:Key="Scripting.Redo">Rehacer</sys:String>
+  <sys:String x:Key="Scripting.Cut">Cortar</sys:String>
+  <sys:String x:Key="Scripting.Copy">Copiar</sys:String>
+  <sys:String x:Key="Scripting.Paste">Pegar</sys:String>
+  <sys:String x:Key="Scripting.Clear">Limpiar</sys:String>
+  <sys:String x:Key="Scripting.LanguageLabel">Idioma:</sys:String>
+  <sys:String x:Key="Scripting.InitialReady">Listo. Idioma detectado automáticamente.</sys:String>
+  <sys:String x:Key="Scripting.OpenedFile">Abierto: {0}</sys:String>
+  <sys:String x:Key="Scripting.SavedFile">Guardado: {0}</sys:String>
+  <sys:String x:Key="Scripting.EditorCleared">Editor limpiado.</sys:String>
+  <sys:String x:Key="Scripting.LanguagePrefix">Idioma: {0}</sys:String>
+  <sys:String x:Key="Scripting.LanguageUnknown">Idioma no detectado.</sys:String>
+  <sys:String x:Key="Scripting.NoEntryPoint">No se encontró punto de entrada (Main/Run).</sys:String>
+  <sys:String x:Key="Scripting.CSharpException">Excepción de C#: {0}</sys:String>
+  <sys:String x:Key="Scripting.PythonException">Excepción de Python: {0}</sys:String>
+  <sys:String x:Key="Scripting.UnknownCompilerError">Error de compilación desconocido.</sys:String>
+  <sys:String x:Key="Scripting.EntryPointMissing">No se encontró punto de entrada (Main/Run).</sys:String>
+
+  <!-- Programs Dialog -->
+  <sys:String x:Key="Programs.Title">Programas</sys:String>
+  <sys:String x:Key="Programs.Add">Agregar</sys:String>
+  <sys:String x:Key="Programs.Remove">Eliminar</sys:String>
+  <sys:String x:Key="Programs.Save">Guardar</sys:String>
+  <sys:String x:Key="Programs.Close">Cerrar</sys:String>
+  <sys:String x:Key="Programs.Path">Ruta</sys:String>
+  <sys:String x:Key="Programs.Caption">Título</sys:String>
+  <sys:String x:Key="Programs.FooterHint">Doble clic en la ruta abre la carpeta</sys:String>
+  <sys:String x:Key="Programs.Saved">Guardado.</sys:String>
+  <sys:String x:Key="Programs.FileFilterExe">Programas (*.exe)|*.exe|Todos los archivos (*.*)|*.*</sys:String>
+
+  <!-- Office -->
+  <sys:String x:Key="Office.AppLabel">Aplicación:</sys:String>
+  <sys:String x:Key="Office.New">Nuevo</sys:String>
+  <sys:String x:Key="Office.Open">Abrir</sys:String>
+  <sys:String x:Key="Office.Save">Guardar</sys:String>
+  <sys:String x:Key="Office.SaveAs">Guardar como</sys:String>
+  <sys:String x:Key="Office.SizeLabel">Tamaño:</sys:String>
+  <sys:String x:Key="Office.AlignLeft">Izquierda</sys:String>
+  <sys:String x:Key="Office.AlignCenter">Centro</sys:String>
+  <sys:String x:Key="Office.AlignRight">Derecha</sys:String>
+  <sys:String x:Key="Office.StatusPrefix">MS Office:</sys:String>
+  <sys:String x:Key="Office.InitHostError">Error de inicialización del host: {0}</sys:String>
+  <sys:String x:Key="Office.NewDocError">Error de documento nuevo: {0}</sys:String>
+  <sys:String x:Key="Office.CreateError">Error de creación: {0}</sys:String>
+  <sys:String x:Key="Office.OpenDocError">Error al abrir documento: {0}</sys:String>
+  <sys:String x:Key="Office.OpenError">Error al abrir: {0}</sys:String>
+  <sys:String x:Key="Office.SaveError">Error al guardar: {0}</sys:String>
+  <sys:String x:Key="Office.FormatError">Error de formato: {0}</sys:String>
+  <sys:String x:Key="Office.WordFilter">Documentos de Word (*.doc;*.docx)|*.doc;*.docx|Todos los archivos (*.*)|*.*</sys:String>
+  <sys:String x:Key="Office.ExcelFilter">Hojas de Excel (*.xls;*.xlsx)|*.xls;*.xlsx|Todos los archivos (*.*)|*.*</sys:String>
+  <sys:String x:Key="Office.WordSaveFilter">Documentos de Word (*.docx)|*.docx|Todos los archivos (*.*)|*.*</sys:String>
+  <sys:String x:Key="Office.ExcelSaveFilter">Hojas de Excel (*.xlsx)|*.xlsx|Todos los archivos (*.*)|*.*</sys:String>
+  <sys:String x:Key="Office.DocumentSuffix">Documento</sys:String>
+  <sys:String x:Key="Office.InstallPrompt">Instale Microsoft Office.</sys:String>
+
+  <!-- SSH -->
+  <sys:String x:Key="SSH.Server">Servidor:</sys:String>
+  <sys:String x:Key="SSH.AddressTooltip">usuario@host o host:puerto</sys:String>
+  <sys:String x:Key="SSH.Connect">Conectar</sys:String>
+  <sys:String x:Key="SSH.Disconnect">Desconectar</sys:String>
+  <sys:String x:Key="SSH.Send">Enviar</sys:String>
+  <sys:String x:Key="SSH.Status.Ready">Listo.</sys:String>
+  <sys:String x:Key="SSH.Status.Connecting">Conectando...</sys:String>
+  <sys:String x:Key="SSH.Status.Connected">Conectado</sys:String>
+  <sys:String x:Key="SSH.Status.Error">Error</sys:String>
+  <sys:String x:Key="SSH.Status.Disconnected">Desconectado</sys:String>
+  <sys:String x:Key="SSH.AlreadyConnected">Ya conectado.</sys:String>
+  <sys:String x:Key="SSH.EnterAddress">Ingrese dirección (usuario@host o host[:puerto]).</sys:String>
+  <sys:String x:Key="SSH.InvalidAddress">Dirección inválida.</sys:String>
+  <sys:String x:Key="SSH.ConnectingTo">Conectando a {0}...</sys:String>
+  <sys:String x:Key="SSH.UsernamePrompt">Usuario:</sys:String>
+  <sys:String x:Key="SSH.PasswordPrompt">Contraseña para {0}:</sys:String>
+  <sys:String x:Key="SSH.Cancelled">Cancelado.</sys:String>
+  <sys:String x:Key="SSH.ConnectionError">Error de conexión: {0}</sys:String>
+  <sys:String x:Key="SSH.SendError">Error al enviar: {0}</sys:String>
+  <sys:String x:Key="SSH.LoginTitle">Inicio de sesión SSH</sys:String>
+
+  <!-- SFTP -->
+  <sys:String x:Key="SFTP.Status.Ready">Listo.</sys:String>
+  <sys:String x:Key="SFTP.Status.Connecting">Conectando...</sys:String>
+  <sys:String x:Key="SFTP.Status.Connected">Conectado</sys:String>
+  <sys:String x:Key="SFTP.Status.Error">Error</sys:String>
+  <sys:String x:Key="SFTP.Status.Disconnected">Desconectado</sys:String>
+  <sys:String x:Key="SFTP.LocalLoadError">No se puede cargar el directorio local: {0}</sys:String>
+  <sys:String x:Key="SFTP.CredentialsRequired">Se requieren host y usuario.</sys:String>
+  <sys:String x:Key="SFTP.LoginFailed">Error de inicio de sesión: {0}</sys:String>
+  <sys:String x:Key="SFTP.RemoteLoadFailed">Error al cargar remoto: {0}</sys:String>
+  <sys:String x:Key="SFTP.UploadFailed">Error al subir: {0}</sys:String>
+  <sys:String x:Key="SFTP.DownloadFailed">Error al descargar: {0}</sys:String>
+  <sys:String x:Key="SFTP.SshNetMissing">No se encontró SSH.NET (Renci.SshNet). Proporcione la biblioteca.</sys:String>
+
+  <!-- Browser -->
+  <sys:String x:Key="Browser.InitFailed">No se pudo inicializar WebView2: {0}</sys:String>
+  <sys:String x:Key="Browser.ErrorTitle">Error</sys:String>
+  <sys:String x:Key="Browser.NavigateError">Error de navegación: {0}</sys:String>
 </ResourceDictionary>

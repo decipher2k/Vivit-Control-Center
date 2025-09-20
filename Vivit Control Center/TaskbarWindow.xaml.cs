@@ -16,7 +16,7 @@ using System.Windows.Interop;
 using System.Text; // (für StringBuilder in neuen Methoden)
 
 namespace Vivit_Control_Center
-{
+{   
     public partial class TaskbarWindow : Window
     {
         // Win32 RECT + GetWindowRect (single declaration here)

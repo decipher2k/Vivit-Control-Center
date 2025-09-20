@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Vivit_Control_Center.Localization;
 
 namespace Vivit_Control_Center.Views.Modules
 {
@@ -24,8 +25,8 @@ namespace Vivit_Control_Center.Views.Modules
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"WebView2 konnte nicht initialisiert werden: {ex.Message}",
-                    "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(LocalizationManager.GetString("Browser.InitFailed", "WebView2 konnte nicht initialisiert werden: {0}"), ex.Message),
+                    LocalizationManager.GetString("Browser.ErrorTitle", "Fehler"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -41,8 +42,8 @@ namespace Vivit_Control_Center.Views.Modules
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Fehler bei der Navigation: {ex.Message}",
-                    "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(LocalizationManager.GetString("Browser.NavigateError", "Fehler bei der Navigation: {0}"), ex.Message),
+                    LocalizationManager.GetString("Browser.ErrorTitle", "Fehler"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

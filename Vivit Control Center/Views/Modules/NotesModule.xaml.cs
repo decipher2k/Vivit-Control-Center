@@ -10,6 +10,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using Vivit_Control_Center.Localization;
 
 namespace Vivit_Control_Center.Views.Modules
 {
@@ -43,7 +44,7 @@ namespace Vivit_Control_Center.Views.Modules
             // Ensure a default topic exists
             if (tvTopics.Items.Count == 0)
             {
-                var dir = Path.Combine(_rootDir, "Allgemein");
+                var dir = Path.Combine(_rootDir, LocalizationManager.GetString("Notes.DefaultRoot", "Allgemein"));
                 Directory.CreateDirectory(dir);
                 BuildChildren(_rootDir, tvTopics.Items);
             }
@@ -135,7 +136,7 @@ namespace Vivit_Control_Center.Views.Modules
 
         private void AddTopic_Click(object sender, RoutedEventArgs e)
         {
-            var name = Prompt("Topic-Name:");
+            var name = Prompt(LocalizationManager.GetString("Notes.Prompt.TopicName", "Topic-Name:"));
             if (string.IsNullOrWhiteSpace(name)) return;
             var safe = MakeSafeName(name);
             string parentDir = _rootDir;
@@ -164,11 +165,11 @@ namespace Vivit_Control_Center.Views.Modules
         {
             if (!(tvTopics.SelectedItem is TreeViewItem tvi)) return;
             var oldName = tvi.Header.ToString();
-            var newName = Prompt("Neuer Name:", oldName);
+            var newName = Prompt(LocalizationManager.GetString("Notes.Prompt.NewName", "Neuer Name:"), oldName);
             if (string.IsNullOrWhiteSpace(newName) || string.Equals(newName, oldName, StringComparison.Ordinal)) return;
             var oldDir = tvi.Tag as string;
             var newDir = Path.Combine(Path.GetDirectoryName(oldDir) ?? _rootDir, MakeSafeName(newName));
-            if (Directory.Exists(newDir)) { MessageBox.Show("Name existiert schon."); return; }
+            if (Directory.Exists(newDir)) { MessageBox.Show(LocalizationManager.GetString("Notes.NameExists", "Name existiert schon.")); return; }
             try
             {
                 Directory.Move(oldDir, newDir);
@@ -177,7 +178,7 @@ namespace Vivit_Control_Center.Views.Modules
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Umbenennen fehlgeschlagen: " + ex.Message);
+                MessageBox.Show(string.Format(LocalizationManager.GetString("Notes.RenameFailed", "Umbenennen fehlgeschlagen: {0}"), ex.Message));
             }
         }
 
@@ -185,7 +186,7 @@ namespace Vivit_Control_Center.Views.Modules
         {
             if (!(tvTopics.SelectedItem is TreeViewItem tvi)) return;
             var dir = tvi.Tag as string;
-            if (MessageBox.Show($"'{tvi.Header}' loeschen?", "Bestaetigen", MessageBoxButton.YesNo) != MessageBoxResult.Yes) return;
+            if (MessageBox.Show(string.Format(LocalizationManager.GetString("Notes.DeleteConfirm", "'{0}' loeschen?"), tvi.Header), LocalizationManager.GetString("Notes.DeleteTitle", "Bestaetigen"), MessageBoxButton.YesNo) != MessageBoxResult.Yes) return;
             try
             {
                 Directory.Delete(dir, true);
@@ -199,7 +200,7 @@ namespace Vivit_Control_Center.Views.Modules
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Loeschen fehlgeschlagen: " + ex.Message);
+                MessageBox.Show(string.Format(LocalizationManager.GetString("Notes.DeleteFailed", "Loeschen fehlgeschlagen: {0}"), ex.Message));
             }
         }
 
@@ -257,12 +258,12 @@ namespace Vivit_Control_Center.Views.Modules
         {
             foreach (var c in Path.GetInvalidFileNameChars()) input = input.Replace(c, '_');
             input = input.Trim();
-            return string.IsNullOrEmpty(input) ? "Unbenannt" : input;
+            return string.IsNullOrEmpty(input) ? Localization.LocalizationManager.GetString("Notes.Unnamed", "Unbenannt") : input;
         }
 
         private string Prompt(string message, string initial = "")
         {
-            var win = new Window { Title = "Notiz", Width = 360, Height = 140, WindowStartupLocation = WindowStartupLocation.CenterOwner, Owner = Application.Current.MainWindow, ResizeMode = ResizeMode.NoResize };
+            var win = new Window { Title = LocalizationManager.GetString("Notes.Title", "Notiz"), Width = 360, Height = 140, WindowStartupLocation = WindowStartupLocation.CenterOwner, Owner = Application.Current.MainWindow, ResizeMode = ResizeMode.NoResize };
             var grid = new Grid { Margin = new Thickness(12) };
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -272,8 +273,8 @@ namespace Vivit_Control_Center.Views.Modules
             var tb = new TextBox { Text = initial, Margin = new Thickness(0, 0, 0, 8) };
             Grid.SetRow(tb, 1);
             var panel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
-            var ok = new Button { Content = "OK", Width = 80, Margin = new Thickness(0, 0, 8, 0), IsDefault = true };
-            var cancel = new Button { Content = "Abbrechen", Width = 80, IsCancel = true };
+            var ok = new Button { Content = LocalizationManager.GetString("Dialog.OK", "OK"), Width = 80, Margin = new Thickness(0, 0, 8, 0), IsDefault = true };
+            var cancel = new Button { Content = LocalizationManager.GetString("Settings.Cancel", "Abbrechen"), Width = 80, IsCancel = true };
             ok.Click += (_, __) => { win.DialogResult = true; win.Close(); };
             cancel.Click += (_, __) => { win.DialogResult = false; win.Close(); };
             panel.Children.Add(ok); panel.Children.Add(cancel);
@@ -289,7 +290,7 @@ namespace Vivit_Control_Center.Views.Modules
             base.SetVisible(visible);
             if (visible && tvTopics.Items.Count == 0)
             {
-                var dir = Path.Combine(_rootDir, "Allgemein");
+                var dir = Path.Combine(_rootDir, LocalizationManager.GetString("Notes.DefaultRoot", "Allgemein"));
                 if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
                 LoadTree();
                 if (tvTopics.Items.Count > 0 && tvTopics.Items[0] is TreeViewItem t) t.IsSelected = true;

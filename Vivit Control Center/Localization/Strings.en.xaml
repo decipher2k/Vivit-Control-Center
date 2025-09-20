@@ -27,11 +27,33 @@
   <sys:String x:Key="Settings.CurrentShell">Current shell:</sys:String>
   <sys:String x:Key="Settings.CurrentlyShell">Currently set as shell</sys:String>
   <sys:String x:Key="Settings.RestartNotice">(Restart required)</sys:String>
+  <!-- Settings new -->
+  <sys:String x:Key="Settings.UrlForModuleTitle">URL for module '{0}'</sys:String>
+  <sys:String x:Key="Settings.EnterUrlPrompt">Enter URL (http/https):</sys:String>
+  <sys:String x:Key="Settings.ConfigureFediverseHint">Configure Fediverse URL in the field under News.</sys:String>
+  <sys:String x:Key="Settings.InvalidUrl">Enter valid http/https URL.</sys:String>
+  <sys:String x:Key="Settings.SavedRestartRecommended">Settings saved. Restart recommended.</sys:String>
+  <sys:String x:Key="Settings.ShellChangeFailed">Shell change failed: {0}</sys:String>
+
+  <!-- Dialog/common -->
+  <sys:String x:Key="Dialog.OK">OK</sys:String>
+  <sys:String x:Key="Dialog.Error">Error</sys:String>
+  <sys:String x:Key="Dialog.Confirm">Confirm</sys:String>
+  <sys:String x:Key="Dialog.Default">(Default)</sys:String>
+  <sys:String x:Key="Dialog.SelectFolder">Select Folder</sys:String>
 
   <!-- App general -->
   <sys:String x:Key="App.LoadingModules">Loading modules...</sys:String>
   <sys:String x:Key="App.PendingModules">Pending Modules:</sys:String>
   <sys:String x:Key="App.ModulesLoadedFormat">{0} of {1} modules loaded</sys:String>
+  <sys:String x:Key="App.ExitShellQuestion">Exit shell mode and close? (Explorer will not be started automatically)</sys:String>
+  <sys:String x:Key="App.ExitTitle">Exit</sys:String>
+  <sys:String x:Key="App.RebootConfirm">Do you really want to reboot the computer?</sys:String>
+  <sys:String x:Key="App.RebootConfirmTitle">Confirm Reboot</sys:String>
+  <sys:String x:Key="App.ShutdownConfirm">Do you really want to shut down the computer?</sys:String>
+  <sys:String x:Key="App.ShutdownConfirmTitle">Confirm Shutdown</sys:String>
+  <sys:String x:Key="App.PowerChoicePrompt">Choose action:\nYes = Reboot\nNo = Shutdown\nCancel = Cancel</sys:String>
+  <sys:String x:Key="App.PowerTitle">Power</sys:String>
 
   <!-- Explorer -->
   <sys:String x:Key="Explorer.Cut">Cut</sys:String>
@@ -58,6 +80,7 @@
   <sys:String x:Key="Explorer.FileAccessError">File access error: {0}</sys:String>
 
   <!-- Notes (deduplicated) -->
+  <sys:String x:Key="Notes.Title">Notes</sys:String>
   <sys:String x:Key="Notes.Bullets">• List</sys:String>
   <sys:String x:Key="Notes.Numbered">1. List</sys:String>
   <sys:String x:Key="Notes.AlignLeft">Left</sys:String>
@@ -156,6 +179,7 @@
   <sys:String x:Key="Office.WordSaveFilter">Word Documents (*.docx)|*.docx|All Files (*.*)|*.*</sys:String>
   <sys:String x:Key="Office.ExcelSaveFilter">Excel Sheets (*.xlsx)|*.xlsx|All Files (*.*)|*.*</sys:String>
   <sys:String x:Key="Office.DocumentSuffix">Document</sys:String>
+  <sys:String x:Key="Office.InstallPrompt">Please install Microsoft Office.</sys:String>
 
   <!-- SSH -->
   <sys:String x:Key="SSH.Server">Server:</sys:String>
@@ -177,6 +201,24 @@
   <sys:String x:Key="SSH.Cancelled">Cancelled.</sys:String>
   <sys:String x:Key="SSH.ConnectionError">Connection error: {0}</sys:String>
   <sys:String x:Key="SSH.SendError">Send error: {0}</sys:String>
-  <sys:String x:Key="Dialog.OK">OK</sys:String>
   <sys:String x:Key="SSH.LoginTitle">SSH Login</sys:String>
+
+  <!-- SFTP -->
+  <sys:String x:Key="SFTP.Status.Ready">Ready.</sys:String>
+  <sys:String x:Key="SFTP.Status.Connecting">Connecting...</sys:String>
+  <sys:String x:Key="SFTP.Status.Connected">Connected</sys:String>
+  <sys:String x:Key="SFTP.Status.Error">Error</sys:String>
+  <sys:String x:Key="SFTP.Status.Disconnected">Disconnected</sys:String>
+  <sys:String x:Key="SFTP.LocalLoadError">Local directory cannot be loaded: {0}</sys:String>
+  <sys:String x:Key="SFTP.CredentialsRequired">Host and user are required.</sys:String>
+  <sys:String x:Key="SFTP.LoginFailed">Login failed: {0}</sys:String>
+  <sys:String x:Key="SFTP.RemoteLoadFailed">Remote load failed: {0}</sys:String>
+  <sys:String x:Key="SFTP.UploadFailed">Upload failed: {0}</sys:String>
+  <sys:String x:Key="SFTP.DownloadFailed">Download failed: {0}</sys:String>
+  <sys:String x:Key="SFTP.SshNetMissing">SSH.NET (Renci.SshNet) not found. Please provide the library.</sys:String>
+
+  <!-- Browser -->
+  <sys:String x:Key="Browser.InitFailed">WebView2 could not be initialized: {0}</sys:String>
+  <sys:String x:Key="Browser.ErrorTitle">Error</sys:String>
+  <sys:String x:Key="Browser.NavigateError">Navigation error: {0}</sys:String>
 </ResourceDictionary>

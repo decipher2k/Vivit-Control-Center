@@ -2,7 +2,7 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
-  <!-- Russkiy -->
+  <!-- Русский (транслит/ASCII совместимый) -->
   <sys:String x:Key="Settings.Title">Nastroiki</sys:String>
   <sys:String x:Key="Settings.Language">Yazyk</sys:String>
   <sys:String x:Key="Settings.NewsModule">Modul novostey</sys:String>
@@ -19,11 +19,205 @@
   <sys:String x:Key="Settings.Modules">Moduli</sys:String>
   <sys:String x:Key="Settings.Shell">Obolochka Windows</sys:String>
   <sys:String x:Key="Settings.SetShell">Ispolzovat kak obolochku</sys:String>
-  <sys:String x:Key="Settings.RestoreShell">Vosstanovit standarnuyu obolochku</sys:String>
+  <sys:String x:Key="Settings.RestoreShell">Vosstanovit standartnuyu obolochku</sys:String>
   <sys:String x:Key="Settings.Save">Sohranit</sys:String>
   <sys:String x:Key="Settings.Cancel">Otmena</sys:String>
   <sys:String x:Key="Settings.ManagePrograms">Upravlenie programmami</sys:String>
   <sys:String x:Key="Settings.CurrentShell">Tekushchaya obolochka:</sys:String>
   <sys:String x:Key="Settings.CurrentlyShell">Ustanovleno kak obolochka</sys:String>
   <sys:String x:Key="Settings.RestartNotice">(Trebuetsya per????usk)</sys:String>
+  <!-- Settings new -->
+  <sys:String x:Key="Settings.UrlForModuleTitle">URL dlya modula '{0}'</sys:String>
+  <sys:String x:Key="Settings.EnterUrlPrompt">Vvedite URL (http/https):</sys:String>
+  <sys:String x:Key="Settings.ConfigureFediverseHint">Nastroyte URL Fediverse v pole nizhe v razdele Novosti.</sys:String>
+  <sys:String x:Key="Settings.InvalidUrl">Vvedite korrektnyy http/https URL.</sys:String>
+  <sys:String x:Key="Settings.SavedRestartRecommended">Nastroyki sohraneny. Rekomenduetsya perezagruzka.</sys:String>
+  <sys:String x:Key="Settings.ShellChangeFailed">Sboj izmeneniya obolochki: {0}</sys:String>
+
+  <!-- Dialog/common -->
+  <sys:String x:Key="Dialog.OK">OK</sys:String>
+  <sys:String x:Key="Dialog.Error">Oshibka</sys:String>
+  <sys:String x:Key="Dialog.Confirm">Podtverdit</sys:String>
+  <sys:String x:Key="Dialog.Default">(Po umolchaniyu)</sys:String>
+  <sys:String x:Key="Dialog.SelectFolder">Vybrat papku</sys:String>
+
+  <!-- App general -->
+  <sys:String x:Key="App.LoadingModules">Zagruzka moduley...</sys:String>
+  <sys:String x:Key="App.PendingModules">Ozhidayushchie moduli:</sys:String>
+  <sys:String x:Key="App.ModulesLoadedFormat">{0} iz {1} moduley zagruzeno</sys:String>
+  <sys:String x:Key="App.ExitShellQuestion">Vyiti iz rezhima obolochki i zakryt? (Explorer ne budet zapushchen avtomaticheski)</sys:String>
+  <sys:String x:Key="App.ExitTitle">Vyhod</sys:String>
+  <sys:String x:Key="App.RebootConfirm">Deystvitelno perezapustit kompyuter?</sys:String>
+  <sys:String x:Key="App.RebootConfirmTitle">Podtverdit perezagruzku</sys:String>
+  <sys:String x:Key="App.ShutdownConfirm">Deystvitelno vykljuchit kompyuter?</sys:String>
+  <sys:String x:Key="App.ShutdownConfirmTitle">Podtverdit vykljuchenie</sys:String>
+  <sys:String x:Key="App.PowerChoicePrompt">Vyberite deystvie:\nDa = Perezagruzka\nNet = Otklyuchenie\nOtmena = Otmena</sys:String>
+  <sys:String x:Key="App.PowerTitle">Pitaniye</sys:String>
+
+  <!-- Explorer -->
+  <sys:String x:Key="Explorer.Cut">Vyrezať</sys:String>
+  <sys:String x:Key="Explorer.Copy">Kopirovat</sys:String>
+  <sys:String x:Key="Explorer.Paste">Vstavit</sys:String>
+  <sys:String x:Key="Explorer.Delete">Udalit</sys:String>
+  <sys:String x:Key="Explorer.Properties">Svojstva</sys:String>
+  <sys:String x:Key="Explorer.ParentFolder">Roditelskaya papka</sys:String>
+  <sys:String x:Key="Explorer.Refresh">Obnovit</sys:String>
+  <sys:String x:Key="Explorer.GoTo">Pereyti</sys:String>
+  <sys:String x:Key="Explorer.Col.Name">Imya</sys:String>
+  <sys:String x:Key="Explorer.Col.Size">Razmer</sys:String>
+  <sys:String x:Key="Explorer.Col.Modified">Izmeneno</sys:String>
+  <sys:String x:Key="Explorer.DeleteConfirmSingle">Udalit "{0}"?</sys:String>
+  <sys:String x:Key="Explorer.DeleteConfirmMultiple">Udalit eti {0} elementov?\n{1}</sys:String>
+  <sys:String x:Key="Explorer.DeleteConfirmTitle">Podtverdit udalenie</sys:String>
+  <sys:String x:Key="Explorer.DeleteError">Oshibka pri udalenii {0}: {1}</sys:String>
+  <sys:String x:Key="Explorer.NavigateError">Oshibka navigatsii: {0}</sys:String>
+  <sys:String x:Key="Explorer.OpenError">Oshibka otkrytiya: {0}</sys:String>
+  <sys:String x:Key="Explorer.PropertiesError">Oshibka pokaz svoistv: {0}</sys:String>
+  <sys:String x:Key="Explorer.PasteError">Oshibka vstavki: {0}</sys:String>
+  <sys:String x:Key="Explorer.NetworkRoot">Set</sys:String>
+  <sys:String x:Key="Explorer.DirAccessError">Oshibka dostupa k papke: {0}</sys:String>
+  <sys:String x:Key="Explorer.FileAccessError">Oshibka dostupa k faylu: {0}</sys:String>
+
+  <!-- Notes -->
+  <sys:String x:Key="Notes.Title">Zametki</sys:String>
+  <sys:String x:Key="Notes.Bullets">• Spisok</sys:String>
+  <sys:String x:Key="Notes.Numbered">1. Spisok</sys:String>
+  <sys:String x:Key="Notes.AlignLeft">Sleva</sys:String>
+  <sys:String x:Key="Notes.AlignCenter">Po centru</sys:String>
+  <sys:String x:Key="Notes.AlignRight">Sppava</sys:String>
+  <sys:String x:Key="Notes.FontSize">Razmer shrifta:</sys:String>
+  <sys:String x:Key="Notes.Context.New">Novyj</sys:String>
+  <sys:String x:Key="Notes.Context.Rename">Pereimenovat</sys:String>
+  <sys:String x:Key="Notes.Context.Delete">Udalit</sys:String>
+  <sys:String x:Key="Notes.Context.Up">Vverh</sys:String>
+  <sys:String x:Key="Notes.Context.Down">Vniz</sys:String>
+  <sys:String x:Key="Notes.DefaultRoot">Obshchee</sys:String>
+  <sys:String x:Key="Notes.Unnamed">Bez imeni</sys:String>
+  <sys:String x:Key="Notes.Prompt.TopicName">Nazvanie temy:</sys:String>
+  <sys:String x:Key="Notes.Prompt.NewName">Novoe nazvanie:</sys:String>
+  <sys:String x:Key="Notes.NameExists">Imya uzhe sushchestvuet.</sys:String>
+  <sys:String x:Key="Notes.RenameFailed">Sboj pereimenovaniya: {0}</sys:String>
+  <sys:String x:Key="Notes.DeleteConfirm">Udalit '{0}'?</sys:String>
+  <sys:String x:Key="Notes.DeleteTitle">Podtverdit</sys:String>
+  <sys:String x:Key="Notes.DeleteFailed">Sboj udalenia: {0}</sys:String>
+
+  <!-- Steam -->
+  <sys:String x:Key="Steam.Header">Biblioteka Steam</sys:String>
+  <sys:String x:Key="Steam.Loading">Zagruzka biblioteki Steam...</sys:String>
+  <sys:String x:Key="Steam.NoImage">Net izobrazheniya</sys:String>
+  <sys:String x:Key="Steam.InstallNotFound">Ustanovka Steam ne naydena.</sys:String>
+  <sys:String x:Key="Steam.ErrorTitle">Oshibka</sys:String>
+
+  <!-- Terminal -->
+  <sys:String x:Key="Terminal.Clear">Ochistit</sys:String>
+  <sys:String x:Key="Terminal.Stop">Stop</sys:String>
+  <sys:String x:Key="Terminal.History">Istoriya</sys:String>
+  <sys:String x:Key="Terminal.Execute">Vypolnit</sys:String>
+  <sys:String x:Key="Terminal.Prompt">PS&gt;</sys:String>
+
+  <!-- Scripting -->
+  <sys:String x:Key="Scripting.Run">Zapustit</sys:String>
+  <sys:String x:Key="Scripting.RunTooltip">Zapustit (F5 / Ctrl+Enter)</sys:String>
+  <sys:String x:Key="Scripting.Open">Otkryt</sys:String>
+  <sys:String x:Key="Scripting.OpenTooltip">Otkryt (Ctrl+O)</sys:String>
+  <sys:String x:Key="Scripting.Save">Sohranit</sys:String>
+  <sys:String x:Key="Scripting.SaveTooltip">Sohranit (Ctrl+S)</sys:String>
+  <sys:String x:Key="Scripting.SaveAs">Sohranit kak</sys:String>
+  <sys:String x:Key="Scripting.SaveAsTooltip">Sohranit kak</sys:String>
+  <sys:String x:Key="Scripting.Undo">Otmenit</sys:String>
+  <sys:String x:Key="Scripting.Redo">Povtorit</sys:String>
+  <sys:String x:Key="Scripting.Cut">Vyrezať</sys:String>
+  <sys:String x:Key="Scripting.Copy">Kopirovat</sys:String>
+  <sys:String x:Key="Scripting.Paste">Vstavit</sys:String>
+  <sys:String x:Key="Scripting.Clear">Ochistit</sys:String>
+  <sys:String x:Key="Scripting.LanguageLabel">Yazyk:</sys:String>
+  <sys:String x:Key="Scripting.InitialReady">Skripting gotov. Yazyk opredelen avtomaticheski.</sys:String>
+  <sys:String x:Key="Scripting.OpenedFile">Otkryto: {0}</sys:String>
+  <sys:String x:Key="Scripting.SavedFile">Sohraneno: {0}</sys:String>
+  <sys:String x:Key="Scripting.EditorCleared">Redaktor ochishchen.</sys:String>
+  <sys:String x:Key="Scripting.LanguagePrefix">Yazyk: {0}</sys:String>
+  <sys:String x:Key="Scripting.LanguageUnknown">Yazyk ne opredelen.</sys:String>
+  <sys:String x:Key="Scripting.NoEntryPoint">Net tochki vhoda (Main/Run).</sys:String>
+  <sys:String x:Key="Scripting.CSharpException">Oshibka C#: {0}</sys:String>
+  <sys:String x:Key="Scripting.PythonException">Oshibka Python: {0}</sys:String>
+  <sys:String x:Key="Scripting.UnknownCompilerError">Neizvestnaya oshibka kompilatsii.</sys:String>
+  <sys:String x:Key="Scripting.EntryPointMissing">Net tochki vhoda (Main/Run).</sys:String>
+
+  <!-- Programs Dialog -->
+  <sys:String x:Key="Programs.Title">Programmy</sys:String>
+  <sys:String x:Key="Programs.Add">Dobavit</sys:String>
+  <sys:String x:Key="Programs.Remove">Udalit</sys:String>
+  <sys:String x:Key="Programs.Save">Sohranit</sys:String>
+  <sys:String x:Key="Programs.Close">Zakryt</sys:String>
+  <sys:String x:Key="Programs.Path">Put</sys:String>
+  <sys:String x:Key="Programs.Caption">Zagolovok</sys:String>
+  <sys:String x:Key="Programs.FooterHint">Dvoynoy schelchok po puti otkryvaet papku</sys:String>
+  <sys:String x:Key="Programs.Saved">Sohraneno.</sys:String>
+  <sys:String x:Key="Programs.FileFilterExe">Programmy (*.exe)|*.exe|Vse fayly (*.*)|*.*</sys:String>
+
+  <!-- Office -->
+  <sys:String x:Key="Office.AppLabel">Prilozhenie:</sys:String>
+  <sys:String x:Key="Office.New">Novyj</sys:String>
+  <sys:String x:Key="Office.Open">Otkryt</sys:String>
+  <sys:String x:Key="Office.Save">Sohranit</sys:String>
+  <sys:String x:Key="Office.SaveAs">Sohranit kak</sys:String>
+  <sys:String x:Key="Office.SizeLabel">Razmer:</sys:String>
+  <sys:String x:Key="Office.AlignLeft">Sleva</sys:String>
+  <sys:String x:Key="Office.AlignCenter">Po centru</sys:String>
+  <sys:String x:Key="Office.AlignRight">Sprava</sys:String>
+  <sys:String x:Key="Office.StatusPrefix">MS Office:</sys:String>
+  <sys:String x:Key="Office.InitHostError">Oshibka inicializatsii hosta: {0}</sys:String>
+  <sys:String x:Key="Office.NewDocError">Oshibka novogo dokumenta: {0}</sys:String>
+  <sys:String x:Key="Office.CreateError">Oshibka sozdaniya: {0}</sys:String>
+  <sys:String x:Key="Office.OpenDocError">Oshibka otkrytiya dokumenta: {0}</sys:String>
+  <sys:String x:Key="Office.OpenError">Oshibka otkrytiya: {0}</sys:String>
+  <sys:String x:Key="Office.SaveError">Oshibka sohraneniya: {0}</sys:String>
+  <sys:String x:Key="Office.FormatError">Oshibka formata: {0}</sys:String>
+  <sys:String x:Key="Office.WordFilter">Dokumenty Word (*.doc;*.docx)|*.doc;*.docx|Vse fayly (*.*)|*.*</sys:String>
+  <sys:String x:Key="Office.ExcelFilter">Listy Excel (*.xls;*.xlsx)|*.xls;*.xlsx|Vse fayly (*.*)|*.*</sys:String>
+  <sys:String x:Key="Office.WordSaveFilter">Dokumenty Word (*.docx)|*.docx|Vse fayly (*.*)|*.*</sys:String>
+  <sys:String x:Key="Office.ExcelSaveFilter">Listy Excel (*.xlsx)|*.xlsx|Vse fayly (*.*)|*.*</sys:String>
+  <sys:String x:Key="Office.DocumentSuffix">Dokument</sys:String>
+  <sys:String x:Key="Office.InstallPrompt">Ustanovite Microsoft Office.</sys:String>
+
+  <!-- SSH -->
+  <sys:String x:Key="SSH.Server">Server:</sys:String>
+  <sys:String x:Key="SSH.AddressTooltip">user@host ili host:port</sys:String>
+  <sys:String x:Key="SSH.Connect">Podklyuchit</sys:String>
+  <sys:String x:Key="SSH.Disconnect">Otklyuchit</sys:String>
+  <sys:String x:Key="SSH.Send">Otdat</sys:String>
+  <sys:String x:Key="SSH.Status.Ready">Gotov.</sys:String>
+  <sys:String x:Key="SSH.Status.Connecting">Podklyuchenie...</sys:String>
+  <sys:String x:Key="SSH.Status.Connected">Podklyucheno</sys:String>
+  <sys:String x:Key="SSH.Status.Error">Oshibka</sys:String>
+  <sys:String x:Key="SSH.Status.Disconnected">Otklyucheno</sys:String>
+  <sys:String x:Key="SSH.AlreadyConnected">Uzhe podklyucheno.</sys:String>
+  <sys:String x:Key="SSH.EnterAddress">Vvedite adres (user@host ili host[:port]).</sys:String>
+  <sys:String x:Key="SSH.InvalidAddress">Nevernyy adres.</sys:String>
+  <sys:String x:Key="SSH.ConnectingTo">Podklyuchenie k {0}...</sys:String>
+  <sys:String x:Key="SSH.UsernamePrompt">Imya polzovatelya:</sys:String>
+  <sys:String x:Key="SSH.PasswordPrompt">Parol dlya {0}:</sys:String>
+  <sys:String x:Key="SSH.Cancelled">Otmeneno.</sys:String>
+  <sys:String x:Key="SSH.ConnectionError">Oshibka soedineniya: {0}</sys:String>
+  <sys:String x:Key="SSH.SendError">Oshibka otpravki: {0}</sys:String>
+  <sys:String x:Key="SSH.LoginTitle">Vkhod SSH</sys:String>
+
+  <!-- SFTP -->
+  <sys:String x:Key="SFTP.Status.Ready">Gotov.</sys:String>
+  <sys:String x:Key="SFTP.Status.Connecting">Podklyuchenie...</sys:String>
+  <sys:String x:Key="SFTP.Status.Connected">Podklyucheno</sys:String>
+  <sys:String x:Key="SFTP.Status.Error">Oshibka</sys:String>
+  <sys:String x:Key="SFTP.Status.Disconnected">Otklyucheno</sys:String>
+  <sys:String x:Key="SFTP.LocalLoadError">Nelzya zagruzit lokalnuyu papku: {0}</sys:String>
+  <sys:String x:Key="SFTP.CredentialsRequired">Trebuyutsya host i polzovatel.</sys:String>
+  <sys:String x:Key="SFTP.LoginFailed">Sboj vhoda: {0}</sys:String>
+  <sys:String x:Key="SFTP.RemoteLoadFailed">Sboj udalennoy zagruzki: {0}</sys:String>
+  <sys:String x:Key="SFTP.UploadFailed">Sboj zagruzki: {0}</sys:String>
+  <sys:String x:Key="SFTP.DownloadFailed">Sboj skachivaniya: {0}</sys:String>
+  <sys:String x:Key="SFTP.SshNetMissing">SSH.NET (Renci.SshNet) ne nayden. Predostavte biblioteki.</sys:String>
+
+  <!-- Browser -->
+  <sys:String x:Key="Browser.InitFailed">Ne udalos inicializirovat WebView2: {0}</sys:String>
+  <sys:String x:Key="Browser.ErrorTitle">Oshibka</sys:String>
+  <sys:String x:Key="Browser.NavigateError">Oshibka navigatsii: {0}</sys:String>
 </ResourceDictionary>

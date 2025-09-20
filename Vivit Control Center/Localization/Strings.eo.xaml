@@ -5,25 +5,219 @@
   <!-- Esperanto ASCII -->
   <sys:String x:Key="Settings.Title">Agordoj</sys:String>
   <sys:String x:Key="Settings.Language">Lingvo</sys:String>
-  <sys:String x:Key="Settings.NewsModule">Novajhoj Modulo</sys:String>
-  <sys:String x:Key="Settings.RssFeedsEdit">Redakti RSS Fluo</sys:String>
+  <sys:String x:Key="Settings.NewsModule">Novaĵoj Modulo</sys:String>
+  <sys:String x:Key="Settings.RssFeedsEdit">Redakti RSS-fluojn</sys:String>
   <sys:String x:Key="Settings.MaxArticles">Maks. artikoloj:</sys:String>
   <sys:String x:Key="Settings.Fediverse">Fediverse</sys:String>
   <sys:String x:Key="Settings.FediverseUrl">Fediverse URL:</sys:String>
   <sys:String x:Key="Settings.AIModule">AI Modulo</sys:String>
-  <sys:String x:Key="Settings.MessengerModule">Mesaghilo Modulo</sys:String>
+  <sys:String x:Key="Settings.MessengerModule">Mesaĝilo Modulo</sys:String>
   <sys:String x:Key="Settings.ChatModule">Babilejo Modulo</sys:String>
-  <sys:String x:Key="Settings.Paths">Defa?ltaj Vojoj</sys:String>
+  <sys:String x:Key="Settings.Paths">Defaŭltaj Vojoj</sys:String>
   <sys:String x:Key="Settings.LocalPath">Loka Vojo:</sys:String>
   <sys:String x:Key="Settings.ScriptPath">Skriptoj Vojo:</sys:String>
   <sys:String x:Key="Settings.Modules">Moduloj</sys:String>
-  <sys:String x:Key="Settings.Shell">Windows Shelo</sys:String>
-  <sys:String x:Key="Settings.SetShell">Agordi kiel Shelo</sys:String>
-  <sys:String x:Key="Settings.RestoreShell">Restauri Standardan Shelon</sys:String>
+  <sys:String x:Key="Settings.Shell">Windows Ŝelo</sys:String>
+  <sys:String x:Key="Settings.SetShell">Agordi kiel Ŝelon</sys:String>
+  <sys:String x:Key="Settings.RestoreShell">Restaŭri Norman Ŝelon</sys:String>
   <sys:String x:Key="Settings.Save">Konservi</sys:String>
   <sys:String x:Key="Settings.Cancel">Nuligi</sys:String>
   <sys:String x:Key="Settings.ManagePrograms">Mastrumi Programojn</sys:String>
-  <sys:String x:Key="Settings.CurrentShell">Aktuala Shelo:</sys:String>
-  <sys:String x:Key="Settings.CurrentlyShell">Aktuale Shelo Agordita</sys:String>
-  <sys:String x:Key="Settings.RestartNotice">(Rellanco bezonata)</sys:String>
+  <sys:String x:Key="Settings.CurrentShell">Aktuala Ŝelo:</sys:String>
+  <sys:String x:Key="Settings.CurrentlyShell">Aktuale agordita kiel Ŝelo</sys:String>
+  <sys:String x:Key="Settings.RestartNotice">(Relanĉo bezonata)</sys:String>
+  <!-- Settings new -->
+  <sys:String x:Key="Settings.UrlForModuleTitle">URL por moduo '{0}'</sys:String>
+  <sys:String x:Key="Settings.EnterUrlPrompt">Enigu URL-on (http/https):</sys:String>
+  <sys:String x:Key="Settings.ConfigureFediverseHint">Agordu la Fediverse-URL en la kampo sub Novaĵoj.</sys:String>
+  <sys:String x:Key="Settings.InvalidUrl">Enigu validan http/https-URL-on.</sys:String>
+  <sys:String x:Key="Settings.SavedRestartRecommended">Agordoj konservitaj. Rekomendita relanĉo.</sys:String>
+  <sys:String x:Key="Settings.ShellChangeFailed">Ŝanĝo de ŝelo malsukcesis: {0}</sys:String>
+
+  <!-- Dialog/common -->
+  <sys:String x:Key="Dialog.OK">Bone</sys:String>
+  <sys:String x:Key="Dialog.Error">Eraro</sys:String>
+  <sys:String x:Key="Dialog.Confirm">Konfirmi</sys:String>
+  <sys:String x:Key="Dialog.Default">(Defaŭlte)</sys:String>
+  <sys:String x:Key="Dialog.SelectFolder">Elekti Dosierujon</sys:String>
+
+  <!-- App general -->
+  <sys:String x:Key="App.LoadingModules">Ŝargante modulojn...</sys:String>
+  <sys:String x:Key="App.PendingModules">Prikontrolendaj Moduloj:</sys:String>
+  <sys:String x:Key="App.ModulesLoadedFormat">{0} el {1} moduloj ŝargitaj</sys:String>
+  <sys:String x:Key="App.ExitShellQuestion">Ĉu eliri el ŝelreĝimo kaj fermi? (Esplorilo ne lanĉiĝos aŭtomate)</sys:String>
+  <sys:String x:Key="App.ExitTitle">Eliri</sys:String>
+  <sys:String x:Key="App.RebootConfirm">Ĉu vi vere volas relanĉi la komputilon?</sys:String>
+  <sys:String x:Key="App.RebootConfirmTitle">Konfirmi Relanĉon</sys:String>
+  <sys:String x:Key="App.ShutdownConfirm">Ĉu vi vere volas malŝalti la komputilon?</sys:String>
+  <sys:String x:Key="App.ShutdownConfirmTitle">Konfirmi Malŝalton</sys:String>
+  <sys:String x:Key="App.PowerChoicePrompt">Elektu agon:\nJes = Relanĉo\nNe = Malŝalto\nNuligi = Nuligi</sys:String>
+  <sys:String x:Key="App.PowerTitle">Energio</sys:String>
+
+  <!-- Explorer -->
+  <sys:String x:Key="Explorer.Cut">Eltondi</sys:String>
+  <sys:String x:Key="Explorer.Copy">Kopii</sys:String>
+  <sys:String x:Key="Explorer.Paste">Alglui</sys:String>
+  <sys:String x:Key="Explorer.Delete">Forigi</sys:String>
+  <sys:String x:Key="Explorer.Properties">Ecoj</sys:String>
+  <sys:String x:Key="Explorer.ParentFolder">Gepatra Dosierujo</sys:String>
+  <sys:String x:Key="Explorer.Refresh">Aktualigi</sys:String>
+  <sys:String x:Key="Explorer.GoTo">Iri al</sys:String>
+  <sys:String x:Key="Explorer.Col.Name">Nomo</sys:String>
+  <sys:String x:Key="Explorer.Col.Size">Grandeco</sys:String>
+  <sys:String x:Key="Explorer.Col.Modified">Modifita</sys:String>
+  <sys:String x:Key="Explorer.DeleteConfirmSingle">Forigi "{0}"?</sys:String>
+  <sys:String x:Key="Explorer.DeleteConfirmMultiple">Forigi tiujn {0} erojn?\n{1}</sys:String>
+  <sys:String x:Key="Explorer.DeleteConfirmTitle">Konfirmi Forigon</sys:String>
+  <sys:String x:Key="Explorer.DeleteError">Eraro dum forigo de {0}: {1}</sys:String>
+  <sys:String x:Key="Explorer.NavigateError">Navigada eraro: {0}</sys:String>
+  <sys:String x:Key="Explorer.OpenError">Eraro dum malfermo: {0}</sys:String>
+  <sys:String x:Key="Explorer.PropertiesError">Eraro dum montrado de ecoj: {0}</sys:String>
+  <sys:String x:Key="Explorer.PasteError">Eraro dum algluo: {0}</sys:String>
+  <sys:String x:Key="Explorer.NetworkRoot">Reto</sys:String>
+  <sys:String x:Key="Explorer.DirAccessError">Eraro de dosieruja aliro: {0}</sys:String>
+  <sys:String x:Key="Explorer.FileAccessError">Eraro de dosiera aliro: {0}</sys:String>
+
+  <!-- Notes -->
+  <sys:String x:Key="Notes.Title">Notoj</sys:String>
+  <sys:String x:Key="Notes.Bullets">• Listo</sys:String>
+  <sys:String x:Key="Notes.Numbered">1. Listo</sys:String>
+  <sys:String x:Key="Notes.AlignLeft">Maldekstre</sys:String>
+  <sys:String x:Key="Notes.AlignCenter">Centre</sys:String>
+  <sys:String x:Key="Notes.AlignRight">Dekstre</sys:String>
+  <sys:String x:Key="Notes.FontSize">Tipara grandeco:</sys:String>
+  <sys:String x:Key="Notes.Context.New">Nova</sys:String>
+  <sys:String x:Key="Notes.Context.Rename">Alinomi</sys:String>
+  <sys:String x:Key="Notes.Context.Delete">Forigi</sys:String>
+  <sys:String x:Key="Notes.Context.Up">Supren</sys:String>
+  <sys:String x:Key="Notes.Context.Down">Malsupren</sys:String>
+  <sys:String x:Key="Notes.DefaultRoot">Ĝenerala</sys:String>
+  <sys:String x:Key="Notes.Unnamed">Sennoma</sys:String>
+  <sys:String x:Key="Notes.Prompt.TopicName">Tema nomo:</sys:String>
+  <sys:String x:Key="Notes.Prompt.NewName">Nova nomo:</sys:String>
+  <sys:String x:Key="Notes.NameExists">La nomo jam ekzistas.</sys:String>
+  <sys:String x:Key="Notes.RenameFailed">Alinomi malsukcesis: {0}</sys:String>
+  <sys:String x:Key="Notes.DeleteConfirm">Forigi '{0}'?</sys:String>
+  <sys:String x:Key="Notes.DeleteTitle">Konfirmi</sys:String>
+  <sys:String x:Key="Notes.DeleteFailed">Forigo malsukcesis: {0}</sys:String>
+
+  <!-- Steam -->
+  <sys:String x:Key="Steam.Header">Steam-Biblioteko</sys:String>
+  <sys:String x:Key="Steam.Loading">Ŝargante Steam-bibliotekon...</sys:String>
+  <sys:String x:Key="Steam.NoImage">Neniu bildo</sys:String>
+  <sys:String x:Key="Steam.InstallNotFound">Instalo de Steam ne trovita.</sys:String>
+  <sys:String x:Key="Steam.ErrorTitle">Eraro</sys:String>
+
+  <!-- Terminal -->
+  <sys:String x:Key="Terminal.Clear">Vakigi</sys:String>
+  <sys:String x:Key="Terminal.Stop">Halti</sys:String>
+  <sys:String x:Key="Terminal.History">Historio</sys:String>
+  <sys:String x:Key="Terminal.Execute">Lanĉi</sys:String>
+  <sys:String x:Key="Terminal.Prompt">PS&gt;</sys:String>
+
+  <!-- Scripting -->
+  <sys:String x:Key="Scripting.Run">Lanĉi</sys:String>
+  <sys:String x:Key="Scripting.RunTooltip">Lanĉi (F5 / Ctrl+Enter)</sys:String>
+  <sys:String x:Key="Scripting.Open">Malfermi</sys:String>
+  <sys:String x:Key="Scripting.OpenTooltip">Malfermi (Ctrl+O)</sys:String>
+  <sys:String x:Key="Scripting.Save">Konservi</sys:String>
+  <sys:String x:Key="Scripting.SaveTooltip">Konservi (Ctrl+S)</sys:String>
+  <sys:String x:Key="Scripting.SaveAs">Konservi kiel</sys:String>
+  <sys:String x:Key="Scripting.SaveAsTooltip">Konservi kiel</sys:String>
+  <sys:String x:Key="Scripting.Undo">Malfari</sys:String>
+  <sys:String x:Key="Scripting.Redo">Refari</sys:String>
+  <sys:String x:Key="Scripting.Cut">Eltondi</sys:String>
+  <sys:String x:Key="Scripting.Copy">Kopii</sys:String>
+  <sys:String x:Key="Scripting.Paste">Alglui</sys:String>
+  <sys:String x:Key="Scripting.Clear">Vakigi</sys:String>
+  <sys:String x:Key="Scripting.LanguageLabel">Lingvo:</sys:String>
+  <sys:String x:Key="Scripting.InitialReady">Skriptado preta. Lingvo aŭtomate detektita.</sys:String>
+  <sys:String x:Key="Scripting.OpenedFile">Malfermita: {0}</sys:String>
+  <sys:String x:Key="Scripting.SavedFile">Konservita: {0}</sys:String>
+  <sys:String x:Key="Scripting.EditorCleared">Redaktilo vakigita.</sys:String>
+  <sys:String x:Key="Scripting.LanguagePrefix">Lingvo: {0}</sys:String>
+  <sys:String x:Key="Scripting.LanguageUnknown">Lingvo ne detektita.</sys:String>
+  <sys:String x:Key="Scripting.NoEntryPoint">Mankas enirpunkto (Main/Run).</sys:String>
+  <sys:String x:Key="Scripting.CSharpException">C# escepto: {0}</sys:String>
+  <sys:String x:Key="Scripting.PythonException">Python-escepto: {0}</sys:String>
+  <sys:String x:Key="Scripting.UnknownCompilerError">Nekonata kompilila eraro.</sys:String>
+  <sys:String x:Key="Scripting.EntryPointMissing">Mankas enirpunkto (Main/Run).</sys:String>
+
+  <!-- Programs Dialog -->
+  <sys:String x:Key="Programs.Title">Programoj</sys:String>
+  <sys:String x:Key="Programs.Add">Aldoni</sys:String>
+  <sys:String x:Key="Programs.Remove">Forigi</sys:String>
+  <sys:String x:Key="Programs.Save">Konservi</sys:String>
+  <sys:String x:Key="Programs.Close">Fermi</sys:String>
+  <sys:String x:Key="Programs.Path">Vojo</sys:String>
+  <sys:String x:Key="Programs.Caption">Titolo</sys:String>
+  <sys:String x:Key="Programs.FooterHint">Duoble alklaku vojon por malfermi dosierujon</sys:String>
+  <sys:String x:Key="Programs.Saved">Konservita.</sys:String>
+  <sys:String x:Key="Programs.FileFilterExe">Programoj (*.exe)|*.exe|Ĉiuj dosieroj (*.*)|*.*</sys:String>
+
+  <!-- Office -->
+  <sys:String x:Key="Office.AppLabel">Aplikaĵo:</sys:String>
+  <sys:String x:Key="Office.New">Nova</sys:String>
+  <sys:String x:Key="Office.Open">Malfermi</sys:String>
+  <sys:String x:Key="Office.Save">Konservi</sys:String>
+  <sys:String x:Key="Office.SaveAs">Konservi kiel</sys:String>
+  <sys:String x:Key="Office.SizeLabel">Grandeco:</sys:String>
+  <sys:String x:Key="Office.AlignLeft">Maldekstre</sys:String>
+  <sys:String x:Key="Office.AlignCenter">Centre</sys:String>
+  <sys:String x:Key="Office.AlignRight">Dekstre</sys:String>
+  <sys:String x:Key="Office.StatusPrefix">MS Office:</sys:String>
+  <sys:String x:Key="Office.InitHostError">Eraro de gastiganto-inicialigo: {0}</sys:String>
+  <sys:String x:Key="Office.NewDocError">Eraro de nova dokumento: {0}</sys:String>
+  <sys:String x:Key="Office.CreateError">Eraro de kreado: {0}</sys:String>
+  <sys:String x:Key="Office.OpenDocError">Eraro de malfermo: {0}</sys:String>
+  <sys:String x:Key="Office.OpenError">Malfermo-eraro: {0}</sys:String>
+  <sys:String x:Key="Office.SaveError">Konserva eraro: {0}</sys:String>
+  <sys:String x:Key="Office.FormatError">Formato-eraro: {0}</sys:String>
+  <sys:String x:Key="Office.WordFilter">Word-dokumento (*.doc;*.docx)|*.doc;*.docx|Ĉiuj dosieroj (*.*)|*.*</sys:String>
+  <sys:String x:Key="Office.ExcelFilter">Excel-folioj (*.xls;*.xlsx)|*.xls;*.xlsx|Ĉiuj dosieroj (*.*)|*.*</sys:String>
+  <sys:String x:Key="Office.WordSaveFilter">Word-dokumento (*.docx)|*.docx|Ĉiuj dosieroj (*.*)|*.*</sys:String>
+  <sys:String x:Key="Office.ExcelSaveFilter">Excel-folioj (*.xlsx)|*.xlsx|Ĉiuj dosieroj (*.*)|*.*</sys:String>
+  <sys:String x:Key="Office.DocumentSuffix">Dokumento</sys:String>
+  <sys:String x:Key="Office.InstallPrompt">Bonvolu instali Microsoft Office.</sys:String>
+
+  <!-- SSH -->
+  <sys:String x:Key="SSH.Server">Servilo:</sys:String>
+  <sys:String x:Key="SSH.AddressTooltip">uzanto@retnomo aŭ retnomo:haveno</sys:String>
+  <sys:String x:Key="SSH.Connect">Konekti</sys:String>
+  <sys:String x:Key="SSH.Disconnect">Malkonekti</sys:String>
+  <sys:String x:Key="SSH.Send">Sendi</sys:String>
+  <sys:String x:Key="SSH.Status.Ready">Preta.</sys:String>
+  <sys:String x:Key="SSH.Status.Connecting">Konektante...</sys:String>
+  <sys:String x:Key="SSH.Status.Connected">Konektita</sys:String>
+  <sys:String x:Key="SSH.Status.Error">Eraro</sys:String>
+  <sys:String x:Key="SSH.Status.Disconnected">Malkonektita</sys:String>
+  <sys:String x:Key="SSH.AlreadyConnected">Jam konektita.</sys:String>
+  <sys:String x:Key="SSH.EnterAddress">Enigu adreson (uzanto@retnomo aŭ retnomo[:haveno]).</sys:String>
+  <sys:String x:Key="SSH.InvalidAddress">Nevalida adreso.</sys:String>
+  <sys:String x:Key="SSH.ConnectingTo">Konektante al {0}...</sys:String>
+  <sys:String x:Key="SSH.UsernamePrompt">Uzantnomo:</sys:String>
+  <sys:String x:Key="SSH.PasswordPrompt">Pasvorto por {0}:</sys:String>
+  <sys:String x:Key="SSH.Cancelled">Nuligita.</sys:String>
+  <sys:String x:Key="SSH.ConnectionError">Konekta eraro: {0}</sys:String>
+  <sys:String x:Key="SSH.SendError">Send-eraro: {0}</sys:String>
+  <sys:String x:Key="SSH.LoginTitle">SSH Ensaluto</sys:String>
+
+  <!-- SFTP -->
+  <sys:String x:Key="SFTP.Status.Ready">Preta.</sys:String>
+  <sys:String x:Key="SFTP.Status.Connecting">Konektante...</sys:String>
+  <sys:String x:Key="SFTP.Status.Connected">Konektita</sys:String>
+  <sys:String x:Key="SFTP.Status.Error">Eraro</sys:String>
+  <sys:String x:Key="SFTP.Status.Disconnected">Malkonektita</sys:String>
+  <sys:String x:Key="SFTP.LocalLoadError">Ne povas ŝargi lokan dosierujon: {0}</sys:String>
+  <sys:String x:Key="SFTP.CredentialsRequired">Necesas gastiganto kaj uzanto.</sys:String>
+  <sys:String x:Key="SFTP.LoginFailed">Ensaluta fiasko: {0}</sys:String>
+  <sys:String x:Key="SFTP.RemoteLoadFailed">Fiasko de fora ŝargado: {0}</sys:String>
+  <sys:String x:Key="SFTP.UploadFailed">Alŝuta fiasko: {0}</sys:String>
+  <sys:String x:Key="SFTP.DownloadFailed">Elŝuta fiasko: {0}</sys:String>
+  <sys:String x:Key="SFTP.SshNetMissing">SSH.NET (Renci.SshNet) ne trovita. Bonvolu provizi la bibliotekon.</sys:String>
+
+  <!-- Browser -->
+  <sys:String x:Key="Browser.InitFailed">WebView2 ne povis esti inicializita: {0}</sys:String>
+  <sys:String x:Key="Browser.ErrorTitle">Eraro</sys:String>
+  <sys:String x:Key="Browser.NavigateError">Navigada eraro: {0}</sys:String>
 </ResourceDictionary>

@@ -37,8 +37,8 @@
                 <TextBox Grid.Column="1" Name="txtInput" KeyDown="txtInput_KeyDown"
                          FontFamily="Consolas" FontSize="13" VerticalAlignment="Center"/>
                 <Button Grid.Column="2" Content="{DynamicResource SSH.Send}" Click="btnSend_Click"
-                        Margin="6,0,0,0" Padding="6,0" VerticalAlignment="Center"
-                        Height="{Binding ElementName=txtInput, Path=ActualHeight}"/>
+                        Margin="6,0,0,0" VerticalAlignment="Center"
+                        MinHeight="34" Padding="10,6"/>
             </Grid>
         </Grid>
     </Grid>

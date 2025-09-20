@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Vivit_Control_Center.Settings;
+using Vivit_Control_Center.Localization;
 
 namespace Vivit_Control_Center.Views.Modules
 {
@@ -160,7 +161,7 @@ namespace Vivit_Control_Center.Views.Modules
                     if (btnRestore != null) btnRestore.Visibility = isShell ? Visibility.Visible : Visibility.Collapsed;
                     if (txtStatus != null)
                     {
-                        txtStatus.Text = isShell ? GetRes("Settings.CurrentlyShell", "Currently set as shell") : (GetRes("Settings.CurrentShell", "Current shell:") + " " + (current ?? "(Default)"));
+                        txtStatus.Text = isShell ? GetRes("Settings.CurrentlyShell", "Currently set as shell") : (GetRes("Settings.CurrentShell", "Current shell:") + " " + (current ?? GetRes("Dialog.Default","(Default)")));
                     }
                 }
             }
@@ -205,7 +206,7 @@ namespace Vivit_Control_Center.Views.Modules
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Shell change failed: " + ex.Message);
+                MessageBox.Show(string.Format(LocalizationManager.GetString("Settings.ShellChangeFailed", "Shell change failed: {0}"), ex.Message));
             }
         }
 
@@ -215,28 +216,28 @@ namespace Vivit_Control_Center.Views.Modules
             string tag = b.Tag.ToString();
             if (string.Equals(tag, "Social", StringComparison.OrdinalIgnoreCase))
             {
-                MessageBox.Show("Configure Fediverse URL in the field under News.");
+                MessageBox.Show(LocalizationManager.GetString("Settings.ConfigureFediverseHint", "Configure Fediverse URL in the field under News."));
                 return;
             }
             var existing = _settings.CustomWebModuleUrls.FirstOrDefault(u => string.Equals(u.Tag, tag, StringComparison.OrdinalIgnoreCase));
             string currentUrl = existing?.Url ?? string.Empty;
             string input = PromptForUrl(tag, currentUrl);
             if (string.IsNullOrWhiteSpace(input)) return;
-            if (!input.StartsWith("http", StringComparison.OrdinalIgnoreCase)) { MessageBox.Show("Enter valid http/https URL."); return; }
+            if (!input.StartsWith("http", StringComparison.OrdinalIgnoreCase)) { MessageBox.Show(LocalizationManager.GetString("Settings.InvalidUrl", "Enter valid http/https URL.")); return; }
             if (existing == null) _settings.CustomWebModuleUrls.Add(new CustomWebModuleUrl { Tag = tag, Url = input.Trim() }); else existing.Url = input.Trim();
             _settings.Save();
         }
 
         private string PromptForUrl(string tag, string current)
         {
-            var win = new Window { Title = $"URL for module '{tag}'", SizeToContent = SizeToContent.WidthAndHeight, WindowStartupLocation = WindowStartupLocation.CenterOwner, ResizeMode = ResizeMode.NoResize, Owner = Application.Current?.MainWindow };
+            var win = new Window { Title = string.Format(LocalizationManager.GetString("Settings.UrlForModuleTitle", "URL for module '{0}'"), tag), SizeToContent = SizeToContent.WidthAndHeight, WindowStartupLocation = WindowStartupLocation.CenterOwner, ResizeMode = ResizeMode.NoResize, Owner = Application.Current?.MainWindow };
             var stack = new StackPanel { Margin = new Thickness(12), MinWidth = 420 };
-            stack.Children.Add(new TextBlock { Text = "Enter URL (http/https):", Margin = new Thickness(0,0,0,6) });
+            stack.Children.Add(new TextBlock { Text = LocalizationManager.GetString("Settings.EnterUrlPrompt", "Enter URL (http/https):"), Margin = new Thickness(0,0,0,6) });
             var tb = new TextBox { Text = current ?? string.Empty, Margin = new Thickness(0,0,0,12) };
             stack.Children.Add(tb);
             var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
-            var ok = new Button { Content = "OK", Width = 80, Margin = new Thickness(0,0,8,0), IsDefault = true };
-            var cancel = new Button { Content = "Cancel", Width = 80, IsCancel = true };
+            var ok = new Button { Content = LocalizationManager.GetString("Dialog.OK", "OK"), Width = 80, Margin = new Thickness(0,0,8,0), IsDefault = true };
+            var cancel = new Button { Content = LocalizationManager.GetString("Settings.Cancel", "Cancel"), Width = 80, IsCancel = true };
             string result = null;
             ok.Click += (_, __) => { result = tb.Text; win.DialogResult = true; };
             cancel.Click += (_, __) => { win.DialogResult = false; };
@@ -259,7 +260,7 @@ namespace Vivit_Control_Center.Views.Modules
 
         private string PickFolder()
         {
-            var dlg = new OpenFileDialog { CheckFileExists = false, CheckPathExists = true, ValidateNames = false, FileName = "Select Folder" }; var res = dlg.ShowDialog(); if (res == true) { try { return Path.GetDirectoryName(dlg.FileName); } catch { } } return null;
+            var dlg = new OpenFileDialog { CheckFileExists = false, CheckPathExists = true, ValidateNames = false, FileName = LocalizationManager.GetString("Dialog.SelectFolder","Select Folder") }; var res = dlg.ShowDialog(); if (res == true) { try { return Path.GetDirectoryName(dlg.FileName); } catch { } } return null;
         }
 
         private void btnSave_Click(object sender, RoutedEventArgs e)
@@ -278,7 +279,7 @@ namespace Vivit_Control_Center.Views.Modules
             int max; if (txtRssMax != null && int.TryParse(txtRssMax.Text, out max) && max > 0) _settings.RssMaxArticles = max; else if (_settings.RssMaxArticles <= 0) _settings.RssMaxArticles = 60;
             _settings.DefaultLocalPath = txtLocalPath.Text ?? string.Empty; _settings.DefaultScriptsPath = txtScriptsPath.Text ?? string.Empty;
             var enabled = new List<string>(); foreach (var child in modulesPanel.Children) if (child is Grid g) { var chk = g.Children.OfType<CheckBox>().FirstOrDefault(); if (chk!=null && chk.IsChecked==true) enabled.Add(chk.Content.ToString()); }
-            var disabled = AllTags.Where(t => !enabled.Contains(t, StringComparer.OrdinalIgnoreCase)).ToList(); disabled.RemoveAll(t => string.Equals(t, "Settings", StringComparison.OrdinalIgnoreCase)); _settings.DisabledModules = disabled; _settings.Save(); MessageBox.Show("Settings saved. Restart recommended.");
+            var disabled = AllTags.Where(t => !enabled.Contains(t, StringComparer.OrdinalIgnoreCase)).ToList(); disabled.RemoveAll(t => string.Equals(t, "Settings", StringComparison.OrdinalIgnoreCase)); _settings.DisabledModules = disabled; _settings.Save(); MessageBox.Show(GetRes("Settings.SavedRestartRecommended", "Settings saved. Restart recommended."));
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e) => Init();

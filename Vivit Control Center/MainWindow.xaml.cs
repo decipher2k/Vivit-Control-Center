@@ -13,6 +13,7 @@ using System.Diagnostics;
 using Microsoft.Win32; // autorun registry
 using System.IO; // path handling
 using System.ComponentModel;
+using Vivit_Control_Center.Localization;
 
 namespace Vivit_Control_Center
 {
@@ -292,7 +293,8 @@ namespace Vivit_Control_Center
             }
             if (progressText != null)
             {
-                progressText.Text = $"{Math.Min(loaded, total)} von {total} Modulen geladen";
+                var fmt = LocalizationManager.GetString("App.ModulesLoadedFormat", "{0} von {1} Modulen geladen");
+                progressText.Text = string.Format(fmt, Math.Min(loaded, total), total);
             }
             if (pendingList != null)
             {
