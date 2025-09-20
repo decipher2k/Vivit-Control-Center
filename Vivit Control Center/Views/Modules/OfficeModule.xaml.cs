@@ -1,16 +1,11 @@
-﻿using Microsoft.Office.Interop.Word;
-using System;
+﻿using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms.Integration;
 using Vivit_Control_Center.Localization;
-using Excel = Microsoft.Office.Interop.Excel;
-using Word = Microsoft.Office.Interop.Word;
 
 namespace Vivit_Control_Center.Views.Modules
 {
@@ -18,8 +13,8 @@ namespace Vivit_Control_Center.Views.Modules
     {
         private enum OfficeApp { Word, Excel }
         private OfficeApp _current = OfficeApp.Word;
-        private Word.Application _wordApp;
-        private Excel.Application _excelApp;
+        private object _wordApp;
+        private object _excelApp;
         private WindowsFormsHost _host;
         private System.Windows.Forms.Panel _panel;
         private TextBlock _txtStatus;
@@ -52,11 +47,6 @@ namespace Vivit_Control_Center.Views.Modules
         {
             try
             {
-                FileVersionInfo fileVersionInfo1 = FileVersionInfo.GetVersionInfo(@"C:\Program Files (x86)\Microsoft Office\root\Office16\WINWORD.EXE");
-                var version1 = new System.Version(fileVersionInfo1.FileVersion);
-
-
-
                 _host = new WindowsFormsHost();
                 _panel = new System.Windows.Forms.Panel { Dock = System.Windows.Forms.DockStyle.Fill, BackColor = System.Drawing.Color.White };
                 _host.Child = _panel;
@@ -67,10 +57,7 @@ namespace Vivit_Control_Center.Views.Modules
                     hostContainer.SizeChanged += (s, e) => ResizeEmbeddedOffice();
                 }
             }
-            catch (Exception ex)
-            {
-              
-            }
+            catch { }
         }
 
         private void cmbApp_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -85,19 +72,30 @@ namespace Vivit_Control_Center.Views.Modules
             }
         }
 
-        private void btnNew_Click(object sender, RoutedEventArgs e) {
-            try { CreateNewDocument(); } catch (Exception ex) { MessageBox.Show("Please install Office 356."); }
+        private void btnNew_Click(object sender, RoutedEventArgs e)
+        {
+            try { CreateNewDocument(); }
+            catch { MessageBox.Show(LocalizationManager.GetString("Office.InstallPrompt", "Please install Microsoft Office.")); }
         }
-        
-        private void btnOpen_Click(object sender, RoutedEventArgs e) {
-            try { OpenDocument(); } catch (Exception ex) { MessageBox.Show("Please install Office 356."); }
+
+        private void btnOpen_Click(object sender, RoutedEventArgs e)
+        {
+            try { OpenDocument(); }
+            catch { MessageBox.Show(LocalizationManager.GetString("Office.InstallPrompt", "Please install Microsoft Office.")); }
         }
-        private void btnSave_Click(object sender, RoutedEventArgs e) {
-            try {SaveDocument(false); } catch (Exception ex) { MessageBox.Show("Please install Office 356."); }
+
+        private void btnSave_Click(object sender, RoutedEventArgs e)
+        {
+            try { SaveDocument(false); }
+            catch { MessageBox.Show(LocalizationManager.GetString("Office.InstallPrompt", "Please install Microsoft Office.")); }
         }
-        private void btnSaveAs_Click(object sender, RoutedEventArgs e) {try{SaveDocument(true);
-    } catch (Exception ex) { MessageBox.Show("Please install Office 356."); }
+
+        private void btnSaveAs_Click(object sender, RoutedEventArgs e)
+        {
+            try { SaveDocument(true); }
+            catch { MessageBox.Show(LocalizationManager.GetString("Office.InstallPrompt", "Please install Microsoft Office.")); }
         }
+
         private void btnBold_Click(object sender, RoutedEventArgs e) => ApplyFormatting("Bold");
         private void btnItalic_Click(object sender, RoutedEventArgs e) => ApplyFormatting("Italic");
         private void btnUnderline_Click(object sender, RoutedEventArgs e) => ApplyFormatting("Underline");
@@ -111,31 +109,78 @@ namespace Vivit_Control_Center.Views.Modules
                 ApplyFormatting("FontSize", size);
         }
 
+        // Robust Word/Excel activation helpers
+        private static object CreateOrGetComApp(string progIdBase, string exeName, string[] versions)
+        {
+            // 1) Try base ProgID
+            try
+            {
+                var t = Type.GetTypeFromProgID(progIdBase, false);
+                if (t != null) return Activator.CreateInstance(t);
+            }
+            catch { }
+
+            // 2) Try versioned ProgIDs
+            if (versions != null)
+            {
+                foreach (var v in versions)
+                {
+                    try
+                    {
+                        var t = Type.GetTypeFromProgID(progIdBase + "." + v, false);
+                        if (t != null) return Activator.CreateInstance(t);
+                    }
+                    catch { }
+                }
+            }
+
+            // 3) Try attach to a running instance
+            try
+            {
+                return Marshal.GetActiveObject(progIdBase);
+            }
+            catch { }
+
+            // 4) Start EXE, then attach
+            try
+            {
+                Process.Start(exeName);
+                Thread.Sleep(1200);
+                return Marshal.GetActiveObject(progIdBase);
+            }
+            catch { }
+
+            return null;
+        }
+
         private void CreateNewDocument()
         {
             try
             {
-                FileVersionInfo fileVersionInfo1 = FileVersionInfo.GetVersionInfo(@"C:\Program Files (x86)\Microsoft Office\root\Office16\WINWORD.EXE");
-                var version1 = new System.Version(fileVersionInfo1.FileVersion);
-
                 EnsureOfficeCompletelyTerminated();
                 if (_current == OfficeApp.Word)
                 {
-                    _wordApp = new Word.Application { Visible = false };
-                    _wordApp.Documents.Add();
-                    Thread.Sleep(500);
-                    _wordApp.Visible = true;
-                    Thread.Sleep(200);
+                    _wordApp = CreateOrGetComApp("Word.Application", "winword.exe", new[] { "16", "15", "14" });
+                    if (_wordApp == null) throw new InvalidOperationException("Word not installed");
+                    dynamic w = _wordApp;
+                    w.Visible = false;
+                    w.Documents.Add();
+                    Thread.Sleep(300);
+                    w.Visible = true;
+                    Thread.Sleep(150);
                     var hwnd = GetWordHwnd();
                     if (hwnd != IntPtr.Zero) EmbedOfficeWindow(hwnd);
                 }
                 else
                 {
-                    _excelApp = new Excel.Application { Visible = false };
-                    _excelApp.Workbooks.Add();
-                    Thread.Sleep(500);
-                    _excelApp.Visible = true;
-                    Thread.Sleep(200);
+                    _excelApp = CreateOrGetComApp("Excel.Application", "excel.exe", new[] { "16", "15", "14" });
+                    if (_excelApp == null) throw new InvalidOperationException("Excel not installed");
+                    dynamic ex = _excelApp;
+                    ex.Visible = false;
+                    ex.Workbooks.Add();
+                    Thread.Sleep(300);
+                    ex.Visible = true;
+                    Thread.Sleep(150);
                     var hwnd = GetExcelHwnd();
                     if (hwnd != IntPtr.Zero) PositionExcelWindow(hwnd);
                 }
@@ -149,9 +194,6 @@ namespace Vivit_Control_Center.Views.Modules
 
         private void OpenDocument()
         {
-            FileVersionInfo fileVersionInfo1 = FileVersionInfo.GetVersionInfo(@"C:\Program Files (x86)\Microsoft Office\root\Office16\WINWORD.EXE");
-            var version1 = new System.Version(fileVersionInfo1.FileVersion);
-
             var filter = _current == OfficeApp.Word ? LocalizationManager.GetString("Office.WordFilter", "Word Documents (*.doc;*.docx)|*.doc;*.docx|All Files (*.*)|*.*") : LocalizationManager.GetString("Office.ExcelFilter", "Excel Sheets (*.xls;*.xlsx)|*.xls;*.xlsx|All Files (*.*)|*.*");
             var dlg = new Microsoft.Win32.OpenFileDialog { Filter = filter };
             if (dlg.ShowDialog() != true) return;
@@ -160,21 +202,27 @@ namespace Vivit_Control_Center.Views.Modules
                 EnsureOfficeCompletelyTerminated();
                 if (_current == OfficeApp.Word)
                 {
-                    _wordApp = new Word.Application { Visible = false };
-                    _wordApp.Documents.Open(dlg.FileName);
-                    Thread.Sleep(500);
-                    _wordApp.Visible = true;
-                    Thread.Sleep(200);
+                    _wordApp = CreateOrGetComApp("Word.Application", "winword.exe", new[] { "16", "15", "14" });
+                    if (_wordApp == null) throw new InvalidOperationException("Word not installed");
+                    dynamic w = _wordApp;
+                    w.Visible = false;
+                    w.Documents.Open(dlg.FileName);
+                    Thread.Sleep(300);
+                    w.Visible = true;
+                    Thread.Sleep(150);
                     var hwnd = GetWordHwnd();
                     if (hwnd != IntPtr.Zero) EmbedOfficeWindow(hwnd);
                 }
                 else
                 {
-                    _excelApp = new Excel.Application { Visible = false };
-                    _excelApp.Workbooks.Open(dlg.FileName);
-                    Thread.Sleep(500);
-                    _excelApp.Visible = true;
-                    Thread.Sleep(200);
+                    _excelApp = CreateOrGetComApp("Excel.Application", "excel.exe", new[] { "16", "15", "14" });
+                    if (_excelApp == null) throw new InvalidOperationException("Excel not installed");
+                    dynamic ex = _excelApp;
+                    ex.Visible = false;
+                    ex.Workbooks.Open(dlg.FileName);
+                    Thread.Sleep(300);
+                    ex.Visible = true;
+                    Thread.Sleep(150);
                     var hwnd = GetExcelHwnd();
                     if (hwnd != IntPtr.Zero) PositionExcelWindow(hwnd);
                 }
@@ -192,21 +240,23 @@ namespace Vivit_Control_Center.Views.Modules
             {
                 if (_current == OfficeApp.Word && _wordApp != null)
                 {
+                    dynamic w = _wordApp;
                     if (saveAs)
                     {
                         var dlg = new Microsoft.Win32.SaveFileDialog { Filter = LocalizationManager.GetString("Office.WordSaveFilter", "Word Documents (*.docx)|*.docx|All Files (*.*)|*.*"), DefaultExt = ".docx" };
-                        if (dlg.ShowDialog() == true && _wordApp.ActiveDocument != null) _wordApp.ActiveDocument.SaveAs2(dlg.FileName);
+                        if (dlg.ShowDialog() == true && w.ActiveDocument != null) w.ActiveDocument.SaveAs2(dlg.FileName);
                     }
-                    else if (_wordApp.ActiveDocument != null) _wordApp.ActiveDocument.Save();
+                    else if (w.ActiveDocument != null) w.ActiveDocument.Save();
                 }
                 else if (_current == OfficeApp.Excel && _excelApp != null)
                 {
+                    dynamic ex = _excelApp;
                     if (saveAs)
                     {
                         var dlg = new Microsoft.Win32.SaveFileDialog { Filter = LocalizationManager.GetString("Office.ExcelSaveFilter", "Excel Sheets (*.xlsx)|*.xlsx|All Files (*.*)|*.*"), DefaultExt = ".xlsx" };
-                        if (dlg.ShowDialog() == true && _excelApp.ActiveWorkbook != null) _excelApp.ActiveWorkbook.SaveAs(dlg.FileName);
+                        if (dlg.ShowDialog() == true && ex.ActiveWorkbook != null) ex.ActiveWorkbook.SaveAs(dlg.FileName);
                     }
-                    else if (_excelApp.ActiveWorkbook != null) _excelApp.ActiveWorkbook.Save();
+                    else if (ex.ActiveWorkbook != null) ex.ActiveWorkbook.Save();
                 }
             }
             catch (Exception ex)
@@ -221,18 +271,33 @@ namespace Vivit_Control_Center.Views.Modules
             {
                 if (_current == OfficeApp.Word && _wordApp != null)
                 {
-                    var sel = _wordApp.Selection;
+                    dynamic w = _wordApp;
+                    dynamic sel = w.Selection;
                     if (sel == null) return;
                     switch (format)
                     {
+                        case "Bold": sel.Font.Bold = (sel.Font.Bold == 0) ? 1 : 0; break;
+                        case "Italic": sel.Font.Italic = (sel.Font.Italic == 0) ? 1 : 0; break;
+                        case "Underline": sel.Font.Underline = (sel.Font.Underline == 0) ? 1 : 0; break;
+                        case "AlignLeft": sel.ParagraphFormat.Alignment = 0; break; // wdAlignParagraphLeft
+                        case "AlignCenter": sel.ParagraphFormat.Alignment = 1; break; // wdAlignParagraphCenter
+                        case "AlignRight": sel.ParagraphFormat.Alignment = 2; break; // wdAlignParagraphRight
+                        case "FontSize": if (value is double d) sel.Font.Size = d; break;
                     }
                 }
                 else if (_current == OfficeApp.Excel && _excelApp != null)
                 {
-                    var cell = _excelApp.ActiveCell; if (cell == null) return;
+                    dynamic ex = _excelApp;
+                    dynamic cell = ex.ActiveCell; if (cell == null) return;
                     switch (format)
                     {
-
+                        case "Bold": cell.Font.Bold = !(bool)cell.Font.Bold; break;
+                        case "Italic": cell.Font.Italic = !(bool)cell.Font.Italic; break;
+                        case "Underline": cell.Font.Underline = !(bool)cell.Font.Underline; break;
+                        case "AlignLeft": cell.HorizontalAlignment = -4131; break;   // xlLeft
+                        case "AlignCenter": cell.HorizontalAlignment = -4108; break; // xlCenter
+                        case "AlignRight": cell.HorizontalAlignment = -4152; break;  // xlRight
+                        case "FontSize": if (value is double d) cell.Font.Size = d; break;
                     }
                 }
             }
@@ -242,14 +307,13 @@ namespace Vivit_Control_Center.Views.Modules
         private IntPtr GetWordHwnd()
         {
             if (_wordApp == null) return IntPtr.Zero;
-            try { dynamic w = _wordApp.ActiveWindow; if (w != null) { int h = w.Hwnd; if (h != 0) return new IntPtr(h); } } catch { }
-            try { var p = _wordApp.GetType().GetProperty("Hwnd"); if (p != null) { var v = p.GetValue(_wordApp); if (v is int i && i != 0) return new IntPtr(i); } } catch { }
+            try { dynamic w = _wordApp; dynamic win = w.ActiveWindow; if (win != null) { int h = win.Hwnd; if (h != 0) return new IntPtr(h); } } catch { }
             return IntPtr.Zero;
         }
         private IntPtr GetExcelHwnd()
         {
             if (_excelApp == null) return IntPtr.Zero;
-            try { int h = _excelApp.Hwnd; if (h != 0) return new IntPtr(h); } catch { }
+            try { dynamic ex = _excelApp; int h = ex.Hwnd; if (h != 0) return new IntPtr(h); } catch { }
             return IntPtr.Zero;
         }
 
@@ -282,25 +346,43 @@ namespace Vivit_Control_Center.Views.Modules
 
         private void ResizeEmbeddedOffice()
         {
-            IntPtr hwnd = IntPtr.Zero;
-            if (_current == OfficeApp.Word && _wordApp != null) hwnd = GetWordHwnd();
-            else if (_current == OfficeApp.Excel && _excelApp != null) hwnd = GetExcelHwnd();
-            if (hwnd != IntPtr.Zero && IsWindow(hwnd))
+            try
             {
-                try { MoveWindow(hwnd, 0, 0, _panel.Width, _panel.Height, true); } catch { }
+                IntPtr hwnd = IntPtr.Zero;
+                if (_current == OfficeApp.Word && _wordApp != null) hwnd = GetWordHwnd();
+                else if (_current == OfficeApp.Excel && _excelApp != null) hwnd = GetExcelHwnd();
+                if (hwnd != IntPtr.Zero && IsWindow(hwnd))
+                {
+                    try { MoveWindow(hwnd, 0, 0, _panel.Width, _panel.Height, true); } catch { }
+                }
             }
+            catch { }
         }
 
         private void EnsureOfficeCompletelyTerminated()
         {
             CleanupExistingOffice();
-            Thread.Sleep(500);
+            Thread.Sleep(300);
         }
 
         private void CleanupExistingOffice()
         {
-           // if (_wordApp != null) { try { _wordApp.Quit(false); } catch { } try { Marshal.ReleaseComObject(_wordApp); } catch { } _wordApp = null; }
-            //if (_excelApp != null) { try { _excelApp.Quit(); } catch { } try { Marshal.ReleaseComObject(_excelApp); } catch { } _excelApp = null; }
+            try
+            {
+                if (_wordApp != null)
+                {
+                    try { dynamic w = _wordApp; w.Quit(false); } catch { }
+                    try { Marshal.ReleaseComObject(_wordApp); } catch { }
+                    _wordApp = null;
+                }
+                if (_excelApp != null)
+                {
+                    try { dynamic ex = _excelApp; ex.Quit(); } catch { }
+                    try { Marshal.ReleaseComObject(_excelApp); } catch { }
+                    _excelApp = null;
+                }
+            }
+            catch { }
         }
 
         public override void SetVisible(bool visible)
