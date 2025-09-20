@@ -129,7 +129,10 @@ namespace Vivit_Control_Center
         {
             Left = 0;
             Width = SystemParameters.PrimaryScreenWidth;
-            Height = Math.Max(24, App.ShellTaskbarHeightPx);
+            var src = PresentationSource.FromVisual(this);
+            double dipHeight = App.ShellTaskbarHeightPx * (src?.CompositionTarget?.TransformFromDevice.M22 ?? 1.0);
+            if (double.IsNaN(dipHeight) || dipHeight <= 0) dipHeight = 40; // fallback
+            Height = Math.Max(24, dipHeight);
             Top = SystemParameters.PrimaryScreenHeight - Height;
         }
         private void UpdateClock() { var now = DateTime.Now; TimeText.Text = now.ToString("HH:mm"); DateText.Text = now.ToString("dd.MM.yyyy"); }
@@ -190,7 +193,6 @@ namespace Vivit_Control_Center
         [DllImport("user32.dll")] private static extern IntPtr GetWindow(IntPtr hWnd, uint uCmd);
         [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern int GetClassName(IntPtr hWnd, System.Text.StringBuilder lpClassName, int nMax);
         [DllImport("user32.dll")] private static extern bool EnumChildWindows(IntPtr hWndParent, EnumWindowsProc lpEnumFunc, IntPtr lParam);
-        [DllImport("user32.dll")] private static extern bool IsWindowVisible(IntPtr hWnd);
 
         private const uint GW_OWNER = 4;
         private class TopWindow { public IntPtr Hwnd; public int ProcessId; public string Title; }
@@ -327,7 +329,7 @@ namespace Vivit_Control_Center
         private static float GetMasterVolume() { try { var epv = GetEndpointVolume(); epv.GetMasterVolumeLevelScalar(out float v); Marshal.ReleaseComObject(epv); return v; } catch { return 0f; } }
         private static void SetMasterVolume(float value) { try { var epv = GetEndpointVolume(); epv.SetMasterVolumeLevelScalar(value, Guid.Empty); Marshal.ReleaseComObject(epv); } catch { } }
         private void VolumeSlider_ValueChanged(object s, RoutedPropertyChangedEventArgs<double> e) { if (!IsLoaded) return; SetMasterVolume((float)(VolumeSlider.Value / 100.0)); UpdateVolumeIcon((int)VolumeSlider.Value); }
-        private void UpdateVolumeIcon(int v) { if (VolumeIcon == null) return; VolumeIcon.FontFamily = new FontFamily("Segoe MDL2 Assets"); VolumeIcon.Text = v == 0 ? " E198".Substring(1) : v < 30 ? " E15D".Substring(1) : v < 70 ? " E995".Substring(1) : " E15E".Substring(1); }
+        private void UpdateVolumeIcon(int v) { if (VolumeIcon == null) return; VolumeIcon.FontFamily = new FontFamily("Segoe MDL2 Assets"); VolumeIcon.Text = v == 0 ? "\uE198" : v < 30 ? "\uE15D" : v < 70 ? "\uE995" : "\uE15E"; }
         private void VolumeButton_Click(object s, RoutedEventArgs e) { VolumePopup.IsOpen = !VolumePopup.IsOpen; VolumePopup.PlacementTarget = VolumeButton; }
         #endregion
 
@@ -535,8 +537,10 @@ namespace Vivit_Control_Center
                 {
                     if (!_explorerTrayVisible)
                     {
-                        int h = Math.Max(24, App.ShellTaskbarHeightPx);
-                        SetWindowPos(_cachedExplorerTray, IntPtr.Zero, 0, (int)SystemParameters.PrimaryScreenHeight - h, (int)SystemParameters.PrimaryScreenWidth, h, SWP_NOZORDER | SWP_NOACTIVATE);
+                        var src = PresentationSource.FromVisual(this);
+                        int hPx = Math.Max(24, App.ShellTaskbarHeightPx);
+                        int yPx = (int)Math.Round(SystemParameters.PrimaryScreenHeight / (src?.CompositionTarget?.TransformFromDevice.M22 ?? 1.0) - hPx);
+                        SetWindowPos(_cachedExplorerTray, IntPtr.Zero, 0, yPx, (int)(SystemParameters.PrimaryScreenWidth / (src?.CompositionTarget?.TransformFromDevice.M11 ?? 1.0)), hPx, SWP_NOZORDER | SWP_NOACTIVATE);
                         ShowWindow(_cachedExplorerTray, SW_SHOWNA);
                         _explorerTrayVisible = true;
                     }
@@ -594,8 +598,8 @@ namespace Vivit_Control_Center
                         SetWindowRgn(_cachedExplorerTray, rgn, true);
                     }
 
-                    int screenW = (int)SystemParameters.PrimaryScreenWidth;
-                    int screenH = (int)SystemParameters.PrimaryScreenHeight;
+                    int screenW = (int)(SystemParameters.PrimaryScreenWidth / (PresentationSource.FromVisual(this)?.CompositionTarget?.TransformFromDevice.M11 ?? 1.0));
+                    int screenH = (int)(SystemParameters.PrimaryScreenHeight / (PresentationSource.FromVisual(this)?.CompositionTarget?.TransformFromDevice.M22 ?? 1.0));
                     int newX = screenW - width;
                     int newY = screenH - height;
                     SetWindowPos(_cachedExplorerTray, IntPtr.Zero, newX, newY, width, height, SWP_NOZORDER | SWP_NOACTIVATE);
@@ -695,6 +699,19 @@ namespace Vivit_Control_Center
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
+        }
+
+        private void AppButtonLogout_Click(object sender, RoutedEventArgs e)
+        {
+            try { Process.Start("shutdown", "/l"); } catch { }
+        }
+        private void AppButtonRestart_Click(object sender, RoutedEventArgs e)
+        {
+            try { Process.Start("shutdown", "/r /t 0"); } catch { }
+        }
+        private void AppButtonShutdown_Click(object sender, RoutedEventArgs e)
+        {
+            try { Process.Start("shutdown", "/s /t 0"); } catch { }
         }
     }
 }

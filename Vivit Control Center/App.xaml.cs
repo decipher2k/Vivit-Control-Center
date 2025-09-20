@@ -23,16 +23,18 @@ namespace Vivit_Control_Center
         // Dynamic taskbar height determined at runtime to match Windows taskbar height
         public static int ShellTaskbarHeightPx { get; private set; } = 40;
 
-        #region Win32 WorkArea
+        #region Win32
         [StructLayout(LayoutKind.Sequential)]
         private struct RECT { public int left; public int top; public int right; public int bottom; }
 
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool SystemParametersInfo(int uiAction, int uiParam, ref RECT pvParam, int fWinIni);
-
         [DllImport("user32.dll")] private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+        [DllImport("user32.dll")] private static extern int GetSystemMetrics(int nIndex);
         [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
 
+        private const int SM_CXSCREEN = 0;
+        private const int SM_CYSCREEN = 1;
         private const int SPI_SETWORKAREA = 0x002F;
         private const int SPIF_SENDCHANGE = 0x02;
         #endregion
@@ -72,7 +74,6 @@ namespace Vivit_Control_Center
         [DllImport("user32.dll")] private static extern bool SetForegroundWindow(IntPtr hWnd);
         [DllImport("user32.dll")] private static extern bool IsIconic(IntPtr hWnd);
         [DllImport("user32.dll")] private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
         [DllImport("user32.dll", SetLastError = true)] private static extern bool SetWindowPos(IntPtr hWnd, IntPtr insertAfter, int X, int Y, int cx, int cy, uint flags);
         private const uint SWP_NOZORDER = 0x0004;
         private const uint SWP_NOSIZE = 0x0001;
@@ -184,7 +185,6 @@ namespace Vivit_Control_Center
                         }
                     }
                 }
-                // Removed incorrect unconditional IsShellMode = true
             }
             catch { }
 
@@ -201,7 +201,7 @@ namespace Vivit_Control_Center
                         _taskbarWindow = new TaskbarWindow();
                         _taskbarWindow.Show();
                         InstallKeyboardHookIfNeeded();
-                        _ = LaunchExplorerForTrayAsync();
+                        //_ = LaunchExplorerForTrayAsync();
                     }
                     catch { }
                 });
@@ -214,22 +214,20 @@ namespace Vivit_Control_Center
         {
             try
             {
-                int screenH = (int)SystemParameters.PrimaryScreenHeight;
+                int screenH = GetSystemMetrics(SM_CYSCREEN);
                 var hwnd = FindWindow("Shell_TrayWnd", null);
                 if (hwnd != IntPtr.Zero)
                 {
                     if (GetWindowRect(hwnd, out var rc))
                     {
                         int height = Math.Abs(rc.bottom - rc.top);
-                        // sanity check: between 24 and screen height/2
                         if (height >= 24 && height <= screenH / 2)
                             return height;
                     }
                 }
-                // fallback to work area difference
-                var wa = SystemParameters.WorkArea;
-                int diff = screenH - (int)wa.Height;
-                if (diff >= 24 && diff <= screenH / 2) return diff;
+                // fallback: difference between screen and workarea in pixels (approximate, rarely used)
+                int waApprox = (int)Math.Round(SystemParameters.PrimaryScreenHeight - SystemParameters.WorkArea.Height);
+                if (waApprox >= 24 && waApprox <= screenH / 2) return waApprox;
             }
             catch { }
             return 40;
@@ -254,9 +252,8 @@ namespace Vivit_Control_Center
                 var hTray = FindWindow("Shell_TrayWnd", null);
                 if (hTray != IntPtr.Zero)
                 {
-                    int screenW = (int)SystemParameters.PrimaryScreenWidth;
-                    int screenH = (int)SystemParameters.PrimaryScreenHeight;
-                    // Statt komplett aus Bildschirm -> leicht verschieben, damit Explorer intern nicht tray deaktiviert
+                    int screenW = GetSystemMetrics(SM_CXSCREEN);
+                    int screenH = GetSystemMetrics(SM_CYSCREEN);
                     try { SetWindowPos(hTray, IntPtr.Zero, -5000, screenH - 2, screenW, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE); } catch { }
                 }
             }
@@ -289,9 +286,24 @@ namespace Vivit_Control_Center
         {
             try
             {
-                var width = (int)SystemParameters.PrimaryScreenWidth;
-                var height = (int)SystemParameters.PrimaryScreenHeight;
-                var rect = new RECT { left = 0, top = 0, right = width, bottom = height - ShellTaskbarHeightPx };
+                int widthPx = GetSystemMetrics(SM_CXSCREEN);
+                int heightPx = GetSystemMetrics(SM_CYSCREEN);
+                var rect = new RECT { left = 0, top = 0, right = widthPx, bottom = heightPx - ShellTaskbarHeightPx };
+                SystemParametersInfo(SPI_SETWORKAREA, 0, ref rect, SPIF_SENDCHANGE);
+            }
+            catch { }
+        }
+
+        public static void UpdateShellWorkAreaLeft(int leftPx)
+        {
+            try
+            {
+                if (!IsShellMode) return;
+                int widthPx = GetSystemMetrics(SM_CXSCREEN);
+                int heightPx = GetSystemMetrics(SM_CYSCREEN);
+                if (leftPx < 0) leftPx = 0;
+                if (leftPx > widthPx - 50) leftPx = Math.Max(0, widthPx - 50);
+                var rect = new RECT { left = leftPx, top = 0, right = widthPx, bottom = heightPx - ShellTaskbarHeightPx };
                 SystemParametersInfo(SPI_SETWORKAREA, 0, ref rect, SPIF_SENDCHANGE);
             }
             catch { }
@@ -301,9 +313,9 @@ namespace Vivit_Control_Center
         {
             try
             {
-                var width = (int)SystemParameters.PrimaryScreenWidth;
-                var height = (int)SystemParameters.PrimaryScreenHeight;
-                var rect = new RECT { left = 0, top = 0, right = width, bottom = height };
+                int widthPx = GetSystemMetrics(SM_CXSCREEN);
+                int heightPx = GetSystemMetrics(SM_CYSCREEN);
+                var rect = new RECT { left = 0, top = 0, right = widthPx, bottom = heightPx };
                 SystemParametersInfo(SPI_SETWORKAREA, 0, ref rect, SPIF_SENDCHANGE);
             }
             catch { }

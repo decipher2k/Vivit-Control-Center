@@ -3,11 +3,19 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Taskbar" Height="40" Width="800" WindowStyle="None" ResizeMode="NoResize"
         ShowInTaskbar="False" Topmost="True" Background="#000000" AllowsTransparency="False" Focusable="False">
-    <Border Background="#000000" BorderBrush="#000000" BorderThickness="0,1,0,0">
+    <Border Background="#000000" BorderBrush="#000000" BorderThickness="0,0,0,0">
         <DockPanel LastChildFill="True" Margin="6,0,6,0">
             <!-- Left side: App button + running process icons -->
             <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
                 <Button x:Name="AppButton" Width="40" Height="34" Padding="0" Margin="0,3,6,3" Background="Transparent" BorderBrush="Transparent" ToolTip="Vivit Control Center" Click="AppButton_Click">
+                    <Button.ContextMenu>
+                        <ContextMenu x:Name="AppButtonContextMenu">
+                            <MenuItem Header="Logout" Click="AppButtonLogout_Click"/>
+                            <Separator />
+                            <MenuItem Header="Restart" Click="AppButtonRestart_Click"/>
+                            <MenuItem Header="Shutdown" Click="AppButtonShutdown_Click"/>
+                        </ContextMenu>
+                    </Button.ContextMenu>
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <TextBlock Text="◎" FontSize="16" HorizontalAlignment="Center" Foreground="White"/>
                         <TextBlock Text="Apps" FontSize="9" Foreground="#DDDDDD" HorizontalAlignment="Center"/>
@@ -21,9 +29,6 @@
             <!-- Right area: explorer tray toggle + custom tray icons + volume + clock -->
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center" x:Name="RightPanel">
                 <!-- Button to toggle real explorer tray -->
-                <Button x:Name="ShowExplorerTrayButton" Width="28" Height="28" Padding="0" Margin="0,0,6,0" Background="Transparent" BorderBrush="Transparent" ToolTip="Explorer Tray anzeigen" Click="ShowExplorerTrayButton_Click">
-                    <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="White"/>
-                </Button>
                 <!-- Tray area (custom enumerated) -->
                 <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" Margin="0,0,8,0">
                     <StackPanel Orientation="Horizontal" x:Name="TrayAreaPanel" />

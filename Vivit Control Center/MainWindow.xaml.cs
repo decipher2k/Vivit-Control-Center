@@ -43,7 +43,7 @@ namespace Vivit_Control_Center
 
         private readonly HashSet<string> _pending = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        private const double ShellTaskbarHeight = 40; // keep in sync with TaskbarWindow height
+        private const double ShellTaskbarHeight = 40; // keep in sync with TaskbarWindow height (fallback)
 
         // Track disabled/enabled tags for this session
         private HashSet<string> _disabledTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -59,15 +59,65 @@ namespace Vivit_Control_Center
             ComputeEnabledTags();
             FilterSidebarBySettings();
 
-            // Shell Mode Anpassungen
-           
-
             SidebarRoot.IsEnabled = false;
             UpdateLoadProgress(0);
             PrecreateModules();
             Loaded += async (_, __) => await PreloadAllAndHideSplashAsync();
-            Loaded += (_, __) => { ApplyWorkAreaConstraints(); ClampToWorkArea(); FilterSidebarBySettings(); };
+            Loaded += (_, __) =>
+            {
+                ApplyWorkAreaConstraints();
+                ClampToWorkArea();
+                FilterSidebarBySettings();
+                if (App.IsShellMode)
+                {
+                    try
+                    {
+                        // Collapse the title-bar row completely in shell mode
+                        var titleRow = this.FindName("TitleRow") as RowDefinition;
+                        if (titleRow != null) titleRow.Height = new GridLength(0);
+                        HideTitleBarButtonsSafe();
+
+                        // NICHT maximieren – stattdessen selbst auf Bildschirmgröße setzen,
+                        // damit unser Fenster auch die vom OS reservierte Sidebar-Fläche links abdecken kann.
+                        WindowState = WindowState.Normal;
+                        FitMainWindowToScreen();
+                    }
+                    catch { }
+                }
+            };
             StateChanged += (_, __) => { UpdateMaxRestoreIcon(); ApplyWorkAreaConstraints(); };
+        }
+
+        private void HideTitleBarButtonsSafe()
+        {
+            try
+            {
+                (FindName("MinButton") as Button)?.SetValue(VisibilityProperty, Visibility.Collapsed);
+                (FindName("MaxButton") as Button)?.SetValue(VisibilityProperty, Visibility.Collapsed);
+                (FindName("CloseButton") as Button)?.SetValue(VisibilityProperty, Visibility.Collapsed);
+            }
+            catch { }
+        }
+
+        private void FitMainWindowToScreen()
+        {
+            try
+            {
+                // DIPs: SystemParameters sind bereits in DIPs
+                double screenW = SystemParameters.PrimaryScreenWidth;
+                double screenH = SystemParameters.PrimaryScreenHeight;
+                // Pixel->DIP Umrechnung für Taskbarhöhe
+                var src = PresentationSource.FromVisual(this);
+                double mFromDeviceY = src?.CompositionTarget?.TransformFromDevice.M22 ?? 1.0;
+                double taskbarDip = App.ShellTaskbarHeightPx * mFromDeviceY;
+                if (double.IsNaN(taskbarDip) || taskbarDip <= 0) taskbarDip = 40;
+
+                Left = 0;
+                Top = 0;
+                Width = screenW;
+                Height = Math.Max(200, screenH - taskbarDip);
+            }
+            catch { }
         }
 
         private void ComputeEnabledTags()
@@ -261,7 +311,8 @@ namespace Vivit_Control_Center
                 Top = 0;
                 Width = SystemParameters.PrimaryScreenWidth;
                 var fullHeight = SystemParameters.PrimaryScreenHeight;
-                var targetHeight = Math.Max(300, fullHeight - ShellTaskbarHeight); // safety min height
+                var taskbarDip = App.ShellTaskbarHeightPx * (PresentationSource.FromVisual(this)?.CompositionTarget?.TransformFromDevice.M22 ?? 1.0);
+                var targetHeight = Math.Max(300, fullHeight - (double.IsNaN(taskbarDip) ? ShellTaskbarHeight : taskbarDip));
                 Height = targetHeight;
                 MaxHeight = targetHeight; // prevent user resize overlapping taskbar
             }
@@ -621,5 +672,77 @@ namespace Vivit_Control_Center
             }
             catch { }
         }
+
+        // Obtain sidebar width (in DIPs) by measuring its ActualWidth and convert to pixels
+        private void UpdateWorkAreaForSidebar()
+        {
+            try
+            {
+                if (!App.IsShellMode) return;
+                if (SidebarRoot == null) return;
+
+                // Sidebarbreite in DIPs -> in Pixel umrechnen
+                double dipLeft = SidebarRoot.ActualWidth;
+                var src = PresentationSource.FromVisual(this);
+                double m11 = src?.CompositionTarget?.TransformToDevice.M11 ?? 1.0; // DIP->PX scale X
+                int leftPx = (int)Math.Round(Math.Max(0, dipLeft) * m11);
+                
+                App.UpdateShellWorkAreaLeft(leftPx);
+            }
+            catch { }
+        }
+
+        // Apply sidebar tweaks when in shell mode:
+        // - Remove Power button entirely
+        // - Hide Launch (Start) button as well
+        private void ApplyShellSidebarTweaks()
+        {
+            if (!App.IsShellMode) return;
+            try
+            {
+                // Find the bottom StackPanel inside the sidebar (DockPanel.Dock == Bottom)
+                var bottomPanel = FindVisualChildren<StackPanel>(SidebarRoot)
+                    .FirstOrDefault(sp => DockPanel.GetDock(sp) == Dock.Bottom)
+                    ?? FindVisualChildren<StackPanel>(SidebarRoot)
+                        .FirstOrDefault(sp => sp.Children.OfType<Button>().Any(b => (b.Tag as string) == "__reboot" || (b.Tag as string) == "Launch"));
+                if (bottomPanel == null) return;
+
+                // Remove/collapse the power button completely
+                var powerBtn = bottomPanel.Children.OfType<Button>().FirstOrDefault(b => (b.Tag as string) == "__reboot");
+                if (powerBtn != null)
+                {
+                    bottomPanel.Children.Remove(powerBtn);
+                }
+
+                // Hide the Launch (Start) button too
+                var launchBtn = bottomPanel.Children.OfType<Button>().FirstOrDefault(b => (b.Tag as string) == "Launch");
+                if (launchBtn != null)
+                {
+                    launchBtn.Visibility = Visibility.Collapsed;
+                    // If any context menu was previously attached, close it
+                    try { launchBtn.ContextMenu = null; } catch { }
+                }
+            }
+            catch { }
+        }
+
+        protected override void OnContentRendered(EventArgs e)
+        {
+            base.OnContentRendered(e);
+            UpdateWorkAreaForSidebar();
+            ApplyShellSidebarTweaks();
+        }
+
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
+            base.OnRenderSizeChanged(sizeInfo);
+            // If sidebar width changes (resize), update work area
+            if (sizeInfo.WidthChanged)
+            {
+                UpdateWorkAreaForSidebar();
+            }
+        }
+
+        // ...rest of class...
     }
 }
