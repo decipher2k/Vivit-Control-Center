@@ -139,5 +139,17 @@ namespace Vivit_Control_Center.Settings
         public string SmtpHost { get; set; }
         public int SmtpPort { get; set; } = 587;
         public bool SmtpUseSsl { get; set; } = true;
+
+        // OAuth2 configuration
+        public string AuthMethod { get; set; } = "Password"; // Password or OAuth2
+        public string OAuthProvider { get; set; } = ""; // Google, Microsoft, Custom
+        public string OAuthAccessToken { get; set; }
+        public string OAuthRefreshToken { get; set; }
+        public DateTime OAuthTokenExpiryUtc { get; set; }
+        public string OAuthClientId { get; set; }
+        public string OAuthClientSecret { get; set; }
+        public string OAuthTenant { get; set; } // for Microsoft (common, organizations, consumers or GUID)
+        public string OAuthScope { get; set; } // space-separated scopes
+        public string OAuthTokenEndpoint { get; set; } // override token endpoint
     }
 }

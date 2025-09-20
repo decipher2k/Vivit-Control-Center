@@ -113,6 +113,7 @@
     <Compile Include="Views\Modules\NotesModule.xaml.cs">
       <DependentUpon>NotesModule.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Modules\OAuth\OAuthHelper.cs" />
     <Compile Include="Views\Modules\OfficeModule.xaml.cs">
       <DependentUpon>OfficeModule.xaml</DependentUpon>
     </Compile>

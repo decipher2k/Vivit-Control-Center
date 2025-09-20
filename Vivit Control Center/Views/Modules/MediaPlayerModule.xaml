@@ -5,6 +5,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Vivit_Control_Center.Views.Modules"
+    xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     mc:Ignorable="d"
     d:DesignWidth="900"
     d:DesignHeight="540">
@@ -56,6 +57,7 @@
                         <ListBox.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Add" Click="btnAdd_Click"/>
+                                <MenuItem Header="Add YouTube Playlist" Click="btnAddYouTube_Click"/>
                                 <MenuItem Header="Remove" Click="btnRemove_Click"/>
                                 <MenuItem Header="Clear" Click="btnClear_Click"/>
                             </ContextMenu>
@@ -63,11 +65,18 @@
                     </ListBox>
 
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,8,0,0">
-                        <Button x:Name="btnAdd" Width="100" Margin="0,0,8,0" Click="btnAdd_Click" ToolTip="Add to playlist">
+                        <Button x:Name="btnAdd" Width="140" Margin="0,0,8,0" Click="btnAdd_Click" ToolTip="Add local files to playlist">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Path Data="M 10,4 L 10,10 L 4,10 L 4,14 L 10,14 L 10,20 L 14,20 L 14,14 L 20,14 L 20,10 L 14,10 L 14,4 Z"
                                       Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Width="14" Height="14" Stretch="Uniform" Margin="0,0,6,0"/>
-                                <TextBlock Text="Add"/>
+                                <TextBlock Text="Add Files"/>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="btnAddYouTube" Width="180" Margin="0,0,8,0" Click="btnAddYouTube_Click" ToolTip="Add a YouTube playlist by URL">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Path Data="M 6,12 C 6,7 10,4 15,4 C 19,4 22,7 22,12 C 22,17 19,20 15,20 C 10,20 6,17 6,12 Z"
+                                      Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Width="14" Height="14" Stretch="Uniform" Margin="0,0,6,0"/>
+                                <TextBlock Text="Add YouTube Playlist"/>
                             </StackPanel>
                         </Button>
                         <Button x:Name="btnRemove" Width="100" Margin="0,0,8,0" Click="btnRemove_Click" ToolTip="Remove selected">
@@ -88,20 +97,21 @@
                 </Grid>
             </GroupBox>
 
-            <!-- Right: Artwork/placeholder -->
+            <!-- Right: Artwork/placeholder OR YouTube Player -->
             <Border Grid.Column="1" BorderBrush="#22000000" BorderThickness="1" CornerRadius="6" Background="#06000000">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <Viewbox Stretch="Uniform" Margin="18" Grid.Row="0">
+                    <Viewbox x:Name="artPlaceholder" Stretch="Uniform" Margin="18" Grid.Row="0">
                         <Grid Width="180" Height="180">
                             <Ellipse Fill="#22007ACC" Stroke="#33007ACC" StrokeThickness="2"/>
                             <Ellipse Width="22" Height="22" Fill="#44000000" Stroke="#22000000" StrokeThickness="1"/>
                         </Grid>
                     </Viewbox>
-                    <TextBlock Text="No artwork" Opacity="0.5" HorizontalAlignment="Center" Margin="0,0,0,12" Grid.Row="1"/>
+                    <wv2:WebView2 x:Name="ytWeb" Grid.Row="0" Visibility="Collapsed" Margin="6" />
+                    <TextBlock x:Name="artText" Text="No artwork" Opacity="0.5" HorizontalAlignment="Center" Margin="0,0,0,12" Grid.Row="1"/>
                 </Grid>
             </Border>
         </Grid>
@@ -162,7 +172,7 @@
             </Grid>
         </Grid>
 
-        <!-- Hidden MediaElement -->
+        <!-- Hidden MediaElement + WebView2 for YouTube -->
         <MediaElement x:Name="media"
                       LoadedBehavior="Manual"
                       UnloadedBehavior="Manual"

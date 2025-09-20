@@ -3,11 +3,42 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Taskbar" Height="40" Width="800" WindowStyle="None" ResizeMode="NoResize"
         ShowInTaskbar="False" Topmost="True" Background="#000000" AllowsTransparency="False" Focusable="False">
+    
+    <Window.Resources>
+        <!-- Flat button style without hover/pressed background -->
+        <Style x:Key="FlatTaskbarButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              RecognizesAccessKey="True"/>
+                        </Border>
+                        <!-- No triggers to keep hover/pressed transparent -->
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Make flat style the default for all Buttons in this window (affects program buttons created in code) -->
+        <Style TargetType="Button" BasedOn="{StaticResource FlatTaskbarButton}"/>
+    </Window.Resources>
+
     <Border Background="#000000" BorderBrush="#000000" BorderThickness="0,0,0,0">
         <DockPanel LastChildFill="True" Margin="6,0,6,0">
             <!-- Left side: App button + running process icons -->
             <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
-                <Button x:Name="AppButton" Width="40" Height="34" Padding="0" Margin="0,3,6,3" Background="Transparent" BorderBrush="Transparent" ToolTip="Vivit Control Center" Click="AppButton_Click">
+                <Button x:Name="AppButton" Width="40" Height="34" Padding="0" Margin="0,3,6,3"
+                        Background="Transparent" BorderBrush="Transparent" ToolTip="Vivit Control Center"
+                        Style="{StaticResource FlatTaskbarButton}" Click="AppButton_Click">
                     <Button.ContextMenu>
                         <ContextMenu x:Name="AppButtonContextMenu">
                             <MenuItem Header="Logout" Click="AppButtonLogout_Click"/>
@@ -28,14 +59,14 @@
 
             <!-- Right area: explorer tray toggle + custom tray icons + volume + clock -->
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center" x:Name="RightPanel">
-                <!-- Button to toggle real explorer tray -->
                 <!-- Tray area (custom enumerated) -->
                 <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" Margin="0,0,8,0">
                     <StackPanel Orientation="Horizontal" x:Name="TrayAreaPanel" />
                 </ScrollViewer>
                 <!-- Volume -->
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0" x:Name="VolumePanel">
-                    <Button x:Name="VolumeButton" Click="VolumeButton_Click" Width="28" Height="28" Padding="0" Margin="0" Background="Transparent" BorderBrush="Transparent" ToolTip="Volume">
+                    <Button x:Name="VolumeButton" Click="VolumeButton_Click" Width="28" Height="28" Padding="0" Margin="0"
+                            Background="Transparent" BorderBrush="Transparent">
                         <!-- Use Segoe MDL2 Assets glyphs instead of emoji to avoid rendering as '??' -->
                         <TextBlock x:Name="VolumeIcon" Text="" FontSize="16" FontFamily="Segoe MDL2 Assets"/>
                     </Button>
