@@ -14,6 +14,7 @@ using Microsoft.Win32; // autorun registry
 using System.IO; // path handling
 using System.ComponentModel;
 using Vivit_Control_Center.Localization;
+using System.Windows.Media; // VisualTreeHelper
 
 namespace Vivit_Control_Center
 {
@@ -26,7 +27,7 @@ namespace Vivit_Control_Center
 
         private static readonly string[] Tags = new[]
         {
-            "AI","News","Messenger","Chat","Explorer","Office","Notes","Media Player","Steam",
+            "AI","News","Messenger","Chat","Explorer","Office","Notes","Email","Media Player","Steam",
             "Webbrowser","Order Food","eBay","Temu","Terminal","Scripting","SSH","SFTP","Social","Launch","Programs","Settings"
         };
 
@@ -44,12 +45,18 @@ namespace Vivit_Control_Center
 
         private const double ShellTaskbarHeight = 40; // keep in sync with TaskbarWindow height
 
+        // Track disabled/enabled tags for this session
+        private HashSet<string> _disabledTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private List<string> _enabledTags = new List<string>();
+        private string _startupTag;
+
         public MainWindow()
         {
             InitializeComponent();
 
             _settings = AppSettings.Load();
             ApplyTheme(_settings.Theme);
+            ComputeEnabledTags();
             FilterSidebarBySettings();
 
             // Shell Mode Anpassungen
@@ -59,7 +66,35 @@ namespace Vivit_Control_Center
             UpdateLoadProgress(0);
             PrecreateModules();
             Loaded += async (_, __) => await PreloadAllAndHideSplashAsync();
-            StateChanged += (_, __) => UpdateMaxRestoreIcon();
+            Loaded += (_, __) => { ApplyWorkAreaConstraints(); ClampToWorkArea(); FilterSidebarBySettings(); };
+            StateChanged += (_, __) => { UpdateMaxRestoreIcon(); ApplyWorkAreaConstraints(); };
+        }
+
+        private void ComputeEnabledTags()
+        {
+            try
+            {
+                _disabledTags = new HashSet<string>(_settings.DisabledModules ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+                // Settings must always be available
+                _disabledTags.Remove("Settings");
+                // Build enabled list keeping the order from Tags array
+                _enabledTags = Tags.Where(t => !_disabledTags.Contains(t)).ToList();
+                if (_enabledTags.Count == 0)
+                {
+                    // Fallback: ensure at least Settings exists
+                    _enabledTags.Add("Settings");
+                }
+                // Choose startup tag: DefaultTag if enabled else first enabled
+                _startupTag = _enabledTags.Contains(DefaultTag, StringComparer.OrdinalIgnoreCase)
+                    ? DefaultTag
+                    : _enabledTags.FirstOrDefault() ?? "Settings";
+            }
+            catch
+            {
+                _disabledTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                _enabledTags = Tags.ToList();
+                _startupTag = DefaultTag;
+            }
         }
 
         // Lädt AutoRun Anwendungen (Run-Keys + Startup Folder) nur im Shell Mode
@@ -257,6 +292,26 @@ namespace Vivit_Control_Center
                 this.Background = (System.Windows.Media.Brush) new System.Windows.Media.BrushConverter().ConvertFromString("#121212");
         }
 
+        private IEnumerable<Button> EnumerateSidebarButtons()
+        {
+            foreach (var btn in FindVisualChildren<Button>(SidebarRoot))
+            {
+                if (btn.Tag is string) yield return btn;
+            }
+        }
+
+        private IEnumerable<T> FindVisualChildren<T>(DependencyObject root) where T : DependencyObject
+        {
+            if (root == null) yield break;
+            int count = VisualTreeHelper.GetChildrenCount(root);
+            for (int i = 0; i < count; i++)
+            {
+                var child = VisualTreeHelper.GetChild(root, i);
+                if (child is T t) yield return t;
+                foreach (var g in FindVisualChildren<T>(child)) yield return g;
+            }
+        }
+
         private void FilterSidebarBySettings()
         {
             try
@@ -264,15 +319,11 @@ namespace Vivit_Control_Center
                 var disabled = new HashSet<string>(_settings.DisabledModules ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
                 disabled.Remove("Settings");
 
-                var sv = SidebarRoot.Child as ScrollViewer;
-                var stack = sv?.Content as StackPanel;
-                if (stack == null) return;
-                foreach (var child in stack.Children.OfType<Button>())
+                foreach (var btn in EnumerateSidebarButtons())
                 {
-                    if (child.Tag is string tag && disabled.Contains(tag))
-                        child.Visibility = Visibility.Collapsed;
-                    else
-                        child.Visibility = Visibility.Visible;
+                    var tag = btn.Tag as string;
+                    if (string.IsNullOrWhiteSpace(tag)) continue;
+                    btn.Visibility = disabled.Contains(tag) ? Visibility.Collapsed : Visibility.Visible;
                 }
             }
             catch { }
@@ -307,7 +358,8 @@ namespace Vivit_Control_Center
 
         private void PrecreateModules()
         {
-            var uniqueTags = new HashSet<string>(Tags, StringComparer.OrdinalIgnoreCase);
+            // Only create enabled modules
+            var uniqueTags = new HashSet<string>(_enabledTags, StringComparer.OrdinalIgnoreCase);
             foreach (var tag in uniqueTags)
             {
                 _pending.Add(tag);
@@ -355,6 +407,7 @@ namespace Vivit_Control_Center
                 case "Social":        return (IModule) new SocialModule();
                 case "Launch":        return (IModule) new LaunchModule();
                 case "Programs":      return (IModule) new LaunchModule(); // alias for Launch
+                case "Email":         return (IModule) new EmailModule();
                 case "News":
                     var settings = Settings.AppSettings.Load();
                     if (string.Equals(settings.NewsMode, "RSS", StringComparison.OrdinalIgnoreCase))
@@ -396,7 +449,7 @@ namespace Vivit_Control_Center
                 m.View.Visibility = Visibility.Collapsed;
 
             SidebarRoot.IsEnabled = true;
-            ShowModule(DefaultTag);
+            ShowModule(_startupTag);
         }
 
         private void SidebarButton_Click(object sender, RoutedEventArgs e)
@@ -412,9 +465,10 @@ namespace Vivit_Control_Center
 
         private void ShowModule(string tag)
         {
-            if (!_modules.TryGetValue(tag, out var module))
+            if (string.IsNullOrWhiteSpace(tag) || !_modules.TryGetValue(tag, out var module))
             {
-                tag = DefaultTag;
+                // Fallback to startup tag if requested one is disabled/missing
+                tag = _modules.ContainsKey(_startupTag) ? _startupTag : _modules.Keys.FirstOrDefault() ?? "Settings";
                 module = _modules[tag];
             }
 
@@ -528,6 +582,44 @@ namespace Vivit_Control_Center
             Show();
             if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
             Activate();
+        }
+
+        // Ensure borderless window maximizes to the working area and not under the taskbar
+        private void ApplyWorkAreaConstraints()
+        {
+            try
+            {
+                var wa = SystemParameters.WorkArea;
+                if (WindowState == WindowState.Maximized)
+                {
+                    MaxWidth = wa.Width;
+                    MaxHeight = wa.Height;
+                    Left = wa.Left;
+                    Top = wa.Top;
+                }
+                else
+                {
+                    // reset caps so the user can resize in normal state
+                    MaxWidth = double.PositiveInfinity;
+                    MaxHeight = double.PositiveInfinity;
+                }
+            }
+            catch { }
+        }
+
+        // Prevent the window from starting off-screen
+        private void ClampToWorkArea()
+        {
+            try
+            {
+                var wa = SystemParameters.WorkArea;
+                if (double.IsNaN(Left) || double.IsNaN(Top)) return;
+                if (Left < wa.Left) Left = wa.Left;
+                if (Top < wa.Top) Top = wa.Top;
+                if (Width > wa.Width) Width = wa.Width;
+                if (Height > wa.Height) Height = wa.Height;
+            }
+            catch { }
         }
     }
 }

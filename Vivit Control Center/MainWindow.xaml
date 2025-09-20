@@ -300,6 +300,13 @@
                                 <TextBlock Text="Notes" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
                             </StackPanel>
                         </Button>
+                        <!-- New Email button -->
+                        <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Email" ToolTip="Email">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
+                                <TextBlock Text="✉️" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Email" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
                         <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Media Player" ToolTip="Media Player">
                             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
                                 <TextBlock Text="🎵" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>

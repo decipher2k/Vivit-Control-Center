@@ -52,7 +52,7 @@ namespace Vivit_Control_Center
             var dv = new DrawingVisual();
             using (var dc = dv.RenderOpen())
             {
-                var bg = new SolidColorBrush(Color.FromRgb(32, 32, 32));
+                var bg = new SolidColorBrush(Color.FromRgb(0, 0, 0));
                 dc.DrawRectangle(bg, null, new Rect(0, 0, w, h));
                 var pen = new Pen(new SolidColorBrush(accent), Math.Max(1, w / 12.0));
                 dc.DrawRectangle(null, pen, new Rect(w * 0.15, h * 0.2, w * 0.7, h * 0.65));
@@ -126,7 +126,12 @@ namespace Vivit_Control_Center
         }
 
         private void PositionAtBottom()
-        { Left = 0; Width = SystemParameters.PrimaryScreenWidth; Height = 40; Top = SystemParameters.PrimaryScreenHeight - Height; }
+        {
+            Left = 0;
+            Width = SystemParameters.PrimaryScreenWidth;
+            Height = Math.Max(24, App.ShellTaskbarHeightPx);
+            Top = SystemParameters.PrimaryScreenHeight - Height;
+        }
         private void UpdateClock() { var now = DateTime.Now; TimeText.Text = now.ToString("HH:mm"); DateText.Text = now.ToString("dd.MM.yyyy"); }
 
         #region Process + Window enumeration
@@ -185,6 +190,7 @@ namespace Vivit_Control_Center
         [DllImport("user32.dll")] private static extern IntPtr GetWindow(IntPtr hWnd, uint uCmd);
         [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern int GetClassName(IntPtr hWnd, System.Text.StringBuilder lpClassName, int nMax);
         [DllImport("user32.dll")] private static extern bool EnumChildWindows(IntPtr hWndParent, EnumWindowsProc lpEnumFunc, IntPtr lParam);
+        [DllImport("user32.dll")] private static extern bool IsWindowVisible(IntPtr hWnd);
 
         private const uint GW_OWNER = 4;
         private class TopWindow { public IntPtr Hwnd; public int ProcessId; public string Title; }
@@ -321,7 +327,7 @@ namespace Vivit_Control_Center
         private static float GetMasterVolume() { try { var epv = GetEndpointVolume(); epv.GetMasterVolumeLevelScalar(out float v); Marshal.ReleaseComObject(epv); return v; } catch { return 0f; } }
         private static void SetMasterVolume(float value) { try { var epv = GetEndpointVolume(); epv.SetMasterVolumeLevelScalar(value, Guid.Empty); Marshal.ReleaseComObject(epv); } catch { } }
         private void VolumeSlider_ValueChanged(object s, RoutedPropertyChangedEventArgs<double> e) { if (!IsLoaded) return; SetMasterVolume((float)(VolumeSlider.Value / 100.0)); UpdateVolumeIcon((int)VolumeSlider.Value); }
-        private void UpdateVolumeIcon(int v) { if (VolumeIcon == null) return; VolumeIcon.FontFamily = new FontFamily("Segoe MDL2 Assets"); VolumeIcon.Text = v == 0 ? "\uE198" : v < 30 ? "\uE15D" : v < 70 ? "\uE995" : "\uE15E"; }
+        private void UpdateVolumeIcon(int v) { if (VolumeIcon == null) return; VolumeIcon.FontFamily = new FontFamily("Segoe MDL2 Assets"); VolumeIcon.Text = v == 0 ? " E198".Substring(1) : v < 30 ? " E15D".Substring(1) : v < 70 ? " E995".Substring(1) : " E15E".Substring(1); }
         private void VolumeButton_Click(object s, RoutedEventArgs e) { VolumePopup.IsOpen = !VolumePopup.IsOpen; VolumePopup.PlacementTarget = VolumeButton; }
         #endregion
 
@@ -529,7 +535,7 @@ namespace Vivit_Control_Center
                 {
                     if (!_explorerTrayVisible)
                     {
-                        int h = 40;
+                        int h = Math.Max(24, App.ShellTaskbarHeightPx);
                         SetWindowPos(_cachedExplorerTray, IntPtr.Zero, 0, (int)SystemParameters.PrimaryScreenHeight - h, (int)SystemParameters.PrimaryScreenWidth, h, SWP_NOZORDER | SWP_NOACTIVATE);
                         ShowWindow(_cachedExplorerTray, SW_SHOWNA);
                         _explorerTrayVisible = true;
@@ -565,7 +571,7 @@ namespace Vivit_Control_Center
 
                 int width = targetRc.right - targetRc.left;
                 int height = targetRc.bottom - targetRc.top;
-                if (height <= 0) height = 40;
+                if (height <= 0) height = Math.Max(24, App.ShellTaskbarHeightPx);
                 if (width <= 0 || width > SystemParameters.PrimaryScreenWidth) width = 260;
 
                 if (!_explorerTrayVisible)
@@ -610,9 +616,7 @@ namespace Vivit_Control_Center
         // === NEU: Sicheres Ausblenden der Windows-Taskbar im Shell-Modus ===
         private bool IsShellMode()
         {
-            // Einfacher Heuristik-Platzhalter: Anpassen (z.B. per Settings / Argument / Registry)
-            return Environment.GetCommandLineArgs().Any(a => string.Equals(a, "--shell", StringComparison.OrdinalIgnoreCase))
-                   || AppDomain.CurrentDomain.FriendlyName.IndexOf("shell", StringComparison.OrdinalIgnoreCase) >= 0;
+            return App.IsShellMode;
         }
 
         private void StartTaskbarWatchdog()

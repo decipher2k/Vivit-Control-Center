@@ -76,6 +76,9 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>work-life-balance.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -93,6 +96,10 @@
     <Compile Include="Views\Modules\BaseSimpleModule.cs" />
     <Compile Include="Views\Modules\BrowserModule.xaml.cs">
       <DependentUpon>BrowserModule.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Modules\EmailAccountsDialog.cs" />
+    <Compile Include="Views\Modules\EmailModule.xaml.cs">
+      <DependentUpon>EmailModule.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Modules\ExplorerModule.xaml.cs">
       <DependentUpon>ExplorerModule.xaml</DependentUpon>
@@ -122,6 +129,7 @@
     <Compile Include="Views\Modules\ScriptingModule.xaml.cs">
       <DependentUpon>ScriptingModule.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Modules\SettingsModule.EmailHook.cs" />
     <Compile Include="Views\Modules\SettingsModule.xaml.cs">
       <DependentUpon>SettingsModule.xaml</DependentUpon>
     </Compile>
@@ -186,6 +194,9 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Modules\BrowserModule.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Modules\EmailModule.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Modules\ExplorerModule.xaml">
@@ -267,6 +278,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="MailKit" Version="2.16.0" />
     <PackageReference Include="Microsoft.Office.Interop.Excel">
       <Version>15.0.4795.1001</Version>
     </PackageReference>
@@ -295,6 +307,9 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="WindowsBase" />
     <Reference Include="WindowsFormsIntegration" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="work-life-balance.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

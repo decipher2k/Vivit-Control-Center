@@ -1,0 +1,115 @@
+<local:BaseSimpleModule
+    x:Class="Vivit_Control_Center.Views.Modules.EmailModule"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Vivit_Control_Center.Views.Modules"
+    mc:Ignorable="d"
+    d:DesignWidth="1000"
+    d:DesignHeight="600">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Toolbar -->
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="3" Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBlock Text="Account:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+            <ComboBox x:Name="cmbAccounts" Width="320" DisplayMemberPath="DisplayName" SelectionChanged="cmbAccounts_SelectionChanged"/>
+            <Button x:Name="btnRefresh" Content="Refresh" Margin="8,0,0,0" Click="btnRefresh_Click"/>
+            <Button x:Name="btnNew" Content="New Email" Margin="8,0,0,0" Click="btnNew_Click"/>
+            <Button x:Name="btnAccounts" Content="Accounts" Margin="8,0,0,0" Click="btnAccounts_Click"/>
+            <TextBlock x:Name="txtStatus" Margin="12,0,0,0" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Folders -->
+        <GroupBox Header="Folders" Grid.Row="1" Grid.Column="0" Margin="0,0,8,0">
+            <ListBox x:Name="lstFolders" SelectionChanged="lstFolders_SelectionChanged">
+                <ListBoxItem Content="Inbox" IsSelected="True"/>
+                <ListBoxItem Content="Sent"/>
+                <ListBoxItem Content="Drafts"/>
+            </ListBox>
+        </GroupBox>
+
+        <!-- Message list -->
+        <GroupBox Header="Messages" Grid.Row="1" Grid.Column="1" Margin="0,0,8,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <ListView x:Name="lvMessages" Grid.Row="0" SelectionChanged="lvMessages_SelectionChanged">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="From" Width="160" DisplayMemberBinding="{Binding From}"/>
+                            <GridViewColumn Header="Subject" Width="280" DisplayMemberBinding="{Binding Subject}"/>
+                            <GridViewColumn Header="Date" Width="140" DisplayMemberBinding="{Binding Date}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                    <Button Content="Load more" Click="btnLoadMore_Click"/>
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+
+        <!-- Reading pane -->
+        <GroupBox Header="Reading Pane" Grid.Row="1" Grid.Column="2">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="8">
+                        <TextBlock x:Name="txtMailHeader" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                        <Border Margin="0,8,0,0" BorderBrush="#DDD" BorderThickness="1" Padding="8">
+                            <WebBrowser x:Name="wbBody"/>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </GroupBox>
+
+        <!-- Compose panel -->
+        <Expander x:Name="expCompose" Grid.Row="2" Grid.ColumnSpan="3" Header="Compose" IsExpanded="False" Margin="0,8,0,0">
+            <Grid Margin="8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="To:" VerticalAlignment="Center"/>
+                <TextBox x:Name="txtTo" Grid.Column="1" Margin="6,0,0,6"/>
+
+                <TextBlock Text="Subject:" Grid.Row="1" VerticalAlignment="Center"/>
+                <TextBox x:Name="txtSubject" Grid.Row="1" Grid.Column="1" Margin="6,0,0,6"/>
+
+                <Grid Grid.Row="2" Grid.ColumnSpan="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBox x:Name="txtBody" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap"/>
+                </Grid>
+
+                <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                    <Button Content="Send" Click="btnSend_Click"/>
+                    <Button Content="Cancel" Margin="8,0,0,0" Click="btnCancelCompose_Click"/>
+                </StackPanel>
+            </Grid>
+        </Expander>
+    </Grid>
+</local:BaseSimpleModule>

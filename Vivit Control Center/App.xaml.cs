@@ -20,7 +20,8 @@ namespace Vivit_Control_Center
         public static bool IsShellMode { get; private set; }
         private TaskbarWindow _taskbarWindow;
 
-        private const int ShellTaskbarHeight = 40;
+        // Dynamic taskbar height determined at runtime to match Windows taskbar height
+        public static int ShellTaskbarHeightPx { get; private set; } = 40;
 
         #region Win32 WorkArea
         [StructLayout(LayoutKind.Sequential)]
@@ -28,6 +29,9 @@ namespace Vivit_Control_Center
 
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool SystemParametersInfo(int uiAction, int uiParam, ref RECT pvParam, int fWinIni);
+
+        [DllImport("user32.dll")] private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
 
         private const int SPI_SETWORKAREA = 0x002F;
         private const int SPIF_SENDCHANGE = 0x02;
@@ -180,27 +184,55 @@ namespace Vivit_Control_Center
                         }
                     }
                 }
-                IsShellMode = true;
+                // Removed incorrect unconditional IsShellMode = true
             }
             catch { }
 
+            // Detect native taskbar height (before changing work area)
+            ShellTaskbarHeightPx = DetectNativeTaskbarHeight();
+
             if (IsShellMode)
             {
-               // SetShellWorkArea();
+                SetShellWorkArea();
                 Dispatcher.InvokeAsync(() =>
                 {
                     try
                     {
-                     //   _taskbarWindow = new TaskbarWindow();
-                      //  _taskbarWindow.Show();
-                       // InstallKeyboardHookIfNeeded();
-                       // _ = LaunchExplorerForTrayAsync();
+                        _taskbarWindow = new TaskbarWindow();
+                        _taskbarWindow.Show();
+                        InstallKeyboardHookIfNeeded();
+                        _ = LaunchExplorerForTrayAsync();
                     }
                     catch { }
                 });
             }
 
             TrayIconService.Current.Initialize(loadedSettings?.Theme);
+        }
+
+        private static int DetectNativeTaskbarHeight()
+        {
+            try
+            {
+                int screenH = (int)SystemParameters.PrimaryScreenHeight;
+                var hwnd = FindWindow("Shell_TrayWnd", null);
+                if (hwnd != IntPtr.Zero)
+                {
+                    if (GetWindowRect(hwnd, out var rc))
+                    {
+                        int height = Math.Abs(rc.bottom - rc.top);
+                        // sanity check: between 24 and screen height/2
+                        if (height >= 24 && height <= screenH / 2)
+                            return height;
+                    }
+                }
+                // fallback to work area difference
+                var wa = SystemParameters.WorkArea;
+                int diff = screenH - (int)wa.Height;
+                if (diff >= 24 && diff <= screenH / 2) return diff;
+            }
+            catch { }
+            return 40;
         }
 
         private async Task LaunchExplorerForTrayAsync()
@@ -259,7 +291,7 @@ namespace Vivit_Control_Center
             {
                 var width = (int)SystemParameters.PrimaryScreenWidth;
                 var height = (int)SystemParameters.PrimaryScreenHeight;
-                var rect = new RECT { left = 0, top = 0, right = width, bottom = height - ShellTaskbarHeight };
+                var rect = new RECT { left = 0, top = 0, right = width, bottom = height - ShellTaskbarHeightPx };
                 SystemParametersInfo(SPI_SETWORKAREA, 0, ref rect, SPIF_SENDCHANGE);
             }
             catch { }

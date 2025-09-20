@@ -38,6 +38,9 @@ namespace Vivit_Control_Center.Settings
         // NEW: UI language (IETF code e.g. en, de, fr, es, ru, zh, ja, eo)
         public string Language { get; set; } = "en";
 
+        // Email accounts
+        public List<EmailAccount> EmailAccounts { get; set; } = new List<EmailAccount>();
+
         // Legacy list (paths only) kept for migration
         public List<string> ExternalPrograms { get; set; } = new List<string>();
         // New detailed list with captions
@@ -63,7 +66,7 @@ namespace Vivit_Control_Center.Settings
                 var path = GetSettingsPath();
                 if (!File.Exists(path))
                 {
-                    return new AppSettings { RssFeeds = new List<string>(DefaultFeeds) };
+                    return new AppSettings { RssFeeds = new List<string>(DefaultFeeds), EmailAccounts = new List<EmailAccount>() };
                 }
                 var ser = new XmlSerializer(typeof(AppSettings));
                 using (var fs = File.OpenRead(path))
@@ -73,17 +76,14 @@ namespace Vivit_Control_Center.Settings
                     if (loaded.CustomWebModuleUrls == null) loaded.CustomWebModuleUrls = new List<CustomWebModuleUrl>();
                     if (loaded.ExternalPrograms == null) loaded.ExternalPrograms = new List<string>();
                     if (loaded.ExternalProgramsDetailed == null) loaded.ExternalProgramsDetailed = new List<ExternalProgram>();
-                    // Migration: if detailed list empty but legacy list has entries
+                    if (loaded.EmailAccounts == null) loaded.EmailAccounts = new List<EmailAccount>();
+                    // Migration
                     if (loaded.ExternalProgramsDetailed.Count == 0 && loaded.ExternalPrograms.Count > 0)
                     {
                         foreach (var p in loaded.ExternalPrograms)
                         {
                             if (string.IsNullOrWhiteSpace(p)) continue;
-                            loaded.ExternalProgramsDetailed.Add(new ExternalProgram
-                            {
-                                Path = p,
-                                Caption = System.IO.Path.GetFileNameWithoutExtension(p)
-                            });
+                            loaded.ExternalProgramsDetailed.Add(new ExternalProgram { Path = p, Caption = System.IO.Path.GetFileNameWithoutExtension(p) });
                         }
                     }
                     if (string.IsNullOrWhiteSpace(loaded.SocialLastNetwork)) loaded.SocialLastNetwork = "Fediverse";
@@ -95,7 +95,7 @@ namespace Vivit_Control_Center.Settings
             }
             catch
             {
-                return new AppSettings { RssFeeds = new List<string>(), CustomWebModuleUrls = new List<CustomWebModuleUrl>(), ExternalPrograms = new List<string>(), ExternalProgramsDetailed = new List<ExternalProgram>() };
+                return new AppSettings { RssFeeds = new List<string>(), CustomWebModuleUrls = new List<CustomWebModuleUrl>(), ExternalPrograms = new List<string>(), ExternalProgramsDetailed = new List<ExternalProgram>(), EmailAccounts = new List<EmailAccount>() };
             }
         }
 
@@ -108,34 +108,36 @@ namespace Vivit_Control_Center.Settings
                 if (string.IsNullOrWhiteSpace(SocialLastNetwork)) SocialLastNetwork = "Fediverse";
                 if (string.IsNullOrWhiteSpace(Language)) Language = "en";
                 if (ExternalProgramsDetailed == null) ExternalProgramsDetailed = new List<ExternalProgram>();
-                // Keep legacy list in sync (paths only) for backward compatibility
+                if (EmailAccounts == null) EmailAccounts = new List<EmailAccount>();
                 ExternalPrograms = new List<string>();
                 foreach (var p in ExternalProgramsDetailed)
-                {
                     if (!string.IsNullOrWhiteSpace(p?.Path)) ExternalPrograms.Add(p.Path);
-                }
                 var path = GetSettingsPath();
                 var ser = new XmlSerializer(typeof(AppSettings));
                 using (var fs = File.Create(path))
-                {
                     ser.Serialize(fs, this);
-                }
             }
             catch { }
         }
     }
 
     [Serializable]
-    public class CustomWebModuleUrl
-    {
-        public string Tag { get; set; }
-        public string Url { get; set; }
-    }
+    public class CustomWebModuleUrl { public string Tag { get; set; } public string Url { get; set; } }
 
     [Serializable]
-    public class ExternalProgram
+    public class ExternalProgram { public string Path { get; set; } public string Caption { get; set; } }
+
+    [Serializable]
+    public class EmailAccount
     {
-        public string Path { get; set; }
-        public string Caption { get; set; }
+        public string DisplayName { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public string ImapHost { get; set; }
+        public int ImapPort { get; set; } = 993;
+        public bool ImapUseSsl { get; set; } = true;
+        public string SmtpHost { get; set; }
+        public int SmtpPort { get; set; } = 587;
+        public bool SmtpUseSsl { get; set; } = true;
     }
 }
