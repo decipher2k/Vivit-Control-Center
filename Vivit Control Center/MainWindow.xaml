@@ -279,6 +279,9 @@
                                 <TextBlock Text="Chat" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
                             </StackPanel>
                         </Button>
+
+                        <Separator Style="{StaticResource SidebarSeparatorStyle}"/>
+
                         <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Explorer" ToolTip="Explorer">
                             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
                                 <TextBlock Text="📁" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
@@ -309,14 +312,15 @@
                                 <TextBlock Text="Steam" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
                             </StackPanel>
                         </Button>
+
+                        <Separator Style="{StaticResource SidebarSeparatorStyle}"/>
+
                         <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Social" ToolTip="Social">
                             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
                                 <TextBlock Text="👥" FontFamily="Segoe UI Emoji" FontSize="21" HorizontalAlignment="Center"/>
                                 <TextBlock Text="Social" FontSize="9" Margin="0,6,0,0" HorizontalAlignment="Center" Foreground="#FFFFFF"/>
                             </StackPanel>
                         </Button>
-
-                        <Separator Style="{StaticResource SidebarSeparatorStyle}"/>
 
                         <Button Style="{StaticResource SidebarButtonStyle}" Click="SidebarButton_Click" Tag="Webbrowser" ToolTip="Webbrowser">
                             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,4,0,4">
