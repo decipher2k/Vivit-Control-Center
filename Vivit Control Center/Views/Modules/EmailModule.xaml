@@ -62,19 +62,17 @@
         </GroupBox>
 
         <!-- Reading pane -->
-        <GroupBox Header="Reading Pane" Grid.Row="1" Grid.Column="2">
-            <Grid>
+        <GroupBox Header="Reading Pane" Grid.Row="1" Grid.Column="2" VerticalAlignment="Stretch">
+            <Grid VerticalAlignment="Stretch">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="8">
-                        <TextBlock x:Name="txtMailHeader" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                        <Border Margin="0,8,0,0" BorderBrush="#DDD" BorderThickness="1" Padding="8">
-                            <WebBrowser x:Name="wbBody"/>
-                        </Border>
-                    </StackPanel>
-                </ScrollViewer>
+                <TextBlock x:Name="txtMailHeader" FontWeight="SemiBold" TextWrapping="Wrap" Grid.Row="0" Margin="8"/>
+                <Border Grid.Row="1" Margin="8,0,8,8" BorderBrush="#DDD" BorderThickness="1" Padding="0" VerticalAlignment="Stretch">
+                    <!-- WebBrowser will fill remaining space and handle its own scrolling -->
+                    <WebBrowser x:Name="wbBody" />
+                </Border>
             </Grid>
         </GroupBox>
 
