@@ -10,10 +10,12 @@ A modular, kiosk-friendly Windows shell and launcher built with WPF (.NET Framew
 - Settings to enable/disable modules and configure defaults
 - Programs launcher (manage custom apps)
 - Custom URLs per web module and Fediverse URL
+- Email module with IMAP/SMTP, paging, HTML preview, and optional OAuth2 (Google/Microsoft/Custom)
+- SSH enhancements: built-in log viewer with Load/Follow and configurable macros
 
 ### Bundled modules
 - Explorer: Simple file manager
-- Office: Word/Excel host (create/open/save) — requires Microsoft Office
+- Office: Word/Excel host (create/open/save) – requires Microsoft Office
 - Notes: Rich-text notes with topics tree, autosave, and formatting
 - Media Player: Playlist (add/remove/clear), play/pause/stop, previous/next, seek bar, volume, Now Playing and play time
 - Steam: Simple Steam library view (Steam must be installed)
@@ -21,10 +23,11 @@ A modular, kiosk-friendly Windows shell and launcher built with WPF (.NET Framew
 - News: RSS mode (feeds and max count) or Web news mode
 - Terminal: Console runner
 - Scripting: Simple script runner with language detection (Run via F5/Ctrl+Enter)
-- SSH: Interactive SSH console
-- SFTP: File transfer over SSH — requires SSH.NET (Renci.SshNet)
+- Email: IMAP inbox viewer with background sync/cache, paging (Load More), HTML preview, and SMTP send; supports Password or OAuth2 auth (Google/Microsoft/Custom)
+- SSH: Interactive SSH console plus log viewer (tail) with Follow and user-defined macros
+- SFTP: File transfer over SSH – requires SSH.NET (Renci.SshNet)
 - Launch/Programs: Launcher for custom apps
-- Settings: Language, module visibility, paths, news mode, custom URLs, shell mode, and more
+- Settings: Language, module visibility, paths, news mode, custom URLs, SSH logs/macros, shell mode, and more
 
 ## Requirements
 - Windows 10/11
@@ -33,6 +36,7 @@ A modular, kiosk-friendly Windows shell and launcher built with WPF (.NET Framew
 - Microsoft Office (for `Office` module)
 - Steam client (for `Steam` module)
 - SSH.NET (Renci.SshNet) assemblies available for SFTP functionality
+- Optional: SSH.NET (Renci.SshNet) for integrated SSH client; falls back to `ssh.exe` if not present
 
 ## Install
 1. Download a build or clone and build the solution in Visual Studio.
@@ -58,6 +62,7 @@ Open the `Settings` module to configure:
 - Default paths for `Explorer` and `Scripting`
 - Fediverse URL (used by `Social`)
 - Custom URLs for web modules
+- SSH: manage favorite remote log file paths and define macros (name + command)
 - Manage Programs (add entries to the launcher)
 - Windows Shell: Set this app as shell or restore the standard shell
 
@@ -81,9 +86,18 @@ Saving settings may recommend restarting to apply changes.
 - Choose app (Word/Excel), create or open documents
 - Save/Save As supported; Office must be installed
 
+### Email
+- Click `Accounts` to add or edit accounts (IMAP/SMTP). Choose Password or OAuth2.
+- For OAuth2, select provider (Google/Microsoft/Custom) and set Client ID/Secret, Tenant, and Scope as needed.
+- Select an account and folder (Inbox by default) to load messages.
+- Use `Load More` to page older messages. Messages are cached by a background sync service.
+- Select a message to preview (HTML supported). Click `New` to compose and `Send` via SMTP.
+
 ### SSH
 - Enter address (`user@host` or `host[:port]`), click `Connect`
 - Provide credentials when prompted; type in the input box and click `Send`
+- Log viewer: pick a favorite log from the dropdown and click `Load` to fetch recent lines; enable `Follow` to tail in real time
+- Macros: buttons on the right run your predefined commands; configure them in `Settings`
 
 ### SFTP
 - Requires SSH.NET (Renci.SshNet)
@@ -102,7 +116,10 @@ Saving settings may recommend restarting to apply changes.
 
 ## Troubleshooting
 - WebView2 init error: Install the Microsoft Edge WebView2 Runtime.
-- SFTP: If you see “SSH.NET not found…”, add the `Renci.SshNet` package or copy its assemblies next to the executable.
+- SFTP: If you see “SSH.NET not found”…, add the `Renci.SshNet` package or copy its assemblies next to the executable.
+- SSH: If SSH.NET is missing, the app will use `ssh.exe` automatically.
+- Email: Auth failures usually indicate wrong credentials, OAuth scopes/tenant, or server settings.
+- Email: If HTML doesn’t render, the message may be plain text only; try viewing another folder.
 - Office: If hosting fails, ensure Office is installed and registered.
 - Shell mode: If you’re stuck in shell mode, run the app as admin and choose `Restore Standard Shell` in `Settings`.
 
