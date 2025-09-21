@@ -1,7 +1,5 @@
 using MailKit;
-using MailKit.Net.Imap;
 using MailKit.Net.Smtp;
-using MailKit.Search;
 using MailKit.Security;
 using MimeKit;
 using System;
@@ -14,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Vivit_Control_Center.Settings;
+using Vivit_Control_Center.Services;
 using Vivit_Control_Center.Views.Modules.OAuth;
 
 namespace Vivit_Control_Center.Views.Modules
@@ -28,10 +27,10 @@ namespace Vivit_Control_Center.Views.Modules
             public string Date { get; set; }
         }
 
-        private ObservableCollection<MessageItem> _messages = new ObservableCollection<MessageItem>();
+        private readonly ObservableCollection<MessageItem> _messages = new ObservableCollection<MessageItem>();
         private AppSettings _settings;
         private EmailAccount _currentAccount;
-        private int _pageSize = 25;
+        private readonly int _pageSize = 25;
         private int _loadedCount = 0;
 
         public EmailModule()
@@ -50,6 +49,7 @@ namespace Vivit_Control_Center.Views.Modules
             _messages.Clear();
             _loadedCount = 0;
             txtStatus.Text = string.Empty;
+            _ = ShowCachedThenRefreshAsync();
         }
 
         private async void btnRefresh_Click(object sender, RoutedEventArgs e) => await LoadMessagesAsync(reset: true);
@@ -72,61 +72,61 @@ namespace Vivit_Control_Center.Views.Modules
             }
         }
 
-        private async void lstFolders_SelectionChanged(object sender, SelectionChangedEventArgs e) => await LoadMessagesAsync(reset: true);
+        private async void lstFolders_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _messages.Clear();
+            _loadedCount = 0;
+            await ShowCachedThenRefreshAsync();
+        }
+
+        private string GetSelectedFolderName() => (lstFolders.SelectedItem as ListBoxItem)?.Content?.ToString() ?? "Inbox";
+
+        private async Task ShowCachedThenRefreshAsync()
+        {
+            if (_currentAccount == null) return;
+            var folder = GetSelectedFolderName();
+
+            // 1) Fill from background cache immediately
+            var cached = EmailSyncService.Current.GetSummaries(_currentAccount, folder);
+            var initial = cached.Take(_pageSize).ToList();
+            _messages.Clear();
+            foreach (var s in initial)
+                _messages.Add(new MessageItem { Uid = s.Uid, From = s.From, Subject = s.Subject, Date = s.DateDisplay });
+            _loadedCount = initial.Count;
+
+            // 2) Refresh this folder in background and rebind
+            await EmailSyncService.Current.RefreshAccountFolderAsync(_currentAccount, folder);
+            cached = EmailSyncService.Current.GetSummaries(_currentAccount, folder);
+
+            _messages.Clear();
+            foreach (var s in cached.Take(_pageSize))
+                _messages.Add(new MessageItem { Uid = s.Uid, From = s.From, Subject = s.Subject, Date = s.DateDisplay });
+            _loadedCount = Math.Min(_pageSize, cached.Count);
+            txtStatus.Text = $"Loaded {_loadedCount} messages";
+        }
 
         private async Task LoadMessagesAsync(bool reset)
         {
             if (_currentAccount == null) { txtStatus.Text = "No account"; return; }
-            var folder = (lstFolders.SelectedItem as ListBoxItem)?.Content?.ToString() ?? "Inbox";
-            try
+            var folder = GetSelectedFolderName();
+            if (reset)
             {
-                using (var client = new ImapClient())
-                {
-                    // Fix for CRL/OCSP reachability issues
-                    client.CheckCertificateRevocation = false;
-                    await client.ConnectAsync(_currentAccount.ImapHost, _currentAccount.ImapPort, _currentAccount.ImapUseSsl);
-
-                    await AuthenticateImapAsync(client, _currentAccount);
-
-                    IMailFolder mailbox = client.Inbox;
-                    if (string.Equals(folder, "Sent", StringComparison.OrdinalIgnoreCase)) mailbox = client.GetFolder(SpecialFolder.Sent);
-                    else if (string.Equals(folder, "Drafts", StringComparison.OrdinalIgnoreCase)) mailbox = client.GetFolder(SpecialFolder.Drafts);
-                    await mailbox.OpenAsync(FolderAccess.ReadOnly);
-
-                    if (reset)
-                    {
-                        _messages.Clear();
-                        _loadedCount = 0;
-                    }
-
-                    var total = mailbox.Count;
-                    var start = Math.Max(0, total - _loadedCount - _pageSize);
-                    var end = Math.Max(0, total - 1 - _loadedCount);
-                    if (end >= start && total > 0)
-                    {
-                        var summaries = await mailbox.FetchAsync(start, end, MessageSummaryItems.Envelope | MessageSummaryItems.UniqueId | MessageSummaryItems.InternalDate);
-                        foreach (var s in summaries.Reverse())
-                        {
-                            var dt = s.Date; // DateTimeOffset
-                            var dateStr = dt == default(DateTimeOffset) ? string.Empty : dt.LocalDateTime.ToString("g");
-                            _messages.Add(new MessageItem
-                            {
-                                Uid = s.UniqueId,
-                                From = s.Envelope?.From?.FirstOrDefault()?.ToString() ?? "",
-                                Subject = s.Envelope?.Subject ?? "(no subject)",
-                                Date = dateStr
-                            });
-                        }
-                        _loadedCount += (end - start + 1);
-                    }
-
-                    await client.DisconnectAsync(true);
-                }
-                txtStatus.Text = $"Loaded {_loadedCount} messages";
+                await ShowCachedThenRefreshAsync();
             }
-            catch (Exception ex)
+            else
             {
-                txtStatus.Text = $"Error: {ex.Message}";
+                var cached = EmailSyncService.Current.GetSummaries(_currentAccount, folder);
+                var toAppend = cached.Skip(_loadedCount).Take(_pageSize).ToList();
+                if (toAppend.Count == 0)
+                {
+                    await EmailSyncService.Current.EnsureOlderSummariesAsync(_currentAccount, folder, _loadedCount);
+                    cached = EmailSyncService.Current.GetSummaries(_currentAccount, folder);
+                    toAppend = cached.Skip(_loadedCount).Take(_pageSize).ToList();
+                }
+                foreach (var s in toAppend)
+                    _messages.Add(new MessageItem { Uid = s.Uid, From = s.From, Subject = s.Subject, Date = s.DateDisplay });
+                _loadedCount += toAppend.Count;
+                txtStatus.Text = $"Loaded {_loadedCount} messages";
             }
         }
 
@@ -134,29 +134,16 @@ namespace Vivit_Control_Center.Views.Modules
         {
             var item = lvMessages.SelectedItem as MessageItem;
             if (item == null || _currentAccount == null) return;
-            var folder = (lstFolders.SelectedItem as ListBoxItem)?.Content?.ToString() ?? "Inbox";
+            var folder = GetSelectedFolderName();
             try
             {
-                using (var client = new ImapClient())
+                string html;
+                if (!EmailSyncService.Current.TryGetCachedBody(_currentAccount, folder, item.Uid, out html))
                 {
-                    client.CheckCertificateRevocation = false;
-                    await client.ConnectAsync(_currentAccount.ImapHost, _currentAccount.ImapPort, _currentAccount.ImapUseSsl);
-
-                    await AuthenticateImapAsync(client, _currentAccount);
-
-                    IMailFolder mailbox = client.Inbox;
-                    if (string.Equals(folder, "Sent", StringComparison.OrdinalIgnoreCase)) mailbox = client.GetFolder(SpecialFolder.Sent);
-                    else if (string.Equals(folder, "Drafts", StringComparison.OrdinalIgnoreCase)) mailbox = client.GetFolder(SpecialFolder.Drafts);
-                    await mailbox.OpenAsync(FolderAccess.ReadOnly);
-
-                    var msg = await mailbox.GetMessageAsync(item.Uid);
-
-                    txtMailHeader.Text = $"From: {msg.From}\nSubject: {msg.Subject}\nDate: {msg.Date.LocalDateTime:g}";
-                    var html = msg.HtmlBody ?? $"<pre>{System.Net.WebUtility.HtmlEncode(msg.TextBody ?? string.Empty)}</pre>";
-                    wbBody.NavigateToString($"<html><head><meta charset='utf-8'/></head><body>{html}</body></html>");
-
-                    await client.DisconnectAsync(true);
+                    html = await EmailSyncService.Current.GetMessageBodyAsync(_currentAccount, folder, item.Uid);
                 }
+                txtMailHeader.Text = $"From: {item.From}\nSubject: {item.Subject}\nDate: {item.Date}";
+                wbBody.NavigateToString($"<html><head><meta charset='utf-8'/></head><body>{html}</body></html>");
             }
             catch (Exception ex)
             {
@@ -201,24 +188,8 @@ namespace Vivit_Control_Center.Views.Modules
 
         private void btnCancelCompose_Click(object sender, RoutedEventArgs e) => expCompose.IsExpanded = false;
 
-        // ===== OAuth2 helpers =====
+        // ===== OAuth2 helpers for SMTP send =====
         private static DateTime NowUtc => DateTime.UtcNow;
-
-        private async Task AuthenticateImapAsync(ImapClient client, EmailAccount acc)
-        {
-            if (string.Equals(acc.AuthMethod, "OAuth2", StringComparison.OrdinalIgnoreCase))
-            {
-                var token = await EnsureAccessTokenAsync(acc);
-                if (string.IsNullOrWhiteSpace(token)) 
-                    throw new InvalidOperationException("No OAuth2 access token available.");
-                var oauth2 = new SaslMechanismOAuth2(acc.Username, token);
-                await client.AuthenticateAsync(oauth2);
-            }
-            else
-            {
-                await client.AuthenticateAsync(acc.Username, acc.Password);
-            }
-        }
 
         private async Task AuthenticateSmtpAsync(SmtpClient client, EmailAccount acc)
         {
@@ -322,7 +293,7 @@ namespace Vivit_Control_Center.Views.Modules
                     {
                         int expiresSec = 3600;
                         int.TryParse(expiresStr, out expiresSec);
-                        acc.OAuthTokenExpiryUtc = NowUtc.AddSeconds(expiresSec - 60);
+                        acc.OAuthTokenExpiryUtc = DateTime.UtcNow.AddSeconds(expiresSec - 60);
                         if (!string.IsNullOrEmpty(refresh)) acc.OAuthRefreshToken = refresh;
                         return access;
                     }

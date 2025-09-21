@@ -130,7 +130,7 @@ namespace Vivit_Control_Center
         }
         #endregion
 
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
@@ -140,6 +140,14 @@ namespace Vivit_Control_Center
             {
                 try { LocalizationManager.ApplyLanguage(loadedSettings.Language ?? "en"); } catch { }
             }
+
+            // Start email background sync service early and perform initial refresh
+            try
+            {
+                EmailSyncService.Current.Initialize(loadedSettings ?? AppSettings.Load());
+                await EmailSyncService.Current.SafeRefreshAllAsync();
+            }
+            catch { }
 
             try
             {
@@ -270,6 +278,7 @@ namespace Vivit_Control_Center
                 _keyboardHookHandle = IntPtr.Zero;
             }
             TrayIconService.Current.Dispose();
+            try { EmailSyncService.Current.Dispose(); } catch { }
             base.OnExit(e);
         }
 

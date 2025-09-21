@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Vivit_Control_Center.Settings
 {
@@ -90,6 +92,16 @@ namespace Vivit_Control_Center.Settings
                     if (string.IsNullOrWhiteSpace(loaded.Language)) loaded.Language = "en";
                     loaded.OfficeSuite = "MSOffice";
                     loaded.LibreOfficeProgramPath = string.Empty;
+
+                    // Decrypt sensitive fields if needed
+                    foreach (var acc in loaded.EmailAccounts)
+                    {
+                        acc.Password = SecretProtector.UnprotectIfNeeded(acc.Password);
+                        acc.OAuthAccessToken = SecretProtector.UnprotectIfNeeded(acc.OAuthAccessToken);
+                        acc.OAuthRefreshToken = SecretProtector.UnprotectIfNeeded(acc.OAuthRefreshToken);
+                        acc.OAuthClientSecret = SecretProtector.UnprotectIfNeeded(acc.OAuthClientSecret);
+                    }
+
                     return loaded;
                 }
             }
@@ -112,12 +124,70 @@ namespace Vivit_Control_Center.Settings
                 ExternalPrograms = new List<string>();
                 foreach (var p in ExternalProgramsDetailed)
                     if (!string.IsNullOrWhiteSpace(p?.Path)) ExternalPrograms.Add(p.Path);
-                var path = GetSettingsPath();
-                var ser = new XmlSerializer(typeof(AppSettings));
-                using (var fs = File.Create(path))
-                    ser.Serialize(fs, this);
+
+                // Temporarily encrypt sensitive fields before serialization, then restore
+                var backups = new List<(EmailAccount acc, string pwd, string at, string rt, string cs)>();
+                foreach (var acc in EmailAccounts)
+                {
+                    backups.Add((acc, acc.Password, acc.OAuthAccessToken, acc.OAuthRefreshToken, acc.OAuthClientSecret));
+                    acc.Password = SecretProtector.ProtectIfNeeded(acc.Password);
+                    acc.OAuthAccessToken = SecretProtector.ProtectIfNeeded(acc.OAuthAccessToken);
+                    acc.OAuthRefreshToken = SecretProtector.ProtectIfNeeded(acc.OAuthRefreshToken);
+                    acc.OAuthClientSecret = SecretProtector.ProtectIfNeeded(acc.OAuthClientSecret);
+                }
+
+                try
+                {
+                    var path = GetSettingsPath();
+                    var ser = new XmlSerializer(typeof(AppSettings));
+                    using (var fs = File.Create(path))
+                        ser.Serialize(fs, this);
+                }
+                finally
+                {
+                    // Restore plain values in memory
+                    foreach (var b in backups)
+                    {
+                        b.acc.Password = b.pwd;
+                        b.acc.OAuthAccessToken = b.at;
+                        b.acc.OAuthRefreshToken = b.rt;
+                        b.acc.OAuthClientSecret = b.cs;
+                    }
+                }
             }
             catch { }
+        }
+
+        private static class SecretProtector
+        {
+            private const string Prefix = "enc:";
+
+            public static string ProtectIfNeeded(string value)
+            {
+                if (string.IsNullOrEmpty(value)) return value;
+                if (value.StartsWith(Prefix, StringComparison.Ordinal)) return value; // already protected
+                try
+                {
+                    var bytes = Encoding.UTF8.GetBytes(value);
+                    var protectedBytes = ProtectedData.Protect(bytes, null, DataProtectionScope.CurrentUser);
+                    return Prefix + Convert.ToBase64String(protectedBytes);
+                }
+                catch { return value; }
+            }
+
+            public static string UnprotectIfNeeded(string value)
+            {
+                if (string.IsNullOrEmpty(value)) return value;
+                if (!value.StartsWith(Prefix, StringComparison.Ordinal)) return value;
+                try
+                {
+                    var b64 = value.Substring(Prefix.Length);
+                    var protectedBytes = Convert.FromBase64String(b64);
+                    var bytes = ProtectedData.Unprotect(protectedBytes, null, DataProtectionScope.CurrentUser);
+                    return Encoding.UTF8.GetString(bytes ?? new byte[0]);
+                }
+                catch { return value; }
+            }
         }
     }
 
