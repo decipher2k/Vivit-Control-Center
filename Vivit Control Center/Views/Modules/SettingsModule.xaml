@@ -72,7 +72,7 @@
                     </StackPanel>
                 </GroupBox>
 
-                <!-- Pfade -->
+                <!-- Paths -->
                 <GroupBox Header="{DynamicResource Settings.Paths}" Margin="0,0,0,12">
                     <Grid Margin="8">
                         <Grid.RowDefinitions>
@@ -91,6 +91,35 @@
                         <TextBox x:Name="txtScriptsPath" Grid.Row="1" Grid.Column="1" Margin="0,0,6,0"/>
                         <Button Grid.Row="1" Grid.Column="2" Content="..." Width="28" Click="btnPickScriptsPath_Click"/>
                     </Grid>
+                </GroupBox>
+
+                <!-- SSH configuration -->
+                <GroupBox Header="SSH" Margin="0,0,0,12">
+                    <StackPanel Margin="8">
+                        <TextBlock Text="Log files (remote paths):" FontWeight="Bold"/>
+                        <ListBox x:Name="lstSshLogs" Height="100" Margin="0,4,0,4"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Button x:Name="btnAddSshLog" Content="Add" Width="80" Click="btnAddSshLog_Click"/>
+                            <Button x:Name="btnRemoveSshLog" Content="Remove" Width="80" Margin="8,0,0,0" Click="btnRemoveSshLog_Click"/>
+                        </StackPanel>
+                        <Separator/>
+                        <TextBlock Text="Macros:" FontWeight="Bold" Margin="0,8,0,0"/>
+                        <ListBox x:Name="lstSshMacros" Height="140" Margin="0,4,0,4">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Vertical">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding Command}" Foreground="Gray" FontFamily="Consolas" FontSize="12"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="btnAddSshMacro" Content="Add" Width="80" Click="btnAddSshMacro_Click"/>
+                            <Button x:Name="btnEditSshMacro" Content="Edit" Width="80" Margin="8,0,0,0" Click="btnEditSshMacro_Click"/>
+                            <Button x:Name="btnRemoveSshMacro" Content="Remove" Width="80" Margin="8,0,0,0" Click="btnRemoveSshMacro_Click"/>
+                        </StackPanel>
+                    </StackPanel>
                 </GroupBox>
 
                 <!-- Module toggles -->

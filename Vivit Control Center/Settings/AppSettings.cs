@@ -52,6 +52,10 @@ namespace Vivit_Control_Center.Settings
         // New detailed list with captions
         public List<ExternalProgram> ExternalProgramsDetailed { get; set; } = new List<ExternalProgram>();
 
+        // NEW: SSH module settings
+        public List<string> SshLogFiles { get; set; } = new List<string>();
+        public List<SshMacro> SshMacros { get; set; } = new List<SshMacro>();
+
         private static readonly List<string> DefaultFeeds = new List<string>
         {
             "https://rss.dw.com/rdf/rss-en-world",
@@ -72,7 +76,15 @@ namespace Vivit_Control_Center.Settings
                 var path = GetSettingsPath();
                 if (!File.Exists(path))
                 {
-                    return new AppSettings { RssFeeds = new List<string>(DefaultFeeds), EmailAccounts = new List<EmailAccount>() };
+                    var fresh = new AppSettings { RssFeeds = new List<string>(DefaultFeeds), EmailAccounts = new List<EmailAccount>() };
+                    // initialize SSH defaults
+                    if (fresh.SshLogFiles == null || fresh.SshLogFiles.Count == 0)
+                    {
+                        fresh.SshLogFiles = new List<string> { "/var/log/auth.log", "/var/log/syslog" };
+                    }
+                    if (fresh.SshMacros == null)
+                        fresh.SshMacros = new List<SshMacro>();
+                    return fresh;
                 }
                 var ser = new XmlSerializer(typeof(AppSettings));
                 using (var fs = File.OpenRead(path))
@@ -107,12 +119,23 @@ namespace Vivit_Control_Center.Settings
                         acc.OAuthClientSecret = SecretProtector.UnprotectIfNeeded(acc.OAuthClientSecret);
                     }
 
+                    // Initialize SSH defaults if missing
+                    if (loaded.SshLogFiles == null || loaded.SshLogFiles.Count == 0)
+                        loaded.SshLogFiles = new List<string> { "/var/log/auth.log", "/var/log/syslog" };
+                    if (loaded.SshMacros == null)
+                        loaded.SshMacros = new List<SshMacro>();
+
                     return loaded;
                 }
             }
             catch
             {
-                return new AppSettings { RssFeeds = new List<string>(), CustomWebModuleUrls = new List<CustomWebModuleUrl>(), ExternalPrograms = new List<string>(), ExternalProgramsDetailed = new List<ExternalProgram>(), EmailAccounts = new List<EmailAccount>(), LastMediaPlaylist = new List<MediaTrackInfo>() };
+                var fallback = new AppSettings { RssFeeds = new List<string>(), CustomWebModuleUrls = new List<CustomWebModuleUrl>(), ExternalPrograms = new List<string>(), ExternalProgramsDetailed = new List<ExternalProgram>(), EmailAccounts = new List<EmailAccount>(), LastMediaPlaylist = new List<MediaTrackInfo>() };
+                if (fallback.SshLogFiles == null || fallback.SshLogFiles.Count == 0)
+                    fallback.SshLogFiles = new List<string> { "/var/log/auth.log", "/var/log/syslog" };
+                if (fallback.SshMacros == null)
+                    fallback.SshMacros = new List<SshMacro>();
+                return fallback;
             }
         }
 
@@ -127,6 +150,8 @@ namespace Vivit_Control_Center.Settings
                 if (ExternalProgramsDetailed == null) ExternalProgramsDetailed = new List<ExternalProgram>();
                 if (EmailAccounts == null) EmailAccounts = new List<EmailAccount>();
                 if (LastMediaPlaylist == null) LastMediaPlaylist = new List<MediaTrackInfo>();
+                if (SshLogFiles == null) SshLogFiles = new List<string>();
+                if (SshMacros == null) SshMacros = new List<SshMacro>();
                 ExternalPrograms = new List<string>();
                 foreach (var p in ExternalProgramsDetailed)
                     if (!string.IsNullOrWhiteSpace(p?.Path)) ExternalPrograms.Add(p.Path);
@@ -236,5 +261,12 @@ namespace Vivit_Control_Center.Settings
         public string OAuthTenant { get; set; } // for Microsoft (common, organizations, consumers or GUID)
         public string OAuthScope { get; set; } // space-separated scopes
         public string OAuthTokenEndpoint { get; set; } // override token endpoint
+    }
+
+    [Serializable]
+    public class SshMacro
+    {
+        public string Name { get; set; }
+        public string Command { get; set; }
     }
 }

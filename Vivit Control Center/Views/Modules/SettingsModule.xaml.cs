@@ -38,6 +38,9 @@ namespace Vivit_Control_Center.Views.Modules
         private const string WinLogonKeyPath = @"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon";
         private string _originalShellCached;
 
+        private ListBox GetSshLogsList() => this.FindName("lstSshLogs") as ListBox;
+        private ListBox GetSshMacrosList() => this.FindName("lstSshMacros") as ListBox;
+
         public SettingsModule()
         {
             InitializeComponent();
@@ -82,6 +85,22 @@ namespace Vivit_Control_Center.Views.Modules
             if (txtLocalPath != null) txtLocalPath.Text = _settings.DefaultLocalPath ?? string.Empty;
             if (txtScriptsPath != null) txtScriptsPath.Text = _settings.DefaultScriptsPath ?? string.Empty;
             if (txtFediverseUrl != null) txtFediverseUrl.Text = _settings.CustomFediverseUrl ?? "https://mastodon.social";
+
+            // SSH config UI
+            var logs = GetSshLogsList();
+            if (logs != null)
+            {
+                logs.ItemsSource = null;
+                logs.Items.Clear();
+                foreach (var log in _settings.SshLogFiles ?? new List<string>()) logs.Items.Add(log);
+            }
+            var macros = GetSshMacrosList();
+            if (macros != null)
+            {
+                macros.ItemsSource = null;
+                macros.Items.Clear();
+                foreach (var m in _settings.SshMacros ?? new List<SshMacro>()) macros.Items.Add(m);
+            }
 
             modulesPanel.Children.Clear();
             foreach (var tag in AllTags)
@@ -279,7 +298,15 @@ namespace Vivit_Control_Center.Views.Modules
             int max; if (txtRssMax != null && int.TryParse(txtRssMax.Text, out max) && max > 0) _settings.RssMaxArticles = max; else if (_settings.RssMaxArticles <= 0) _settings.RssMaxArticles = 60;
             _settings.DefaultLocalPath = txtLocalPath.Text ?? string.Empty; _settings.DefaultScriptsPath = txtScriptsPath.Text ?? string.Empty;
             var enabled = new List<string>(); foreach (var child in modulesPanel.Children) if (child is Grid g) { var chk = g.Children.OfType<CheckBox>().FirstOrDefault(); if (chk!=null && chk.IsChecked==true) enabled.Add(chk.Content.ToString()); }
-            var disabled = AllTags.Where(t => !enabled.Contains(t, StringComparer.OrdinalIgnoreCase)).ToList(); disabled.RemoveAll(t => string.Equals(t, "Settings", StringComparison.OrdinalIgnoreCase)); _settings.DisabledModules = disabled; _settings.Save(); MessageBox.Show(GetRes("Settings.SavedRestartRecommended", "Settings saved. Restart recommended."));
+            var disabled = AllTags.Where(t => !enabled.Contains(t, StringComparer.OrdinalIgnoreCase)).ToList(); disabled.RemoveAll(t => string.Equals(t, "Settings", StringComparison.OrdinalIgnoreCase)); _settings.DisabledModules = disabled;
+
+            // Save SSH settings
+            var logs = GetSshLogsList();
+            var macros = GetSshMacrosList();
+            _settings.SshLogFiles = logs != null ? logs.Items.OfType<string>().Where(p => !string.IsNullOrWhiteSpace(p)).Distinct(StringComparer.OrdinalIgnoreCase).ToList() : new List<string>();
+            _settings.SshMacros = macros != null ? macros.Items.OfType<SshMacro>().Where(m => m != null && !string.IsNullOrWhiteSpace(m.Name) && !string.IsNullOrWhiteSpace(m.Command)).ToList() : new List<SshMacro>();
+
+            _settings.Save(); MessageBox.Show(GetRes("Settings.SavedRestartRecommended", "Settings saved. Restart recommended."));
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e) => Init();
@@ -296,6 +323,57 @@ namespace Vivit_Control_Center.Views.Modules
         private void languageSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // no live update
+        }
+
+        private void btnAddSshLog_Click(object sender, RoutedEventArgs e)
+        {
+            var input = Prompt("Remote log file path", "/var/log/", false);
+            var logs = GetSshLogsList();
+            if (!string.IsNullOrWhiteSpace(input) && logs != null) logs.Items.Add(input.Trim());
+        }
+
+        private void btnRemoveSshLog_Click(object sender, RoutedEventArgs e)
+        {
+            var logs = GetSshLogsList();
+            var sel = logs?.SelectedItem as string; if (sel != null) logs.Items.Remove(sel);
+        }
+
+        private void btnAddSshMacro_Click(object sender, RoutedEventArgs e)
+        {
+            var m = PromptMacro(new SshMacro()); var list = GetSshMacrosList(); if (m != null && list != null) list.Items.Add(m);
+        }
+        private void btnEditSshMacro_Click(object sender, RoutedEventArgs e)
+        {
+            var list = GetSshMacrosList(); var cur = list?.SelectedItem as SshMacro; if (cur == null) return; var edited = PromptMacro(new SshMacro { Name = cur.Name, Command = cur.Command }); if (edited != null) { var idx = list.SelectedIndex; list.Items.RemoveAt(idx); list.Items.Insert(idx, edited); list.SelectedIndex = idx; }
+        }
+        private void btnRemoveSshMacro_Click(object sender, RoutedEventArgs e)
+        {
+            var list = GetSshMacrosList(); var cur = list?.SelectedItem as SshMacro; if (cur != null) list.Items.Remove(cur);
+        }
+
+        private string Prompt(string message, string initial, bool isPassword)
+        {
+            var win = new Window{ Title=message, Width=480, Height=160, WindowStartupLocation=WindowStartupLocation.CenterOwner, ResizeMode=ResizeMode.NoResize, Owner=Application.Current?.MainWindow}; var grid=new Grid{ Margin=new Thickness(12)}; grid.RowDefinitions.Add(new RowDefinition{Height=GridLength.Auto}); grid.RowDefinitions.Add(new RowDefinition{Height=GridLength.Auto}); grid.RowDefinitions.Add(new RowDefinition{Height=GridLength.Auto}); var lbl=new TextBlock{ Text=message, Margin=new Thickness(0,0,0,8)}; Grid.SetRow(lbl,0); Control input; if(isPassword){ var pb=new PasswordBox{ Margin=new Thickness(0,0,0,8)}; pb.Password=initial??string.Empty; input=pb;} else { var tb=new TextBox{ Margin=new Thickness(0,0,0,8), Text=initial??string.Empty}; input=tb;} Grid.SetRow(input,1); var panel=new StackPanel{ Orientation=Orientation.Horizontal, HorizontalAlignment=HorizontalAlignment.Right}; var ok=new Button{ Content=LocalizationManager.GetString("Dialog.OK","OK"), Width=80, Margin=new Thickness(0,0,8,0), IsDefault=true}; var cancel=new Button{ Content=LocalizationManager.GetString("Settings.Cancel","Cancel"), Width=80, IsCancel=true}; ok.Click+=(_,__)=>{ win.DialogResult=true; win.Close(); }; cancel.Click+=(_,__)=>{ win.DialogResult=false; win.Close(); }; panel.Children.Add(ok); panel.Children.Add(cancel); Grid.SetRow(panel,2); grid.Children.Add(lbl); grid.Children.Add(input); grid.Children.Add(panel); win.Content=grid; win.ShowInTaskbar=false; var result=win.ShowDialog(); if(result!=true) return null; return isPassword ? ((PasswordBox)input).Password : ((TextBox)input).Text; }
+
+        private SshMacro PromptMacro(SshMacro initial)
+        {
+            var win = new Window { Title = "SSH Macro", SizeToContent = SizeToContent.WidthAndHeight, WindowStartupLocation = WindowStartupLocation.CenterOwner, ResizeMode = ResizeMode.NoResize, Owner = Application.Current?.MainWindow };
+            var stack = new StackPanel { Margin = new Thickness(12), MinWidth = 420 };
+            stack.Children.Add(new TextBlock { Text = "Name:", Margin = new Thickness(0,0,0,6) });
+            var tbName = new TextBox { Text = initial?.Name ?? string.Empty, Margin = new Thickness(0,0,0,8) };
+            stack.Children.Add(tbName);
+            stack.Children.Add(new TextBlock { Text = "Command:", Margin = new Thickness(0,0,0,6) });
+            var tbCmd = new TextBox { Text = initial?.Command ?? string.Empty, Margin = new Thickness(0,0,0,8), FontFamily = new FontFamily("Consolas") };
+            stack.Children.Add(tbCmd);
+            var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
+            var ok = new Button { Content = LocalizationManager.GetString("Dialog.OK", "OK"), Width = 80, Margin = new Thickness(0,0,8,0), IsDefault = true };
+            var cancel = new Button { Content = LocalizationManager.GetString("Settings.Cancel", "Cancel"), Width = 80, IsCancel = true };
+            SshMacro result = null;
+            ok.Click += (_, __) => { if (!string.IsNullOrWhiteSpace(tbName.Text) && !string.IsNullOrWhiteSpace(tbCmd.Text)) { result = new SshMacro { Name = tbName.Text.Trim(), Command = tbCmd.Text }; win.DialogResult = true; } };
+            cancel.Click += (_, __) => { win.DialogResult = false; };
+            buttons.Children.Add(ok); buttons.Children.Add(cancel); stack.Children.Add(buttons);
+            win.Content = stack; win.ShowDialog();
+            return result;
         }
     }
 }

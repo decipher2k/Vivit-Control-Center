@@ -20,25 +20,64 @@
                 <TextBlock Name="txtStatus" VerticalAlignment="Center"/>
             </ToolBar>
         </ToolBarTray>
+        <!-- Content with right sidebar -->
         <Grid Grid.Row="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <RichTextBox Name="txtTerminal" Grid.Row="0" IsReadOnly="True" FontFamily="Consolas" FontSize="13"
-                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
-            <Grid Grid.Row="1" Margin="0,4,12,12">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text=">" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                <TextBox Grid.Column="1" Name="txtInput" KeyDown="txtInput_KeyDown"
-                         FontFamily="Consolas" FontSize="13" VerticalAlignment="Center"/>
-                <Button Grid.Column="2" Content="{DynamicResource SSH.Send}" Click="btnSend_Click"
-                        Margin="6,0,0,0" VerticalAlignment="Center"
-                        MinHeight="34" Padding="10,6"/>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="320"/>
+            </Grid.ColumnDefinitions>
+            <!-- Left: terminal -->
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <RichTextBox Name="txtTerminal" Grid.Row="0" IsReadOnly="True" FontFamily="Consolas" FontSize="13"
+                             VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+                <Grid Grid.Row="1" Margin="0,4,12,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text=">" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBox Grid.Column="1" Name="txtInput" KeyDown="txtInput_KeyDown"
+                             FontFamily="Consolas" FontSize="13" VerticalAlignment="Center"/>
+                    <Button Grid.Column="2" Content="{DynamicResource SSH.Send}" Click="btnSend_Click"
+                            Margin="6,0,0,0" VerticalAlignment="Center"
+                            MinHeight="34" Padding="10,6"/>
+                </Grid>
+            </Grid>
+            <!-- Right: sidebar -->
+            <Grid Grid.Column="1" Background="#0F000000">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <!-- Logs area -->
+                <GroupBox Grid.Row="0" Header="Logs" Margin="8" Padding="8">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <ComboBox x:Name="cboLogFiles" Width="160" Margin="0,0,6,0"/>
+                            <Button x:Name="btnLoadLog" Content="Load" Click="btnLoadLog_Click"/>
+                            <CheckBox x:Name="chkFollow" Content="Follow" Margin="8,0,0,0"/>
+                            <Button x:Name="btnClearLog" Content="Clear" Margin="8,0,0,0"/>
+                        </StackPanel>
+                        <TextBox x:Name="txtLogViewer" Grid.Row="1" Margin="0,6,0,0" FontFamily="Consolas" FontSize="12"
+                                 IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                                 TextWrapping="NoWrap" AcceptsReturn="True"/>
+                    </Grid>
+                </GroupBox>
+                <!-- Macros area -->
+                <GroupBox Grid.Row="1" Header="Macros" Margin="8,0,8,8" Padding="8">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="160">
+                        <WrapPanel x:Name="panelMacros" IsItemsHost="False" Orientation="Horizontal" ItemWidth="140" ItemHeight="32"/>
+                    </ScrollViewer>
+                </GroupBox>
             </Grid>
         </Grid>
     </Grid>
