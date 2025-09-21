@@ -72,15 +72,13 @@ namespace Vivit_Control_Center
                 {
                     try
                     {
-                        // Collapse the title-bar row completely in shell mode
-                        var titleRow = this.FindName("TitleRow") as RowDefinition;
-                        if (titleRow != null) titleRow.Height = new GridLength(0);
+                        // Keep custom title bar visible; only hide caption buttons
                         HideTitleBarButtonsSafe();
 
-                        // NICHT maximieren – stattdessen selbst auf Bildschirmgröße setzen,
-                        // damit unser Fenster auch die vom OS reservierte Sidebar-Fläche links abdecken kann.
+                        // Do not use OS maximize (it respects WorkArea). Manually size to screen minus taskbar.
                         WindowState = WindowState.Normal;
                         FitMainWindowToScreen();
+                        UpdateMaxRestoreIcon();
                     }
                     catch { }
                 }
@@ -247,8 +245,8 @@ namespace Vivit_Control_Center
                 path = Environment.ExpandEnvironmentVariables(path).Trim().Trim('"');
                 if (!File.Exists(path)) return false;
                 var exeSelf = Process.GetCurrentProcess().MainModule.FileName;
-                if (string.Equals(path, exeSelf, StringComparison.OrdinalIgnoreCase)) return false; // skip self
                 if (string.Equals(Path.GetFileName(path), "explorer.exe", StringComparison.OrdinalIgnoreCase)) return false; // don't auto-start explorer in shell mode
+                if (string.Equals(path, exeSelf, StringComparison.OrdinalIgnoreCase)) return false; // skip self
                 return true;
             }
             catch { return false; }
@@ -562,6 +560,15 @@ namespace Vivit_Control_Center
 
         private void ToggleMaximize()
         {
+            if (App.IsShellMode)
+            {
+                // In shell mode, keep using manual full-screen sizing instead of OS maximize
+                WindowState = WindowState.Normal;
+                FitMainWindowToScreen();
+                UpdateMaxRestoreIcon();
+                return;
+            }
+
             if (WindowState == WindowState.Maximized)
                 WindowState = WindowState.Normal;
             else
@@ -635,18 +642,34 @@ namespace Vivit_Control_Center
             Activate();
         }
 
-        // Ensure borderless window maximizes to the working area and not under the taskbar
+        // Ensure borderless window maximizes to the right bounds
         private void ApplyWorkAreaConstraints()
         {
             try
             {
-                var wa = SystemParameters.WorkArea;
                 if (WindowState == WindowState.Maximized)
                 {
-                    MaxWidth = wa.Width;
-                    MaxHeight = wa.Height;
-                    Left = wa.Left;
-                    Top = wa.Top;
+                    if (App.IsShellMode)
+                    {
+                        // Not used anymore (we size manually in shell mode)
+                        var src = PresentationSource.FromVisual(this);
+                        double mFromDeviceY = src?.CompositionTarget?.TransformFromDevice.M22 ?? 1.0;
+                        double taskbarDip = App.ShellTaskbarHeightPx * mFromDeviceY;
+                        if (double.IsNaN(taskbarDip) || taskbarDip < 0) taskbarDip = ShellTaskbarHeight;
+
+                        MaxWidth = SystemParameters.PrimaryScreenWidth;
+                        MaxHeight = Math.Max(300, SystemParameters.PrimaryScreenHeight - taskbarDip);
+                        Left = 0;
+                        Top = 0;
+                    }
+                    else
+                    {
+                        var wa = SystemParameters.WorkArea;
+                        MaxWidth = wa.Width;
+                        MaxHeight = wa.Height;
+                        Left = wa.Left;
+                        Top = wa.Top;
+                    }
                 }
                 else
                 {
@@ -663,12 +686,31 @@ namespace Vivit_Control_Center
         {
             try
             {
-                var wa = SystemParameters.WorkArea;
-                if (double.IsNaN(Left) || double.IsNaN(Top)) return;
-                if (Left < wa.Left) Left = wa.Left;
-                if (Top < wa.Top) Top = wa.Top;
-                if (Width > wa.Width) Width = wa.Width;
-                if (Height > wa.Height) Height = wa.Height;
+                if (App.IsShellMode)
+                {
+                    var src = PresentationSource.FromVisual(this);
+                    double mFromDeviceY = src?.CompositionTarget?.TransformFromDevice.M22 ?? 1.0;
+                    double taskbarDip = App.ShellTaskbarHeightPx * mFromDeviceY;
+                    if (double.IsNaN(taskbarDip) || taskbarDip < 0) taskbarDip = ShellTaskbarHeight;
+
+                    var maxW = SystemParameters.PrimaryScreenWidth;
+                    var maxH = Math.Max(200, SystemParameters.PrimaryScreenHeight - taskbarDip);
+
+                    if (double.IsNaN(Left) || double.IsNaN(Top)) return;
+                    if (Left < 0) Left = 0;
+                    if (Top < 0) Top = 0;
+                    if (Width > maxW) Width = maxW;
+                    if (Height > maxH) Height = maxH;
+                }
+                else
+                {
+                    var wa = SystemParameters.WorkArea;
+                    if (double.IsNaN(Left) || double.IsNaN(Top)) return;
+                    if (Left < wa.Left) Left = wa.Left;
+                    if (Top < wa.Top) Top = wa.Top;
+                    if (Width > wa.Width) Width = wa.Width;
+                    if (Height > wa.Height) Height = wa.Height;
+                }
             }
             catch { }
         }
@@ -681,13 +723,13 @@ namespace Vivit_Control_Center
                 if (!App.IsShellMode) return;
                 if (SidebarRoot == null) return;
 
-                // Sidebarbreite in DIPs -> in Pixel umrechnen
-                double dipLeft = SidebarRoot.ActualWidth;
-                var src = PresentationSource.FromVisual(this);
-                double m11 = src?.CompositionTarget?.TransformToDevice.M11 ?? 1.0; // DIP->PX scale X
-                int leftPx = (int)Math.Round(Math.Max(0, dipLeft) * m11);
-                
-                App.UpdateShellWorkAreaLeft(leftPx);
+                // In shell mode, do NOT shift the system work area left. This caused the window to be cut off.
+                // If needed in the future, compute width and reserve internally instead of SPI_SETWORKAREA.
+                // double dipLeft = SidebarRoot.ActualWidth;
+                // var src = PresentationSource.FromVisual(this);
+                // double m11 = src?.CompositionTarget?.TransformToDevice.M11 ?? 1.0; // DIP->PX scale X
+                // int leftPx = (int)Math.Round(Math.Max(0, dipLeft) * m11);
+                // App.UpdateShellWorkAreaLeft(leftPx);
             }
             catch { }
         }
@@ -736,7 +778,7 @@ namespace Vivit_Control_Center
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
             base.OnRenderSizeChanged(sizeInfo);
-            // If sidebar width changes (resize), update work area
+            // If sidebar width changes (resize), avoid shifting system work area
             if (sizeInfo.WidthChanged)
             {
                 UpdateWorkAreaForSidebar();

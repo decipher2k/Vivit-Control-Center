@@ -13,6 +13,10 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Web.WebView2.Core;
+using System.Collections.Generic;
+using System.Xml.Serialization;
+using Vivit_Control_Center.Settings;
+using System.Threading.Tasks;
 
 namespace Vivit_Control_Center.Views.Modules
 {
@@ -45,6 +49,9 @@ namespace Vivit_Control_Center.Views.Modules
             _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
             _timer.Tick += (s, e) => UpdateClockAndPosition();
             SetPlayVisual(false);
+
+            // Load last playlist from settings on module creation
+            try { LoadLastPlaylistFromSettings(); } catch { }
         }
 
         // UI Handlers
@@ -75,6 +82,7 @@ namespace Vivit_Control_Center.Views.Modules
                     lstPlaylist.SelectedIndex = 0;
                     LoadCurrent(autoPlay: false);
                 }
+                PersistPlaylistToSettings();
             }
         }
 
@@ -86,6 +94,7 @@ namespace Vivit_Control_Center.Views.Modules
                 if (string.IsNullOrWhiteSpace(url)) return;
                 url = url.Replace("music.youtube.com", "www.youtube.com");
                 AddYouTubePlaylist(url.Trim());
+                PersistPlaylistToSettings();
             }
             catch { }
         }
@@ -102,6 +111,7 @@ namespace Vivit_Control_Center.Views.Modules
                 _currentIndex = -1;
                 txtNowPlaying.Text = "Now Playing: -";
                 txtTime.Text = "00:00 / 00:00";
+                PersistPlaylistToSettings();
                 return;
             }
             if (wasCurrent)
@@ -110,6 +120,7 @@ namespace Vivit_Control_Center.Views.Modules
                 lstPlaylist.SelectedIndex = _currentIndex;
                 LoadCurrent(autoPlay: false);
             }
+            PersistPlaylistToSettings();
         }
 
         private void btnClear_Click(object sender, RoutedEventArgs e)
@@ -119,6 +130,7 @@ namespace Vivit_Control_Center.Views.Modules
             StopPlayback();
             txtNowPlaying.Text = "Now Playing: -";
             txtTime.Text = "00:00 / 00:00";
+            PersistPlaylistToSettings();
         }
 
         private void lstPlaylist_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -127,6 +139,7 @@ namespace Vivit_Control_Center.Views.Modules
             {
                 _currentIndex = lstPlaylist.SelectedIndex;
                 LoadCurrent(autoPlay: true);
+                PersistPlaylistToSettings();
             }
         }
 
@@ -136,6 +149,7 @@ namespace Vivit_Control_Center.Views.Modules
             _currentIndex = (_currentIndex <= 0) ? _playlist.Count - 1 : _currentIndex - 1;
             lstPlaylist.SelectedIndex = _currentIndex;
             LoadCurrent(autoPlay: true);
+            PersistPlaylistToSettings();
         }
 
         private void btnNext_Click(object sender, RoutedEventArgs e)
@@ -144,6 +158,7 @@ namespace Vivit_Control_Center.Views.Modules
             _currentIndex = (_currentIndex + 1) % _playlist.Count;
             lstPlaylist.SelectedIndex = _currentIndex;
             LoadCurrent(autoPlay: true);
+            PersistPlaylistToSettings();
         }
 
         private async void btnPlayPause_Click(object sender, RoutedEventArgs e)
@@ -154,6 +169,7 @@ namespace Vivit_Control_Center.Views.Modules
                 _currentIndex = 0;
                 lstPlaylist.SelectedIndex = 0;
                 LoadCurrent(autoPlay: true);
+                PersistPlaylistToSettings();
                 return;
             }
 
@@ -212,6 +228,7 @@ namespace Vivit_Control_Center.Views.Modules
             UpdateClockAndPosition();
         }
 
+        private void posSlider_PpreviewMouseDown(object sender, MouseButtonEventArgs e) { _isDraggingPosition = true; }
         private void posSlider_PreviewMouseDown(object sender, MouseButtonEventArgs e) { _isDraggingPosition = true; }
         private void posSlider_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
@@ -463,20 +480,18 @@ namespace Vivit_Control_Center.Views.Modules
         {
             try
             {
-                // 1) Try youtubei browse API (both variants)
                 var viaApi = TryFetchViaYoutubei(listId);
                 if (viaApi != null && viaApi.Length > 0) return viaApi;
 
-                // 2) Fallback: HTML scrape (desktop)
                 var url = $"https://www.youtube.com/playlist?list={Uri.EscapeDataString(listId)}&hl=en&persist_hl=1&gl=US&persist_gl=1";
                 var html = HttpGetStringWithConsent(url);
 
-                var ids = Regex.Matches(html, "\\\"videoId\\\":\\\"([a-zA-Z0-9_-]{11})\\\"")
+                var ids = Regex.Matches(html, "\\\"videoId\\\"\\s*:\\s*\\\"([a-zA-Z0-9_-]{11})\\\"")
                               .Cast<Match>().Select(m => m.Groups[1].Value).ToList();
 
                 if (ids.Count == 0)
                 {
-                    var m2 = Regex.Matches(html, "href=\\\"/watch\\?v=([a-zA-Z0-9_-]{11})");
+                    var m2 = Regex.Matches(html, @"href=""/watch\?v=([a-zA-Z0-9_-]{11})");
                     ids.AddRange(m2.Cast<Match>().Select(m => m.Groups[1].Value));
                 }
 
@@ -486,25 +501,23 @@ namespace Vivit_Control_Center.Views.Modules
                     ids.AddRange(m3.Cast<Match>().Select(m => m.Groups[1].Value));
                 }
 
-                // 3) Fallback: try a watch page with the playlist id (covers auto mixes)
                 if (ids.Count == 0)
                 {
                     string watchUrl = BuildWatchUrlForList(originalUrl, listId);
                     var watchHtml = HttpGetStringWithConsent(watchUrl);
-                    var m4 = Regex.Matches(watchHtml, "\\\"videoId\\\":\\\"([a-zA-Z0-9_-]{11})\\\"");
+                    var m4 = Regex.Matches(watchHtml, "\\\"videoId\\\"\\s*:\\s*\\\"([a-zA-Z0-9_-]{11})\\\"");
                     ids.AddRange(m4.Cast<Match>().Select(m => m.Groups[1].Value));
                     if (ids.Count == 0)
                     {
-                        var m5 = Regex.Matches(watchHtml, "href=\\\"/watch\\?v=([a-zA-Z0-9_-]{11})");
+                        var m5 = Regex.Matches(watchHtml, @"href=""/watch\?v=([a-zA-Z0-9_-]{11})");
                         ids.AddRange(m5.Cast<Match>().Select(m => m.Groups[1].Value));
                     }
                 }
 
-                // 4) Mobile site fallback
                 if (ids.Count == 0)
                 {
                     var mobile = HttpGetStringMobile($"https://m.youtube.com/playlist?list={Uri.EscapeDataString(listId)}&hl=en");
-                    var m6 = Regex.Matches(mobile, "href=\\\"/watch\\?v=([a-zA-Z0-9_-]{11})");
+                    var m6 = Regex.Matches(mobile, @"href=""/watch\?v=([a-zA-Z0-9_-]{11})");
                     ids.AddRange(m6.Cast<Match>().Select(m => m.Groups[1].Value));
                 }
 
@@ -521,322 +534,234 @@ namespace Vivit_Control_Center.Views.Modules
             {
                 var uri = new Uri(originalUrl);
                 var v = GetQueryParam(uri, "v");
-                if (string.IsNullOrEmpty(v)) v = "dQw4w9WgXcQ"; // seed when missing
+                if (string.IsNullOrEmpty(v)) v = "dQw4w9WgXcQ";
                 return $"https://www.youtube.com/watch?v={v}&list={listId}&hl=en&persist_hl=1&gl=US&persist_gl=1";
             }
             catch { }
             return $"https://www.youtube.com/watch?v=dQw4w9WgXcQ&list={listId}&hl=en";
         }
 
+        private void btnStop_Click(object sender, RoutedEventArgs e)
+        {
+            StopPlayback();
+        }
+
+        // NEW: Save/Load playlist to file
+        private void btnSavePlaylist_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var dlg = new SaveFileDialog { Filter = "Vivit Playlist (*.vpl)|*.vpl|XML (*.xml)|*.xml|All Files|*.*", DefaultExt = ".vpl" };
+                if (dlg.ShowDialog() != true) return;
+                var list = _playlist.Select(t => new MediaTrackInfo { FilePath = t.FilePath, Url = t.Url, DisplayName = t.DisplayName, IsYouTube = t.IsYouTube }).ToList();
+                var ser = new XmlSerializer(typeof(List<MediaTrackInfo>));
+                using (var fs = File.Create(dlg.FileName)) ser.Serialize(fs, list);
+            }
+            catch { }
+        }
+
+        private void btnLoadPlaylist_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var dlg = new OpenFileDialog { Filter = "Vivit Playlist (*.vpl)|*.vpl|XML (*.xml)|*.xml|All Files|*.*" };
+                if (dlg.ShowDialog() != true) return;
+                var ser = new XmlSerializer(typeof(List<MediaTrackInfo>));
+                List<MediaTrackInfo> list = null;
+                using (var fs = File.OpenRead(dlg.FileName)) list = (List<MediaTrackInfo>)ser.Deserialize(fs);
+                if (list == null) return;
+                _playlist.Clear();
+                foreach (var it in list)
+                {
+                    _playlist.Add(new Track { FilePath = it.FilePath, Url = it.Url, DisplayName = it.DisplayName, IsYouTube = it.IsYouTube });
+                }
+                _currentIndex = _playlist.Count > 0 ? 0 : -1;
+                lstPlaylist.SelectedIndex = _currentIndex;
+                if (_currentIndex >= 0) LoadCurrent(false);
+                PersistPlaylistToSettings();
+            }
+            catch { }
+        }
+
+        // NEW: Persist playlist in AppSettings
+        private void PersistPlaylistToSettings()
+        {
+            try
+            {
+                var settings = AppSettings.Load();
+                settings.LastMediaPlaylist = _playlist.Select(t => new MediaTrackInfo { FilePath = t.FilePath, Url = t.Url, DisplayName = t.DisplayName, IsYouTube = t.IsYouTube }).ToList();
+                settings.LastMediaCurrentIndex = _currentIndex;
+                settings.Save();
+            }
+            catch { }
+        }
+
+        private void LoadLastPlaylistFromSettings()
+        {
+            try
+            {
+                var settings = AppSettings.Load();
+                _playlist.Clear();
+                foreach (var t in settings.LastMediaPlaylist ?? new List<MediaTrackInfo>())
+                {
+                    _playlist.Add(new Track { FilePath = t.FilePath, Url = t.Url, DisplayName = t.DisplayName, IsYouTube = t.IsYouTube });
+                }
+                _currentIndex = (settings.LastMediaCurrentIndex >= 0 && settings.LastMediaCurrentIndex < _playlist.Count) ? settings.LastMediaCurrentIndex : (_playlist.Count > 0 ? 0 : -1);
+                if (_currentIndex >= 0) lstPlaylist.SelectedIndex = _currentIndex;
+            }
+            catch { }
+        }
+
+        // NEW: prompt helper
+        private string PromptForText(string message, string title)
+        {
+            try
+            {
+                var win = new Window { Title = title ?? "Input", SizeToContent = SizeToContent.WidthAndHeight, WindowStartupLocation = WindowStartupLocation.CenterOwner, Owner = Application.Current?.MainWindow, ResizeMode = ResizeMode.NoResize };
+                var stack = new StackPanel { Margin = new Thickness(12), MinWidth = 420 };
+                stack.Children.Add(new TextBlock { Text = message ?? "", Margin = new Thickness(0, 0, 0, 8) });
+                var tb = new TextBox { Margin = new Thickness(0, 0, 0, 12) };
+                stack.Children.Add(tb);
+                var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
+                var ok = new Button { Content = "OK", Width = 80, Margin = new Thickness(0, 0, 8, 0), IsDefault = true };
+                var cancel = new Button { Content = "Cancel", Width = 80, IsCancel = true };
+                string result = null;
+                ok.Click += (_, __) => { result = tb.Text; win.DialogResult = true; };
+                cancel.Click += (_, __) => { win.DialogResult = false; };
+                buttons.Children.Add(ok); buttons.Children.Add(cancel);
+                stack.Children.Add(buttons);
+                win.Content = stack; win.ShowDialog();
+                return result;
+            }
+            catch { return null; }
+        }
+
+        // NEW: YouTube helpers (WebView2)
+        private async Task StartYouTubeAsync(Track track, bool autoPlay)
+        {
+            try
+            {
+                if (track == null || string.IsNullOrWhiteSpace(track.Url)) return;
+                ShowYouTubeUi(true);
+                if (ytWeb.CoreWebView2 == null)
+                {
+                    await ytWeb.EnsureCoreWebView2Async();
+                    if (ytWeb.CoreWebView2 != null)
+                    {
+                        ytWeb.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
+                        ytWeb.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+                        ytWeb.CoreWebView2.Settings.AreHostObjectsAllowed = false;
+                        ytWeb.CoreWebView2.Settings.IsStatusBarEnabled = false;
+                    }
+                }
+
+                _isYouTubeActive = true;
+                _isYouTubePlaying = autoPlay;
+                _playRequested = autoPlay;
+
+                string navUrl = track.Url;
+                if (!navUrl.Contains("hl=")) navUrl += (navUrl.Contains("?") ? "&" : "?") + "hl=en";
+                if (autoPlay && !navUrl.Contains("autoplay=")) navUrl += (navUrl.Contains("?") ? "&" : "?") + "autoplay=1";
+
+                ytWeb.Source = new Uri(navUrl);
+                txtNowPlaying.Text = $"Now Playing: {track.DisplayName}";
+                txtTime.Text = "--:-- / --:--";
+                SetPlayVisual(autoPlay);
+            }
+            catch { }
+        }
+
+        private async Task<bool> TrySendYouTubeCommandAsync(string command)
+        {
+            try
+            {
+                if (ytWeb?.CoreWebView2 == null) return false;
+                string js = null;
+                switch ((command ?? "").ToLowerInvariant())
+                {
+                    case "play": js = "(function(){var v=document.querySelector('video'); if(v){v.muted=false; v.play(); return true;} return false;})()"; break;
+                    case "pause": js = "(function(){var v=document.querySelector('video'); if(v){v.pause(); return true;} return false;})()"; break;
+                    case "stop": js = "(function(){var v=document.querySelector('video'); if(v){v.pause(); v.currentTime=0; return true;} return false;})()"; break;
+                }
+                if (js == null) return false;
+                var res = await ytWeb.CoreWebView2.ExecuteScriptAsync(js);
+                return true;
+            }
+            catch { return false; }
+        }
+
+        private void ShowYouTubeUi(bool on)
+        {
+            try
+            {
+                _isYouTubeActive = on;
+                if (ytWeb != null) ytWeb.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
+                if (artPlaceholder != null) artPlaceholder.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
+                if (artText != null) artText.Text = on ? "YouTube" : "No artwork";
+                posSlider.IsEnabled = !on;
+                volSlider.IsEnabled = !on;
+            }
+            catch { }
+        }
+
+        private static string TryGetYouTubeTitle(string url)
+        {
+            try
+            {
+                var html = HttpGetStringWithConsent(url);
+                if (string.IsNullOrEmpty(html)) return null;
+                var m = Regex.Match(html, "<meta\\s+property=\"og:title\"\\s+content=\"([^\"]+)\"", RegexOptions.IgnoreCase);
+                string title = m.Success ? m.Groups[1].Value : null;
+                if (string.IsNullOrEmpty(title))
+                {
+                    var t = Regex.Match(html, "<title>(.*?)</title>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                    if (t.Success) title = WebUtility.HtmlDecode(t.Groups[1].Value).Replace(" - YouTube", "").Trim();
+                }
+                return WebUtility.HtmlDecode(title ?? string.Empty);
+            }
+            catch { return null; }
+        }
+
         private static string[] TryFetchViaYoutubei(string listId)
         {
             try
             {
-                var playlistUrl = $"https://www.youtube.com/playlist?list={Uri.EscapeDataString(listId)}&hl=en&persist_hl=1&gl=US&persist_gl=1";
-                var pageHtml = HttpGetStringWithConsent(playlistUrl);
-                if (string.IsNullOrEmpty(pageHtml)) return new string[0];
-
-                var apiKey = Regex.Match(pageHtml, @"INNERTUBE_API_KEY""\s*:\s*""([^""]+)""").Groups[1].Value;
-                var clientVersion = Regex.Match(pageHtml, @"INNERTUBE_CONTEXT_CLIENT_VERSION""\s*:\s*""([^""]+)""").Groups[1].Value;
-                if (string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(clientVersion)) return new string[0];
-
-                var browseUrl = $"https://www.youtube.com/youtubei/v1/browse?key={apiKey}";
-                var contextJson = "\"context\":{\"client\":{\"clientName\":\"WEB\",\"clientVersion\":\"" + clientVersion + "\"}}";
-
-                var ids = new System.Collections.Generic.List<string>();
-
-                // Variant A: browseId = listId
-                var payloadA = $"{{{contextJson},\"browseId\":\"{listId}\"}}";
-                var resultA = HttpPostJsonWithConsent(browseUrl, payloadA, playlistUrl, clientVersion);
-                ids.AddRange(Regex.Matches(resultA ?? string.Empty, "\\\"videoId\\\":\\\"([a-zA-Z0-9_-]{11})\\\"").Cast<Match>().Select(m => m.Groups[1].Value));
-
-                // Variant B: browseId = VL+listId
-                if (ids.Count == 0)
-                {
-                    var payloadB = $"{{{contextJson},\"browseId\":\"VL{listId}\"}}";
-                    var resultB = HttpPostJsonWithConsent(browseUrl, payloadB, playlistUrl, clientVersion);
-                    ids.AddRange(Regex.Matches(resultB ?? string.Empty, "\\\"videoId\\\":\\\"([a-zA-Z0-9_-]{11})\\\"").Cast<Match>().Select(m => m.Groups[1].Value));
-                }
-
-                return ids.Distinct().Select(id => $"https://www.youtube.com/watch?v={id}&list={listId}").ToArray();
+                // For now, return null to fall back to HTML parsing.
+                return null;
             }
-            catch { }
-            return new string[0];
-        }
-
-        private static string ExtractContinuationToken(string json)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(json)) return null;
-                var m = Regex.Match(json, "(\\\"continuationCommand\\\"\\s*:\\s*\\{\\s*\\\"token\\\"\\s*:\\s*\\\"([^\\\"]+)\\\")|(\\\"nextContinuationData\\\"\\s*:\\s*\\{[^}]*?\\\"continuation\\\"\\s*:\\s*\\\"([^\\\"]+)\\\")");
-                if (m.Success)
-                {
-                    var g2 = m.Groups[2].Success ? m.Groups[2].Value : null;
-                    var g4 = m.Groups[4].Success ? m.Groups[4].Value : null;
-                    return !string.IsNullOrEmpty(g2) ? g2 : g4;
-                }
-            }
-            catch { }
-            return null;
+            catch { return null; }
         }
 
         private static string HttpGetStringWithConsent(string url)
         {
             try
             {
-                ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
-                var req = (HttpWebRequest)WebRequest.Create(url);
-                req.Method = "GET";
-                req.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0 Safari/537.36";
-                req.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
-                req.Headers[HttpRequestHeader.AcceptLanguage] = "en-US,en;q=0.9";
-                req.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-                req.CookieContainer = new CookieContainer();
-                req.CookieContainer.Add(new Cookie("CONSENT", "YES+cb", "/", ".youtube.com"));
-                req.CookieContainer.Add(new Cookie("PREF", "hl=en&gl=US", "/", ".youtube.com"));
-                req.CookieContainer.Add(new Cookie("SOCS", "CAISAiAB", "/", ".google.com"));
-                req.AllowAutoRedirect = true;
-                using (var resp = (HttpWebResponse)req.GetResponse())
-                using (var stream = resp.GetResponseStream())
-                using (var reader = new StreamReader(stream))
+                using (var wc = new WebClient())
                 {
-                    return reader.ReadToEnd();
+                    wc.Encoding = Encoding.UTF8;
+                    wc.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36";
+                    wc.Headers[HttpRequestHeader.AcceptLanguage] = "en-US,en;q=0.9";
+                    wc.Headers[HttpRequestHeader.CacheControl] = "no-cache";
+                    return wc.DownloadString(url);
                 }
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("YouTube GET error: " + ex.Message);
-            }
-            return string.Empty;
+            catch { return string.Empty; }
         }
 
         private static string HttpGetStringMobile(string url)
         {
             try
             {
-                ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
-                var req = (HttpWebRequest)WebRequest.Create(url);
-                req.Method = "GET";
-                req.UserAgent = "Mozilla/5.0 (Linux; Android 10; Pixel 3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0 Mobile Safari/537.36";
-                req.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
-                req.Headers[HttpRequestHeader.AcceptLanguage] = "en-US,en;q=0.9";
-                req.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-                req.CookieContainer = new CookieContainer();
-                req.CookieContainer.Add(new Cookie("CONSENT", "YES+cb", "/", ".youtube.com"));
-                req.CookieContainer.Add(new Cookie("PREF", "hl=en&gl=US", "/", ".youtube.com"));
-                req.AllowAutoRedirect = true;
-                using (var resp = (HttpWebResponse)req.GetResponse())
-                using (var stream = resp.GetResponseStream())
-                using (var reader = new StreamReader(stream))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("YouTube Mobile GET error: " + ex.Message);
-            }
-            return string.Empty;
-        }
-
-        private static string HttpPostJsonWithConsent(string url, string jsonPayload, string referer, string clientVersion)
-        {
-            try
-            {
-                ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
-                var req = (HttpWebRequest)WebRequest.Create(url);
-                req.Method = "POST";
-                req.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0 Safari/537.36";
-                req.Accept = "application/json";
-                req.Headers[HttpRequestHeader.AcceptLanguage] = "en-US,en;q=0.9";
-                req.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-                req.CookieContainer = new CookieContainer();
-                req.CookieContainer.Add(new Cookie("CONSENT", "YES+cb", "/", ".youtube.com"));
-                req.CookieContainer.Add(new Cookie("PREF", "hl=en&gl=US", "/", ".youtube.com"));
-                req.CookieContainer.Add(new Cookie("SOCS", "CAISAiAB", "/", ".google.com"));
-                req.Referer = referer;
-                req.Headers["Origin"] = "https://www.youtube.com";
-                req.ContentType = "application/json";
-                req.Headers["X-YouTube-Client-Name"] = "1";
-                req.Headers["X-YouTube-Client-Version"] = clientVersion;
-
-                var bytes = Encoding.UTF8.GetBytes(jsonPayload ?? "{}");
-                using (var stream = req.GetRequestStream())
-                {
-                    stream.Write(bytes, 0, bytes.Length);
-                }
-                using (var resp = (HttpWebResponse)req.GetResponse())
-                using (var s = resp.GetResponseStream())
-                using (var reader = new StreamReader(s))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("YouTube POST error: " + ex.Message);
-            }
-            return string.Empty;
-        }
-
-        private static string TryGetYouTubeTitle(string videoUrl)
-        {
-            try
-            {
-                var oembed = $"https://www.youtube.com/oembed?url={Uri.EscapeDataString(videoUrl)}&format=json";
                 using (var wc = new WebClient())
                 {
-                    wc.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-                    var json = wc.DownloadString(oembed);
-                    var m = Regex.Match(json, "\\\"title\\\"\\s*:\\s*\\\"(.*?)\\\"");
-                    if (m.Success)
-                    {
-                        return WebUtility.HtmlDecode(m.Groups[1].Value);
-                    }
+                    wc.Encoding = Encoding.UTF8;
+                    wc.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Mobile Safari/537.36";
+                    wc.Headers[HttpRequestHeader.AcceptLanguage] = "en-US,en;q=0.9";
+                    wc.Headers[HttpRequestHeader.CacheControl] = "no-cache";
+                    return wc.DownloadString(url);
                 }
             }
-            catch { }
-            return null;
-        }
-
-        private static string PromptForText(string message, string caption)
-        {
-            var win = new Window
-            {
-                Title = caption,
-                Width = 480,
-                Height = 160,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                ResizeMode = ResizeMode.NoResize,
-                WindowStyle = WindowStyle.ToolWindow,
-                Owner = Application.Current?.MainWindow
-            };
-            var grid = new Grid { Margin = new Thickness(12) };
-            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            var txt = new TextBox { Margin = new Thickness(0, 8, 0, 12) };
-            txt.MinWidth = 420;
-            var lbl = new TextBlock { Text = message };
-            var panel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
-            var ok = new Button { Content = "OK", Width = 80, Margin = new Thickness(0, 0, 8, 0), IsDefault = true };
-            var cancel = new Button { Content = "Cancel", Width = 80, IsCancel = true };
-            ok.Click += (s, e) => { win.DialogResult = true; win.Close(); };
-            cancel.Click += (s, e) => { win.DialogResult = false; win.Close(); };
-            panel.Children.Add(ok);
-            panel.Children.Add(cancel);
-            Grid.SetRow(lbl, 0);
-            Grid.SetRow(txt, 1);
-            Grid.SetRow(panel, 2);
-            grid.Children.Add(lbl);
-            grid.Children.Add(txt);
-            grid.Children.Add(panel);
-            win.Content = grid;
-            var res = win.ShowDialog();
-            return res == true ? txt.Text : null;
-        }
-
-        // ===== YouTube WebView2 integration (watch page) =====
-        private async System.Threading.Tasks.Task StartYouTubeAsync(Track track, bool autoPlay)
-        {
-            try
-            {
-                string videoId = ExtractVideoIdFromUrl(track.Url);
-                if (string.IsNullOrEmpty(videoId)) return;
-
-                await ytWeb.EnsureCoreWebView2Async(null);
-
-                var listId = ExtractPlaylistId(track.Url);
-                var watchUrl = BuildWatchUrlForList(track.Url, listId);
-                if (!watchUrl.Contains("autoplay=1"))
-                    watchUrl += (watchUrl.Contains("?") ? "&" : "?") + "autoplay=1";
-
-                // After navigation complete, try to start playback or toggle state by clicking the play button
-                ytWeb.CoreWebView2.NavigationCompleted += async (s, e) =>
-                {
-                    try
-                    {
-                        // Give the page a moment to initialize the player UI
-                        var t = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(600) };
-                        t.Tick += async (s2, e2) =>
-                        {
-                            t.Stop();
-                            if (autoPlay)
-                            {
-                                await TrySendYouTubeCommandAsync("play");
-                            }
-                        };
-                        t.Start();
-                    }
-                    catch { }
-                };
-
-                ytWeb.CoreWebView2.Navigate(watchUrl);
-
-                txtNowPlaying.Text = $"Now Playing: {track.DisplayName}";
-                txtTime.Text = "--:-- / --:--";
-                ShowYouTubeUi(true);
-                _isYouTubePlaying = autoPlay;
-                SetPlayVisual(autoPlay);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("YouTube start failed: " + ex.Message);
-            }
-        }
-
-        private void ShowYouTubeUi(bool show)
-        {
-            _isYouTubeActive = show;
-            if (ytWeb == null || artPlaceholder == null || artText == null) return;
-            ytWeb.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
-            artPlaceholder.Visibility = show ? Visibility.Collapsed : Visibility.Visible;
-            artText.Visibility = show ? Visibility.Collapsed : Visibility.Visible;
-            posSlider.IsEnabled = !show;
-            volSlider.IsEnabled = !show;
-        }
-
-        private static string ExtractVideoIdFromUrl(string url)
-        {
-            try
-            {
-                var m = Regex.Match(url ?? string.Empty, @"[?&]v=([a-zA-Z0-9_-]{11})");
-                if (m.Success) return m.Groups[1].Value;
-                var m2 = Regex.Match(url ?? string.Empty, @"youtu\.be/([a-zA-Z0-9_-]{11})");
-                if (m2.Success) return m2.Groups[1].Value;
-            }
-            catch { }
-            return null;
-        }
-
-        private async System.Threading.Tasks.Task TrySendYouTubeCommandAsync(string cmd)
-        {
-            try
-            {
-                if (ytWeb?.CoreWebView2 == null) return;
-                if (cmd == "play")
-                {
-                    await ytWeb.CoreWebView2.ExecuteScriptAsync(
-                        @"(function(){var b=document.querySelector('.ytp-play-button[title*=""Play"" i], .ytp-play-button[aria-label*=""Play"" i]'); if(b){b.click(); return 'clicked';} document.dispatchEvent(new KeyboardEvent('keydown',{key:'k'})); return 'key';})();");
-                }
-                else if (cmd == "pause")
-                {
-                    await ytWeb.CoreWebView2.ExecuteScriptAsync(
-                        @"(function(){var b=document.querySelector('.ytp-play-button[title*=""Pause"" i], .ytp-play-button[aria-label*=""Pause"" i]'); if(b){b.click(); return 'clicked';} document.dispatchEvent(new KeyboardEvent('keydown',{key:'k'})); return 'key';})();");
-                }
-                else if (cmd == "stop")
-                {
-                    await ytWeb.CoreWebView2.ExecuteScriptAsync(
-                        @"(function(){var b=document.querySelector('.ytp-play-button[aria-label*=""Pause"" i], .ytp-play-button[title*=""Pause"" i]'); if(b){b.click();} })();");
-                }
-            }
-            catch { }
-        }
-
-        private void btnStop_Click(object sender, RoutedEventArgs e)
-        {
-            StopPlayback();
+            catch { return string.Empty; }
         }
     }
 }

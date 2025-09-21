@@ -58,6 +58,10 @@
                             <ContextMenu>
                                 <MenuItem Header="Add" Click="btnAdd_Click"/>
                                 <MenuItem Header="Add YouTube Playlist" Click="btnAddYouTube_Click"/>
+                                <Separator/>
+                                <MenuItem Header="Save Playlist" Click="btnSavePlaylist_Click"/>
+                                <MenuItem Header="Load Playlist" Click="btnLoadPlaylist_Click"/>
+                                <Separator/>
                                 <MenuItem Header="Remove" Click="btnRemove_Click"/>
                                 <MenuItem Header="Clear" Click="btnClear_Click"/>
                             </ContextMenu>
@@ -77,6 +81,20 @@
                                 <Path Data="M 6,12 C 6,7 10,4 15,4 C 19,4 22,7 22,12 C 22,17 19,20 15,20 C 10,20 6,17 6,12 Z"
                                       Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Width="14" Height="14" Stretch="Uniform" Margin="0,0,6,0"/>
                                 <TextBlock Text="Add YouTube Playlist"/>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="btnSavePlaylist" Width="140" Margin="0,0,8,0" Click="btnSavePlaylist_Click" ToolTip="Save playlist to file">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Path Data="M 6,4 L 22,4 L 22,20 L 6,20 Z M 10,8 L 18,8 L 18,12 L 10,12 Z"
+                                      Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Width="14" Height="14" Stretch="Uniform" Margin="0,0,6,0"/>
+                                <TextBlock Text="Save Playlist"/>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="btnLoadPlaylist" Width="140" Margin="0,0,8,0" Click="btnLoadPlaylist_Click" ToolTip="Load playlist from file">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Path Data="M 6,6 L 22,6 L 22,10 L 6,10 Z M 6,14 L 22,14 L 22,18 L 6,18 Z"
+                                      Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Width="14" Height="14" Stretch="Uniform" Margin="0,0,6,0"/>
+                                <TextBlock Text="Load Playlist"/>
                             </StackPanel>
                         </Button>
                         <Button x:Name="btnRemove" Width="100" Margin="0,0,8,0" Click="btnRemove_Click" ToolTip="Remove selected">

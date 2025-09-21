@@ -43,6 +43,10 @@ namespace Vivit_Control_Center.Settings
         // Email accounts
         public List<EmailAccount> EmailAccounts { get; set; } = new List<EmailAccount>();
 
+        // Media player persisted playlist
+        public List<MediaTrackInfo> LastMediaPlaylist { get; set; } = new List<MediaTrackInfo>();
+        public int LastMediaCurrentIndex { get; set; } = -1;
+
         // Legacy list (paths only) kept for migration
         public List<string> ExternalPrograms { get; set; } = new List<string>();
         // New detailed list with captions
@@ -79,13 +83,14 @@ namespace Vivit_Control_Center.Settings
                     if (loaded.ExternalPrograms == null) loaded.ExternalPrograms = new List<string>();
                     if (loaded.ExternalProgramsDetailed == null) loaded.ExternalProgramsDetailed = new List<ExternalProgram>();
                     if (loaded.EmailAccounts == null) loaded.EmailAccounts = new List<EmailAccount>();
+                    if (loaded.LastMediaPlaylist == null) loaded.LastMediaPlaylist = new List<MediaTrackInfo>();
                     // Migration
                     if (loaded.ExternalProgramsDetailed.Count == 0 && loaded.ExternalPrograms.Count > 0)
                     {
                         foreach (var p in loaded.ExternalPrograms)
                         {
                             if (string.IsNullOrWhiteSpace(p)) continue;
-                            loaded.ExternalProgramsDetailed.Add(new ExternalProgram { Path = p, Caption = System.IO.Path.GetFileNameWithoutExtension(p) });
+                            loaded.ExternalProgramsDetailed.Add(new ExternalProgram { Path = System.IO.Path.GetFileName(p), Caption = System.IO.Path.GetFileNameWithoutExtension(p) });
                         }
                     }
                     if (string.IsNullOrWhiteSpace(loaded.SocialLastNetwork)) loaded.SocialLastNetwork = "Fediverse";
@@ -107,7 +112,7 @@ namespace Vivit_Control_Center.Settings
             }
             catch
             {
-                return new AppSettings { RssFeeds = new List<string>(), CustomWebModuleUrls = new List<CustomWebModuleUrl>(), ExternalPrograms = new List<string>(), ExternalProgramsDetailed = new List<ExternalProgram>(), EmailAccounts = new List<EmailAccount>() };
+                return new AppSettings { RssFeeds = new List<string>(), CustomWebModuleUrls = new List<CustomWebModuleUrl>(), ExternalPrograms = new List<string>(), ExternalProgramsDetailed = new List<ExternalProgram>(), EmailAccounts = new List<EmailAccount>(), LastMediaPlaylist = new List<MediaTrackInfo>() };
             }
         }
 
@@ -121,6 +126,7 @@ namespace Vivit_Control_Center.Settings
                 if (string.IsNullOrWhiteSpace(Language)) Language = "en";
                 if (ExternalProgramsDetailed == null) ExternalProgramsDetailed = new List<ExternalProgram>();
                 if (EmailAccounts == null) EmailAccounts = new List<EmailAccount>();
+                if (LastMediaPlaylist == null) LastMediaPlaylist = new List<MediaTrackInfo>();
                 ExternalPrograms = new List<string>();
                 foreach (var p in ExternalProgramsDetailed)
                     if (!string.IsNullOrWhiteSpace(p?.Path)) ExternalPrograms.Add(p.Path);
@@ -189,6 +195,15 @@ namespace Vivit_Control_Center.Settings
                 catch { return value; }
             }
         }
+    }
+
+    [Serializable]
+    public class MediaTrackInfo
+    {
+        public string FilePath { get; set; }
+        public string Url { get; set; }
+        public string DisplayName { get; set; }
+        public bool IsYouTube { get; set; }
     }
 
     [Serializable]

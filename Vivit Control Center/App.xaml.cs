@@ -141,6 +141,45 @@ namespace Vivit_Control_Center
                 try { LocalizationManager.ApplyLanguage(loadedSettings.Language ?? "en"); } catch { }
             }
 
+            try
+            {
+                // Correctly detect shell mode from HKLM where Winlogon Shell is stored
+                using (var key = Registry.CurrentUser.OpenSubKey(WinLogonKeyPath, false))
+                {
+                    var regVal = key?.GetValue("Shell") as string;
+                    if (!string.IsNullOrWhiteSpace(regVal))
+                    {
+                        regVal = regVal.Trim().Trim('"');
+                        var exe = Process.GetCurrentProcess().MainModule.FileName.Trim().Trim('"');
+                        if (string.Equals(regVal, exe, StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(regVal, System.IO.Path.GetFileName(exe), StringComparison.OrdinalIgnoreCase))
+                        {
+                            IsShellMode = true;
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            // Detect native taskbar height (before changing work area)
+            ShellTaskbarHeightPx = DetectNativeTaskbarHeight();
+
+            if (IsShellMode)
+            {
+                SetShellWorkArea();
+                Dispatcher.InvokeAsync(() =>
+                {
+                    try
+                    {
+                        _taskbarWindow = new TaskbarWindow();
+                        _taskbarWindow.Show();
+                        InstallKeyboardHookIfNeeded();
+                        //_ = LaunchExplorerForTrayAsync();
+                    }
+                    catch { }
+                });
+            }
+
             // Start email background sync service early and perform initial refresh
             try
             {
@@ -177,43 +216,7 @@ namespace Vivit_Control_Center
                 try { MessageBox.Show("Shell Änderung fehlgeschlagen: " + ex.Message); } catch { }
             }
 
-            try
-            {
-                using (var key = Registry.CurrentUser.OpenSubKey(WinLogonKeyPath, false))
-                {
-                    var regVal = key?.GetValue("Shell") as string;
-                    if (!string.IsNullOrWhiteSpace(regVal))
-                    {
-                        regVal = regVal.Trim().Trim('"');
-                        var exe = Process.GetCurrentProcess().MainModule.FileName.Trim().Trim('"');
-                        if (string.Equals(regVal, exe, StringComparison.OrdinalIgnoreCase) ||
-                            string.Equals(regVal, System.IO.Path.GetFileName(exe), StringComparison.OrdinalIgnoreCase))
-                        {
-                            IsShellMode = true;
-                        }
-                    }
-                }
-            }
-            catch { }
-
-            // Detect native taskbar height (before changing work area)
-            ShellTaskbarHeightPx = DetectNativeTaskbarHeight();
-
-            if (IsShellMode)
-            {
-                SetShellWorkArea();
-                Dispatcher.InvokeAsync(() =>
-                {
-                    try
-                    {
-                        _taskbarWindow = new TaskbarWindow();
-                        _taskbarWindow.Show();
-                        InstallKeyboardHookIfNeeded();
-                        //_ = LaunchExplorerForTrayAsync();
-                    }
-                    catch { }
-                });
-            }
+       
 
             TrayIconService.Current.Initialize(loadedSettings?.Theme);
         }
