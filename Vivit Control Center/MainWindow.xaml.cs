@@ -15,6 +15,7 @@ using System.IO; // path handling
 using System.ComponentModel;
 using Vivit_Control_Center.Localization;
 using System.Windows.Media; // VisualTreeHelper
+using Vivit_Control_Center.Services; // AppBarService
 
 namespace Vivit_Control_Center
 {
@@ -50,6 +51,16 @@ namespace Vivit_Control_Center
         private List<string> _enabledTags = new List<string>();
         private string _startupTag;
 
+        // Track whether we currently reserve desktop work area
+        private bool _workAreaReservedForAppBars;
+
+        private DispatcherTimer _workAreaRetryTimer;
+        private int _workAreaRetryCount;
+
+        // Manual maximize flag to control SPI/AppBar reservation when not using OS maximize
+        private bool _manualMaximized;
+        private bool _handlingMaximizeSwitch; // guard to avoid recursion when converting to manual maximize
+
         public MainWindow()
         {
             InitializeComponent();
@@ -82,8 +93,170 @@ namespace Vivit_Control_Center
                     }
                     catch { }
                 }
+
+                // Only reserve desktop work area when maximized or running as shell
+                if (WindowState == WindowState.Maximized || App.IsShellMode || _manualMaximized)
+                {
+                    TryApplyLeftWorkAreaForSidebar();
+                    TryApplyTopWorkAreaForTitlebar();
+                    StartWorkAreaRetryPump();
+                }
             };
-            StateChanged += (_, __) => { UpdateMaxRestoreIcon(); ApplyWorkAreaConstraints(); };
+            StateChanged += (_, __) => { UpdateMaxRestoreIcon(); ApplyWorkAreaConstraints(); OnWindowStateChanged(); };
+            SizeChanged += (_, __) => { if (WindowState == WindowState.Maximized || App.IsShellMode || _manualMaximized) { TryApplyLeftWorkAreaForSidebar(); TryApplyTopWorkAreaForTitlebar(); StartWorkAreaRetryPump(); } };
+            Closed += (_, __) => RestoreDesktopWorkAreaIfNeeded();
+        }
+
+        private void FitMainWindowToWorkAreaFullWidth()
+        {
+            try
+            {
+                var wa = SystemParameters.WorkArea; // DIPs
+                Left = 0;
+                Top = wa.Top;
+                Width = SystemParameters.PrimaryScreenWidth;
+                Height = Math.Max(200, wa.Height);
+            }
+            catch { }
+        }
+
+        private void StartWorkAreaRetryPump()
+        {
+            try
+            {
+                _workAreaRetryCount = 0;
+                if (_workAreaRetryTimer == null)
+                {
+                    _workAreaRetryTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
+                    _workAreaRetryTimer.Tick += (s, e) =>
+                    {
+                        if (WindowState != WindowState.Maximized && !App.IsShellMode && !_manualMaximized)
+                        {
+                            _workAreaRetryTimer.Stop();
+                            return;
+                        }
+                        TryApplyLeftWorkAreaForSidebar();
+                        TryApplyTopWorkAreaForTitlebar();
+                        _workAreaRetryCount++;
+                        if (_workAreaRetryCount >= 8) // ~2.4s total
+                        {
+                            _workAreaRetryTimer.Stop();
+                        }
+                    };
+                }
+                _workAreaRetryTimer.Stop();
+                _workAreaRetryTimer.Start();
+            }
+            catch { }
+        }
+
+        private void OnWindowStateChanged()
+        {
+            // If the user triggered OS maximize in normal desktop mode while we reserve an AppBar,
+            // convert it to manual maximize so our window still starts at X=0 instead of WorkArea.Left
+            if (WindowState == WindowState.Maximized && !App.IsShellMode && !_manualMaximized && !_handlingMaximizeSwitch)
+            {
+                try
+                {
+                    _handlingMaximizeSwitch = true;
+                    _manualMaximized = true;
+                    WindowState = WindowState.Normal; // leave OS maximize
+                    FitMainWindowToScreen();           // fill screen manually
+                    TryApplyLeftWorkAreaForSidebar();  // ensure reservation is applied
+                    TryApplyTopWorkAreaForTitlebar();  // ensure top reservation is applied
+                    StartWorkAreaRetryPump();
+                }
+                finally { _handlingMaximizeSwitch = false; }
+                return;
+            }
+
+            if (WindowState == WindowState.Maximized || App.IsShellMode || _manualMaximized)
+            {
+                TryApplyLeftWorkAreaForSidebar();
+                TryApplyTopWorkAreaForTitlebar();
+                StartWorkAreaRetryPump();
+            }
+            else
+            {
+                RestoreDesktopWorkAreaIfNeeded();
+            }
+        }
+
+        private void RestoreDesktopWorkAreaIfNeeded()
+        {
+            if (_workAreaReservedForAppBars)
+            {
+                if (App.IsShellMode)
+                {
+                    App.RestoreDesktopWorkArea();
+                }
+                else
+                {
+                    AppBarService.Remove(); // removes both left and top reservations
+                }
+                _workAreaReservedForAppBars = false;
+            }
+        }
+
+        private void TryApplyLeftWorkAreaForSidebar()
+        {
+            try
+            {
+                // Allow when OS-maximized, in shell mode, or in our manual-maximized state
+                if (WindowState != WindowState.Maximized && !App.IsShellMode && !_manualMaximized) return;
+
+                if (SidebarRoot == null) return;
+                if (double.IsNaN(SidebarRoot.ActualWidth) || SidebarRoot.ActualWidth <= 0) return;
+
+                // Compute the right edge of the sidebar in device pixels directly
+                var rightEdgeOnScreenPx = SidebarRoot.PointToScreen(new Point(SidebarRoot.ActualWidth, 0)).X;
+                int leftPx = (int)Math.Max(0, Math.Round(rightEdgeOnScreenPx));
+                if (leftPx <= 0) return;
+
+                // Reserve left work area via proper AppBar in normal desktop mode; use SPI in shell mode
+                if (App.IsShellMode)
+                {
+                    App.ApplyDesktopWorkAreaLeft(leftPx);
+                }
+                else
+                {
+                    AppBarService.EnsureOrUpdateLeft(leftPx);
+                }
+                _workAreaReservedForAppBars = true;
+            }
+            catch { }
+        }
+
+        private void TryApplyTopWorkAreaForTitlebar()
+        {
+            try
+            {
+                // Only in normal desktop mode (use SPI in shell mode if desired later)
+                if (App.IsShellMode) return;
+                if (WindowState != WindowState.Maximized && !_manualMaximized) return;
+
+                // Measure the title bar height in DIPs and convert to device pixels
+                double titleDip = 0;
+                try
+                {
+                    // Prefer actual header height if available
+                    if (CustomTitleBar != null && !double.IsNaN(CustomTitleBar.ActualHeight) && CustomTitleBar.ActualHeight > 0)
+                        titleDip = CustomTitleBar.ActualHeight;
+                    else if (TitleRow != null && TitleRow.ActualHeight > 0)
+                        titleDip = TitleRow.ActualHeight;
+                    else
+                        titleDip = 30; // fallback
+                }
+                catch { titleDip = 30; }
+
+                var src = PresentationSource.FromVisual(this);
+                double mToDeviceY = src?.CompositionTarget?.TransformToDevice.M22 ?? 1.0;
+                int titlePx = (int)Math.Max(1, Math.Round(titleDip * mToDeviceY));
+
+                AppBarService.EnsureOrUpdateTop(titlePx);
+                _workAreaReservedForAppBars = true;
+            }
+            catch { }
         }
 
         private void HideTitleBarButtonsSafe()
@@ -101,19 +274,32 @@ namespace Vivit_Control_Center
         {
             try
             {
-                // DIPs: SystemParameters sind bereits in DIPs
-                double screenW = SystemParameters.PrimaryScreenWidth;
-                double screenH = SystemParameters.PrimaryScreenHeight;
-                // Pixel->DIP Umrechnung für Taskbarhöhe
-                var src = PresentationSource.FromVisual(this);
-                double mFromDeviceY = src?.CompositionTarget?.TransformFromDevice.M22 ?? 1.0;
-                double taskbarDip = App.ShellTaskbarHeightPx * mFromDeviceY;
-                if (double.IsNaN(taskbarDip) || taskbarDip <= 0) taskbarDip = 40;
+                if (App.IsShellMode)
+                {
+                    // Shell mode: fill full screen width, subtract shell taskbar height
+                    double screenW = SystemParameters.PrimaryScreenWidth;
+                    double screenH = SystemParameters.PrimaryScreenHeight;
+                    var src = PresentationSource.FromVisual(this);
+                    double mFromDeviceY = src?.CompositionTarget?.TransformFromDevice.M22 ?? 1.0;
+                    double taskbarDip = App.ShellTaskbarHeightPx * mFromDeviceY;
+                    if (double.IsNaN(taskbarDip) || taskbarDip <= 0) taskbarDip = 40;
 
-                Left = 0;
-                Top = 0;
-                Width = screenW;
-                Height = Math.Max(200, screenH - taskbarDip);
+                    Left = 0;
+                    Top = 0;
+                    Width = screenW;
+                    Height = Math.Max(200, screenH - taskbarDip);
+                }
+                else
+                {
+                    // Fenster beginnt bei 0, reservierter Top-Bereich (Titlebar) liegt unter dem Fenster
+                    // und wird nicht als Lücke sichtbar.
+                    var wa = SystemParameters.WorkArea; // DIPs
+                    double fullHeightMinusTaskbar = wa.Top + wa.Height; // = Monitorhöhe abzüglich Taskbar
+                    Left = 0;
+                    Top = 0; // nicht wa.Top
+                    Width = SystemParameters.PrimaryScreenWidth;
+                    Height = Math.Max(200, fullHeightMinusTaskbar);
+                }
             }
             catch { }
         }
@@ -566,14 +752,28 @@ namespace Vivit_Control_Center
                 WindowState = WindowState.Normal;
                 FitMainWindowToScreen();
                 UpdateMaxRestoreIcon();
+                TryApplyLeftWorkAreaForSidebar();
                 return;
             }
 
-            if (WindowState == WindowState.Maximized)
+            if (!_manualMaximized)
+            {
+                // Enter manual maximize: reserve left work area first, then size window across full width
+                _manualMaximized = true;
                 WindowState = WindowState.Normal;
+                FitMainWindowToScreen();
+                UpdateMaxRestoreIcon();
+                TryApplyLeftWorkAreaForSidebar();
+            }
             else
-                WindowState = WindowState.Maximized;
-            UpdateMaxRestoreIcon();
+            {
+                // Leave manual maximize: restore work area and keep window normal
+                RestoreDesktopWorkAreaIfNeeded();
+                _manualMaximized = false;
+                WindowState = WindowState.Normal;
+                UpdateMaxRestoreIcon();
+                ClampToWorkArea();
+            }
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
@@ -720,16 +920,8 @@ namespace Vivit_Control_Center
         {
             try
             {
-                if (!App.IsShellMode) return;
-                if (SidebarRoot == null) return;
-
-                // In shell mode, do NOT shift the system work area left. This caused the window to be cut off.
-                // If needed in the future, compute width and reserve internally instead of SPI_SETWORKAREA.
-                // double dipLeft = SidebarRoot.ActualWidth;
-                // var src = PresentationSource.FromVisual(this);
-                // double m11 = src?.CompositionTarget?.TransformToDevice.M11 ?? 1.0; // DIP->PX scale X
-                // int leftPx = (int)Math.Round(Math.Max(0, dipLeft) * m11);
-                // App.UpdateShellWorkAreaLeft(leftPx);
+                // Replaced by TryApplyLeftWorkAreaForSidebar which also restores appropriately
+                TryApplyLeftWorkAreaForSidebar();
             }
             catch { }
         }
@@ -778,7 +970,7 @@ namespace Vivit_Control_Center
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
             base.OnRenderSizeChanged(sizeInfo);
-            // If sidebar width changes (resize), avoid shifting system work area
+            // If sidebar width changes (resize), update system work area reservation
             if (sizeInfo.WidthChanged)
             {
                 UpdateWorkAreaForSidebar();

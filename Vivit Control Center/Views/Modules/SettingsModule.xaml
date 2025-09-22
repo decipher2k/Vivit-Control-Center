@@ -19,6 +19,7 @@
                             <ComboBoxItem Tag="zh" Content="Chinese" />
                             <ComboBoxItem Tag="ja" Content="Japanese" />
                             <ComboBoxItem Tag="eo" Content="Esperanto" />
+                            <ComboBoxItem Tag="it" Content="Italian" />
                         </ComboBox>
                         <TextBlock Text="{DynamicResource Settings.RestartNotice}" Margin="8,0,0,0" VerticalAlignment="Center" Foreground="Gray"/>
                     </StackPanel>

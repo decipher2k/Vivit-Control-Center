@@ -87,8 +87,10 @@
     <Compile Include="Converters\CountToVisibilityConverter.cs" />
     <Compile Include="Converters\NullToVisibilityConverter.cs" />
     <Compile Include="Localization\LocalizationManager.cs" />
+    <Compile Include="Services\AppBarService.cs" />
     <Compile Include="Services\EmailSyncService.cs" />
     <Compile Include="Services\TrayIconService.cs" />
+    <Compile Include="Services\WorkAreaAppBar.cs" />
     <Compile Include="Settings\AppSettings.cs" />
     <Compile Include="TaskbarWindow.xaml.cs">
       <DependentUpon>TaskbarWindow.xaml</DependentUpon>
@@ -169,6 +171,9 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Localization\Strings.fr.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Localization\Strings.it.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Localization\Strings.ja.xaml">

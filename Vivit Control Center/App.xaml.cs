@@ -36,6 +36,7 @@ namespace Vivit_Control_Center
         private const int SM_CXSCREEN = 0;
         private const int SM_CYSCREEN = 1;
         private const int SPI_SETWORKAREA = 0x002F;
+        private const int SPI_GETWORKAREA = 0x0030;
         private const int SPIF_SENDCHANGE = 0x02;
         #endregion
 
@@ -130,6 +131,10 @@ namespace Vivit_Control_Center
         }
         #endregion
 
+        // Track and restore work area changes when reserving sidebar space
+        private static bool _workAreaModified;
+        private static RECT? _savedWorkAreaBeforeModify;
+
         protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -216,7 +221,7 @@ namespace Vivit_Control_Center
                 try { MessageBox.Show("Shell Änderung fehlgeschlagen: " + ex.Message); } catch { }
             }
 
-       
+        
 
             TrayIconService.Current.Initialize(loadedSettings?.Theme);
         }
@@ -275,6 +280,7 @@ namespace Vivit_Control_Center
         {
             try { _taskbarWindow?.Close(); } catch { }
             if (IsShellMode) RestoreWorkArea();
+            if (_workAreaModified) RestoreDesktopWorkArea();
             if (_keyboardHookHandle != IntPtr.Zero)
             {
                 try { UnhookWindowsHookEx(_keyboardHookHandle); } catch { }
@@ -317,6 +323,7 @@ namespace Vivit_Control_Center
                 if (leftPx > widthPx - 50) leftPx = Math.Max(0, widthPx - 50);
                 var rect = new RECT { left = leftPx, top = 0, right = widthPx, bottom = heightPx - ShellTaskbarHeightPx };
                 SystemParametersInfo(SPI_SETWORKAREA, 0, ref rect, SPIF_SENDCHANGE);
+                _workAreaModified = true;
             }
             catch { }
         }
@@ -329,6 +336,80 @@ namespace Vivit_Control_Center
                 int heightPx = GetSystemMetrics(SM_CYSCREEN);
                 var rect = new RECT { left = 0, top = 0, right = widthPx, bottom = heightPx };
                 SystemParametersInfo(SPI_SETWORKAREA, 0, ref rect, SPIF_SENDCHANGE);
+            }
+            catch { }
+        }
+
+        // New helpers to modify desktop work area in both modes (shell and normal)
+        private static bool TryGetCurrentWorkArea(out RECT rect)
+        {
+            rect = default(RECT);
+            try
+            {
+                var r = new RECT();
+                if (SystemParametersInfo(SPI_GETWORKAREA, 0, ref r, 0))
+                {
+                    rect = r;
+                    return true;
+                }
+            }
+            catch { }
+            return false;
+        }
+
+        public static void ApplyDesktopWorkAreaLeft(int leftPx)
+        {
+            try
+            {
+                if (leftPx < 0) leftPx = 0;
+
+                if (IsShellMode)
+                {
+                    // In shell mode we own the taskbar area. Reserve left and keep bottom above our taskbar.
+                    int widthPx = GetSystemMetrics(SM_CXSCREEN);
+                    int heightPx = GetSystemMetrics(SM_CYSCREEN);
+                    if (leftPx > widthPx - 50) leftPx = Math.Max(0, widthPx - 50);
+                    var rect = new RECT { left = leftPx, top = 0, right = widthPx, bottom = heightPx - ShellTaskbarHeightPx };
+                    if (!_workAreaModified && TryGetCurrentWorkArea(out var cur)) _savedWorkAreaBeforeModify = cur;
+                    SystemParametersInfo(SPI_SETWORKAREA, 0, ref rect, SPIF_SENDCHANGE);
+                    _workAreaModified = true;
+                }
+                else
+                {
+                    // In normal mode preserve current top/bottom and anchor right edge to the screen's right.
+                    if (!TryGetCurrentWorkArea(out var cur)) return;
+                    int screenW = GetSystemMetrics(SM_CXSCREEN);
+                    var rect = new RECT { left = leftPx, top = cur.top, right = screenW, bottom = cur.bottom };
+                    if (!_workAreaModified) _savedWorkAreaBeforeModify = cur;
+                    SystemParametersInfo(SPI_SETWORKAREA, 0, ref rect, SPIF_SENDCHANGE);
+                    _workAreaModified = true;
+                }
+            }
+            catch { }
+        }
+
+        public static void RestoreDesktopWorkArea()
+        {
+            try
+            {
+                if (!_workAreaModified) return;
+
+                if (IsShellMode)
+                {
+                    // Restore shell work area (no left reservation)
+                    int widthPx = GetSystemMetrics(SM_CXSCREEN);
+                    int heightPx = GetSystemMetrics(SM_CYSCREEN);
+                    var rect = new RECT { left = 0, top = 0, right = widthPx, bottom = heightPx - ShellTaskbarHeightPx };
+                    SystemParametersInfo(SPI_SETWORKAREA, 0, ref rect, SPIF_SENDCHANGE);
+                }
+                else if (_savedWorkAreaBeforeModify.HasValue)
+                {
+                    var old = _savedWorkAreaBeforeModify.Value;
+                    SystemParametersInfo(SPI_SETWORKAREA, 0, ref old, SPIF_SENDCHANGE);
+                }
+
+                _workAreaModified = false;
+                _savedWorkAreaBeforeModify = null;
             }
             catch { }
         }

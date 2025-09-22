@@ -8,7 +8,7 @@ namespace Vivit_Control_Center.Localization
     public static class LocalizationManager
     {
         private static readonly HashSet<string> Supported = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        { "en","de","fr","es","ru","zh","ja","eo" };
+        { "en","de","fr","es","ru","zh","ja","eo", "it" };
 
         public static void ApplyLanguage(string code)
         {
