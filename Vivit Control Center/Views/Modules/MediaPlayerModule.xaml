@@ -17,7 +17,7 @@
         </Grid.RowDefinitions>
 
         <!-- Header: Now Playing + Time -->
-        <Border Grid.Row="0" Background="#0F000000" Padding="8" CornerRadius="6" BorderBrush="#22000000" BorderThickness="1" Margin="0,0,0,10">
+        <Border Grid.Row="0" Padding="8" CornerRadius="6" BorderThickness="1" Margin="0,0,0,10">
             <DockPanel LastChildFill="True">
                 <TextBlock x:Name="txtNowPlaying"
                            Text="Now Playing: -"
@@ -116,7 +116,7 @@
             </GroupBox>
 
             <!-- Right: Artwork/placeholder OR YouTube Player -->
-            <Border Grid.Column="1" BorderBrush="#22000000" BorderThickness="1" CornerRadius="6" Background="#06000000">
+            <Border Grid.Column="1" CornerRadius="6">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
@@ -124,8 +124,8 @@
                     </Grid.RowDefinitions>
                     <Viewbox x:Name="artPlaceholder" Stretch="Uniform" Margin="18" Grid.Row="0">
                         <Grid Width="180" Height="180">
-                            <Ellipse Fill="#22007ACC" Stroke="#33007ACC" StrokeThickness="2"/>
-                            <Ellipse Width="22" Height="22" Fill="#44000000" Stroke="#22000000" StrokeThickness="1"/>
+                            <Ellipse/>
+                            <Ellipse Width="22" Height="22"/>
                         </Grid>
                     </Viewbox>
                     <wv2:WebView2 x:Name="ytWeb" Grid.Row="0" Visibility="Collapsed" Margin="6" />

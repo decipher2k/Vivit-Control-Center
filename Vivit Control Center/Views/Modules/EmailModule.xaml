@@ -9,6 +9,86 @@
     d:DesignWidth="1000"
     d:DesignHeight="600">
     <Grid Margin="10">
+        <Grid.Resources>
+            <!-- Dark ComboBox template for Email module (ensures dropdown popup is dark and selected item is visible) -->
+            <Style x:Key="EmailDarkComboBox" TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+                <Setter Property="Background" Value="{StaticResource DarkControlBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource DarkForegroundBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource DarkBorderBrush}"/>
+                <Setter Property="Padding" Value="6,3,4,3"/>
+                <Setter Property="MinHeight" Value="28"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ComboBox">
+                            <Grid MinHeight="{TemplateBinding MinHeight}">
+                                <Border x:Name="Bd"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="3"/>
+                                <DockPanel>
+                                    <ToggleButton x:Name="DropDownToggle"
+                                                  DockPanel.Dock="Right"
+                                                  IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                                  Focusable="False"
+                                                  Background="{StaticResource DarkControlBrush}"
+                                                  BorderBrush="{StaticResource DarkBorderBrush}"
+                                                  Width="20"
+                                                  Padding="0">
+                                        <Path Data="M 0 0 L 8 0 L 4 4 Z"
+                                              Fill="{StaticResource DarkForegroundBrush}"
+                                              Stretch="Uniform"
+                                              Width="8" Height="6"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </ToggleButton>
+                                    <ContentPresenter Margin="{TemplateBinding Padding}"
+                                                      VerticalAlignment="Center"
+                                                      HorizontalAlignment="Left"
+                                                      RecognizesAccessKey="True"
+                                                      Content="{Binding SelectionBoxItem, RelativeSource={RelativeSource TemplatedParent}}"
+                                                      ContentTemplate="{Binding SelectionBoxItemTemplate, RelativeSource={RelativeSource TemplatedParent}}"
+                                                      ContentStringFormat="{Binding SelectionBoxItemStringFormat, RelativeSource={RelativeSource TemplatedParent}}"
+                                                      ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"/>
+                                </DockPanel>
+                                <Popup x:Name="PART_Popup"
+                                       IsOpen="{TemplateBinding IsDropDownOpen}"
+                                       Placement="Bottom"
+                                       AllowsTransparency="True"
+                                       Focusable="False">
+                                    <Border Background="{StaticResource DarkControlBrush}"
+                                            BorderBrush="{StaticResource DarkBorderBrush}"
+                                            BorderThickness="1">
+                                        <ScrollViewer CanContentScroll="True">
+                                            <ItemsPresenter/>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Popup>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="Bd" Property="Opacity" Value="0.6"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="EmailDarkComboBoxItem" TargetType="ComboBoxItem" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
+                <Setter Property="Background" Value="{StaticResource DarkControlBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource DarkForegroundBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource DarkBorderBrush}"/>
+                <Setter Property="MinHeight" Value="24"/>
+                <Style.Triggers>
+                    <Trigger Property="IsHighlighted" Value="True">
+                        <Setter Property="Background" Value="{StaticResource DarkControlHoverBrush}"/>
+                    </Trigger>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="{StaticResource DarkSelectionBrush}"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Resources>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -23,7 +103,9 @@
         <!-- Toolbar -->
         <StackPanel Grid.Row="0" Grid.ColumnSpan="3" Orientation="Horizontal" Margin="0,0,0,8">
             <TextBlock Text="Account:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-            <ComboBox x:Name="cmbAccounts" Width="320" DisplayMemberPath="DisplayName" SelectionChanged="cmbAccounts_SelectionChanged"/>
+            <ComboBox x:Name="cmbAccounts" Width="320" DisplayMemberPath="DisplayName" SelectionChanged="cmbAccounts_SelectionChanged"
+                      Style="{StaticResource EmailDarkComboBox}"
+                      ItemContainerStyle="{StaticResource EmailDarkComboBoxItem}"/>
             <Button x:Name="btnRefresh" Content="Refresh" Margin="8,0,0,0" Click="btnRefresh_Click"/>
             <Button x:Name="btnNew" Content="New Email" Margin="8,0,0,0" Click="btnNew_Click"/>
             <Button x:Name="btnAccounts" Content="Accounts" Margin="8,0,0,0" Click="btnAccounts_Click"/>
@@ -69,7 +151,9 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock x:Name="txtMailHeader" FontWeight="SemiBold" TextWrapping="Wrap" Grid.Row="0" Margin="8"/>
-                <Border Grid.Row="1" Margin="8,0,8,8" BorderBrush="#DDD" BorderThickness="1" Padding="0" VerticalAlignment="Stretch">
+                <Border Grid.Row="1" Margin="8,0,8,8" BorderThickness="1" Padding="0" VerticalAlignment="Stretch"
+                        Background="{StaticResource DarkControlBrush}"
+                        BorderBrush="{StaticResource DarkBorderBrush}">
                     <!-- WebBrowser will fill remaining space and handle its own scrolling -->
                     <WebBrowser x:Name="wbBody" />
                 </Border>

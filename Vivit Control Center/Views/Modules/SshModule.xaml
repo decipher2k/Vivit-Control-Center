@@ -3,8 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:modules="clr-namespace:Vivit_Control_Center.Views.Modules"
-    xmlns:mcert="clr-namespace:Vivit_Control_Center.Views.Modules"
-    Background="White">
+    xmlns:mcert="clr-namespace:Vivit_Control_Center.Views.Modules">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -49,7 +48,7 @@
                 </Grid>
             </Grid>
             <!-- Right: sidebar -->
-            <Grid Grid.Column="1" Background="#0F000000">
+            <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
@@ -62,9 +61,12 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
-                            <ComboBox x:Name="cboLogFiles" Width="160" Margin="0,0,6,0"/>
+                            <ComboBox x:Name="cboLogFiles" Width="160" Margin="0,0,6,0"
+                                      Style="{DynamicResource DarkComboBox}"
+                                      ItemContainerStyle="{DynamicResource DarkComboBoxItem}"/>
                             <Button x:Name="btnLoadLog" Content="Load" Click="btnLoadLog_Click"/>
-                            <CheckBox x:Name="chkFollow" Content="Follow" Margin="8,0,0,0"/>
+                            <CheckBox x:Name="chkFollow" Content="Follow" Margin="8,0,0,0"
+                                      Style="{DynamicResource DarkCheckBox}"/>
                             <Button x:Name="btnClearLog" Content="Clear" Margin="8,0,0,0"/>
                         </StackPanel>
                         <TextBox x:Name="txtLogViewer" Grid.Row="1" Margin="0,6,0,0" FontFamily="Consolas" FontSize="12"

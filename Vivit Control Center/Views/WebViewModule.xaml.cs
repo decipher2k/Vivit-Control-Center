@@ -1,10 +1,11 @@
+using Microsoft.Web.WebView2.Core;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.Web.WebView2.Core;
+using Microsoft.Web.WebView2.Wpf;
 using Vivit_Control_Center.Settings;
 
 namespace Vivit_Control_Center.Views
@@ -82,6 +83,24 @@ namespace Vivit_Control_Center.Views
             {
                 System.Diagnostics.Debug.WriteLine($"[{_tag}] Initializing WebView2...");
                 await Browser.EnsureCoreWebView2Async(null);
+
+                try
+                {
+                    // Prefer dark color scheme if runtime supports it
+                    Browser.DefaultBackgroundColor = System.Drawing.Color.Black;
+                    var settings = Browser.CoreWebView2?.Settings;
+                    if (settings != null)
+                    {
+                        settings.AreDefaultContextMenusEnabled = true;
+                    }
+                    var profile = Browser.CoreWebView2?.Profile;
+                    if (profile != null)
+                    {
+                        profile.PreferredColorScheme = CoreWebView2PreferredColorScheme.Dark;
+                    }
+                }
+                catch { }
+
                 HookEventsOnce();
                 _initialized = true;
                 System.Diagnostics.Debug.WriteLine($"[{_tag}] WebView2 initialized successfully");
@@ -120,6 +139,7 @@ namespace Vivit_Control_Center.Views
 
             if (e.IsSuccess)
             {
+                TryInjectDarkCss();
                 StartStabilityTimer();
             }
             else
@@ -302,6 +322,37 @@ namespace Vivit_Control_Center.Views
             Visibility = visible ? Visibility.Visible : Visibility.Hidden;
             IsHitTestVisible = visible;
             SetWebViewVisible(visible);
+        }
+
+        private async void TryInjectDarkCss()
+        {
+            try
+            {
+                // Inject a dark-mode CSS override for most sites
+                string css = @"
+                    html, body {
+                        background-color: #000 !important;
+                        color: #fff !important;
+                    }
+                    a { color: #82aaff !important; }
+                    input, textarea, select {
+                        background-color: #111 !important;
+                        color: #fff !important;
+                        border-color: #333 !important;
+                    }
+                    header, footer, nav, section, article, aside, div, span, table, thead, tbody, tr, td, th {
+                        background-color: transparent !important;
+                        border-color: #333 !important;
+                    }";
+
+                string script = $"(function() {{ var s = document.getElementById('vc_dark_override'); if(!s) {{ s = document.createElement('style'); s.id='vc_dark_override'; s.type='text/css'; s.appendChild(document.createTextNode(`{css}`)); document.documentElement.appendChild(s); }} }})();";
+                await Browser.ExecuteScriptAsync(script);
+
+                // Try to set prefers-color-scheme to dark for sites honoring it
+                string schemeScript = @"try { const m = document.createElement('meta'); m.name='color-scheme'; m.content='dark'; document.head.appendChild(m);} catch(e){}";
+                await Browser.ExecuteScriptAsync(schemeScript);
+            }
+            catch { }
         }
     }
 }

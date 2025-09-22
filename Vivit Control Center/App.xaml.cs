@@ -131,7 +131,7 @@ namespace Vivit_Control_Center
         #endregion
 
         protected override async void OnStartup(StartupEventArgs e)
-        {
+         {
             base.OnStartup(e);
 
             AppSettings loadedSettings = null;

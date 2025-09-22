@@ -6,8 +6,7 @@
              xmlns:local="clr-namespace:Vivit_Control_Center.Views.Modules"
              mc:Ignorable="d"
              d:DesignWidth="1000"
-             d:DesignHeight="600"
-             Background="White">
+             d:DesignHeight="600">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -62,7 +61,7 @@
                 </ListView>
             </Grid>
 
-            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="#FFE5E5E5"/>
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch"/>
 
             <!-- Remote panel -->
             <Grid Grid.Column="2">

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using Vivit_Control_Center.Localization;
 
 namespace Vivit_Control_Center.Views.Modules
@@ -21,6 +22,14 @@ namespace Vivit_Control_Center.Views.Modules
             try
             {
                 await webView.EnsureCoreWebView2Async();
+
+                // Dark appearance for the browser surface
+                try
+                {
+                    webView.DefaultBackgroundColor = System.Drawing.Color.Black;
+                }
+                catch { }
+
                 SignalLoadedOnce();
             }
             catch (Exception ex)
@@ -71,7 +80,7 @@ namespace Vivit_Control_Center.Views.Modules
 
         private void txtUrl_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter)
+            if (e.Key == Key.Enter || e.Key == Key.Return)
             {
                 Navigate(txtUrl.Text);
                 e.Handled = true;

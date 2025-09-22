@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Navigation;
 using Vivit_Control_Center.Settings;
 using Vivit_Control_Center.Services;
 using Vivit_Control_Center.Views.Modules.OAuth;
@@ -39,6 +40,38 @@ namespace Vivit_Control_Center.Views.Modules
             _settings = AppSettings.Load();
             cmbAccounts.ItemsSource = _settings.EmailAccounts;
             lvMessages.ItemsSource = _messages;
+
+            // Ensure the WebBrowser content is forced to dark after each navigation
+            wbBody.LoadCompleted += wbBody_LoadCompleted;
+        }
+
+        private void wbBody_LoadCompleted(object sender, NavigationEventArgs e)
+        {
+            try
+            {
+                dynamic doc = wbBody.Document;
+                if (doc == null) return;
+
+                // Append a dark CSS style element with !important to override inline styles
+                var heads = doc.getElementsByTagName("head");
+                if (heads != null && heads.length > 0)
+                {
+                    var style = doc.createElement("style");
+                    style.type = "text/css";
+                    style.innerHTML = "html, body { background-color: #1A1A1A !important; color: #E6E6E6 !important; } " +
+                                      "a { color: #69A7FF !important; } " +
+                                      "table, td, th { background-color: transparent !important; }";
+                    heads[0].appendChild(style);
+                }
+
+                // Explicitly set body background/text color as a fallback
+                if (doc.body != null && doc.body.style != null)
+                {
+                    doc.body.style.backgroundColor = "#1A1A1A";
+                    doc.body.style.color = "#E6E6E6";
+                }
+            }
+            catch { }
         }
 
         public override Task PreloadAsync() => base.PreloadAsync();
@@ -143,7 +176,11 @@ namespace Vivit_Control_Center.Views.Modules
                     html = await EmailSyncService.Current.GetMessageBodyAsync(_currentAccount, folder, item.Uid);
                 }
                 txtMailHeader.Text = $"From: {item.From}\nSubject: {item.Subject}\nDate: {item.Date}";
-                wbBody.NavigateToString($"<html><head><meta charset='utf-8'/></head><body>{html}</body></html>");
+
+                // Inject dark CSS directly into the HTML as well, with !important to override inline styles
+                var darkCss = "html, body { background-color: #1A1A1A !important; color: #E6E6E6 !important; } a { color: #69A7FF !important; } table, td, th { background-color: transparent !important; }";
+                var wrapped = $"<html><head><meta charset='utf-8'/><style>{darkCss}</style></head><body>{html}</body></html>";
+                wbBody.NavigateToString(wrapped);
             }
             catch (Exception ex)
             {
@@ -193,7 +230,7 @@ namespace Vivit_Control_Center.Views.Modules
 
         private async Task AuthenticateSmtpAsync(SmtpClient client, EmailAccount acc)
         {
-            if (string.Equals(acc.AuthMethod, "OAuth2", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(acc.AuthMethod, "OAuth2", System.StringComparison.OrdinalIgnoreCase))
             {
                 var token = await EnsureAccessTokenAsync(acc);
                 if (string.IsNullOrWhiteSpace(token))
@@ -286,9 +323,9 @@ namespace Vivit_Control_Center.Views.Modules
                         throw new Exception($"Token refresh failed: {resp.StatusCode} {body}");
 
                     // Parse JSON lightweight
-                    var access = Regex.Match(body, "\\\"access_token\\\"\\s*:\\s*\\\"(.*?)\\\"").Groups[1].Value;
-                    var expiresStr = Regex.Match(body, "\\\"expires_in\\\"\\s*:\\s*(\\d+)").Groups[1].Value;
-                    var refresh = Regex.Match(body, "\\\"refresh_token\\\"\\s*:\\s*\\\"(.*?)\\\"").Groups[1].Value;
+                    var access = System.Text.RegularExpressions.Regex.Match(body, "\\\"access_token\\\"\\s*:\\s*\\\"(.*?)\\\"").Groups[1].Value;
+                    var expiresStr = System.Text.RegularExpressions.Regex.Match(body, "\\\"expires_in\\\"\\s*:\\s*(\\d+)").Groups[1].Value;
+                    var refresh = System.Text.RegularExpressions.Regex.Match(body, "\\\"refresh_token\\\"\\s*:\\s*\\\"(.*?)\\\"").Groups[1].Value;
                     if (!string.IsNullOrEmpty(access))
                     {
                         int expiresSec = 3600;

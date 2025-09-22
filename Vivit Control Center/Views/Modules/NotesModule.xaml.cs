@@ -21,6 +21,9 @@ namespace Vivit_Control_Center.Views.Modules
         private DispatcherTimer _autosaveTimer;
         private bool _dirty;
 
+        private Brush DarkForeground => (Brush)Application.Current.FindResource("DarkForegroundBrush");
+        private Brush DarkBackground => (Brush)Application.Current.FindResource("DarkControlBrush");
+
         public NotesModule()
         {
             InitializeComponent();
@@ -85,7 +88,12 @@ namespace Vivit_Control_Center.Views.Modules
             _loading = true;
             try
             {
-                rtbEditor.Document = new FlowDocument();
+                var doc = new FlowDocument
+                {
+                    Background = DarkBackground,
+                    Foreground = DarkForeground
+                };
+                rtbEditor.Document = doc;
                 if (File.Exists(file))
                 {
                     using (var fs = File.OpenRead(file))
@@ -93,6 +101,8 @@ namespace Vivit_Control_Center.Views.Modules
                         var range = new TextRange(rtbEditor.Document.ContentStart, rtbEditor.Document.ContentEnd);
                         range.Load(fs, DataFormats.Rtf);
                     }
+                    // Ensure dark theme colors after loading existing content
+                    ApplyDarkThemeToDocument(rtbEditor.Document);
                 }
                 _dirty = false;
             }
@@ -100,6 +110,97 @@ namespace Vivit_Control_Center.Views.Modules
             {
                 _loading = false;
             }
+        }
+
+        private void ApplyDarkThemeToDocument(FlowDocument document)
+        {
+            if (document == null) return;
+            document.Background = DarkBackground;
+            document.Foreground = DarkForeground;
+
+            foreach (var run in EnumerateRuns(document))
+            {
+                var scb = run.Foreground as SolidColorBrush;
+                if (run.Foreground == null || (scb != null && scb.Color == Colors.Black))
+                {
+                    run.Foreground = DarkForeground;
+                }
+            }
+        }
+
+        private static IEnumerable<Run> EnumerateRuns(FlowDocument document)
+        {
+            foreach (var block in document.Blocks)
+            {
+                foreach (var run in EnumerateRuns(block))
+                    yield return run;
+            }
+        }
+
+        private static IEnumerable<Run> EnumerateRuns(Block block)
+        {
+            if (block is Paragraph p)
+            {
+                foreach (Inline inline in p.Inlines)
+                {
+                    foreach (var run in EnumerateRuns(inline))
+                        yield return run;
+                }
+            }
+            else if (block is Section s)
+            {
+                foreach (var child in s.Blocks)
+                {
+                    foreach (var run in EnumerateRuns(child))
+                        yield return run;
+                }
+            }
+            else if (block is List list)
+            {
+                foreach (ListItem item in list.ListItems)
+                {
+                    foreach (var child in item.Blocks)
+                    {
+                        foreach (var run in EnumerateRuns(child))
+                            yield return run;
+                    }
+                }
+            }
+            else if (block is Table table)
+            {
+                foreach (TableRowGroup group in table.RowGroups)
+                {
+                    foreach (TableRow row in group.Rows)
+                    {
+                        foreach (TableCell cell in row.Cells)
+                        {
+                            foreach (var child in cell.Blocks)
+                            {
+                                foreach (var run in EnumerateRuns(child))
+                                    yield return run;
+                            }
+                        }
+                    }
+                }
+            }
+            yield break;
+        }
+
+        private static IEnumerable<Run> EnumerateRuns(Inline inline)
+        {
+            if (inline is Run r)
+            {
+                yield return r;
+            }
+            else if (inline is Span span)
+            {
+                foreach (Inline child in span.Inlines)
+                {
+                    foreach (var run in EnumerateRuns(child))
+                        yield return run;
+                }
+            }
+            // Ignore InlineUIContainer etc.
         }
 
         private void rtbEditor_TextChanged(object sender, TextChangedEventArgs e)

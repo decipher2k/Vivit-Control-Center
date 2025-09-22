@@ -2,8 +2,7 @@
     x:Class="Vivit_Control_Center.Views.Modules.OfficeModule"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:modules="clr-namespace:Vivit_Control_Center.Views.Modules"
-    Background="White">
+    xmlns:modules="clr-namespace:Vivit_Control_Center.Views.Modules">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -40,6 +39,6 @@
                 <TextBlock x:Name="txtStatus" VerticalAlignment="Center"/>
             </ToolBar>
         </ToolBarTray>
-        <Grid x:Name="hostContainer" Grid.Row="1" Background="White" />
+        <Grid x:Name="hostContainer" Grid.Row="1" />
     </Grid>
 </modules:BaseSimpleModule>

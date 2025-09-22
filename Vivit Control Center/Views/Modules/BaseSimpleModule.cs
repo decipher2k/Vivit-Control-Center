@@ -1,7 +1,9 @@
 using System;
+using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using Vivit_Control_Center.Views;
 
 namespace Vivit_Control_Center.Views.Modules
@@ -18,6 +20,7 @@ namespace Vivit_Control_Center.Views.Modules
 
         public BaseSimpleModule()
         {
+            Background = System.Windows.Media.Brushes.Black;
             Loaded += (_, __) => SignalLoadedOnce();
         }
 
