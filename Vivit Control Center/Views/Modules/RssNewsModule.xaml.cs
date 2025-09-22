@@ -10,6 +10,7 @@ using System.Windows.Media.Imaging;
 using System.Xml;
 using System.Xml.Linq;
 using Vivit_Control_Center.Settings;
+using System.Windows.Threading;
 
 namespace Vivit_Control_Center.Views.Modules
 {
@@ -20,11 +21,15 @@ namespace Vivit_Control_Center.Views.Modules
         private AppSettings _settings;
         private static readonly HttpClient _http = new HttpClient();
 
+        private DispatcherTimer _refreshTimer;
+        private bool _refreshInProgress;
+
         public RssNewsModule()
         {
             InitializeComponent();
             DataContext = this;
             Loaded += async (_, __) => await EnsureLoadedAsync();
+            Unloaded += (_, __) => _refreshTimer?.Stop();
         }
 
         private async Task EnsureLoadedAsync()
@@ -33,12 +38,55 @@ namespace Vivit_Control_Center.Views.Modules
             _loaded = true;
             _settings = AppSettings.Load();
             await LoadFeedsAsync();
+            EnsureRefreshTimer();
         }
 
         public override async Task PreloadAsync()
         {
             await EnsureLoadedAsync();
             await base.PreloadAsync();
+        }
+
+        private void EnsureRefreshTimer()
+        {
+            if (_refreshTimer == null)
+            {
+                _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(5) };
+                _refreshTimer.Tick += async (s, e) => await RefreshNowAsync();
+            }
+            if (Visibility == Visibility.Visible)
+            {
+                _refreshTimer.Start();
+            }
+        }
+
+        private async Task RefreshNowAsync()
+        {
+            if (_refreshInProgress) return;
+            _refreshInProgress = true;
+            try
+            {
+                await LoadFeedsAsync();
+            }
+            catch { }
+            finally
+            {
+                _refreshInProgress = false;
+            }
+        }
+
+        public override void SetVisible(bool visible)
+        {
+            base.SetVisible(visible);
+            if (_refreshTimer == null)
+            {
+                EnsureRefreshTimer();
+            }
+            if (_refreshTimer != null)
+            {
+                if (visible) _refreshTimer.Start();
+                else _refreshTimer.Stop();
+            }
         }
 
         private async Task LoadFeedsAsync()
