@@ -5,6 +5,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Vivit_Control_Center.Views.Modules"
+    xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     mc:Ignorable="d"
     d:DesignWidth="1000"
     d:DesignHeight="600">
@@ -49,9 +50,60 @@
                 <ListView x:Name="lvMessages" Grid.Row="0" SelectionChanged="lvMessages_SelectionChanged">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="From" Width="160" DisplayMemberBinding="{Binding From}"/>
-                            <GridViewColumn Header="Subject" Width="280" DisplayMemberBinding="{Binding Subject}"/>
-                            <GridViewColumn Header="Date" Width="140" DisplayMemberBinding="{Binding Date}"/>
+                            <GridViewColumn Header="From" Width="160">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding From}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="FontWeight" Value="Normal"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsUnread}" Value="True">
+                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Subject" Width="280">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Subject}" TextTrimming="CharacterEllipsis">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="FontWeight" Value="Normal"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsUnread}" Value="True">
+                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Date" Width="140">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Date}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="FontWeight" Value="Normal"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsUnread}" Value="True">
+                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                         </GridView>
                     </ListView.View>
                 </ListView>
@@ -70,8 +122,8 @@
                 </Grid.RowDefinitions>
                 <TextBlock x:Name="txtMailHeader" FontWeight="SemiBold" TextWrapping="Wrap" Grid.Row="0" Margin="8"/>
                 <Border Grid.Row="1" Margin="8,0,8,8" BorderBrush="#DDD" BorderThickness="1" Padding="0" VerticalAlignment="Stretch">
-                    <!-- WebBrowser will fill remaining space and handle its own scrolling -->
-                    <WebBrowser x:Name="wbBody" />
+                    <!-- WebView2 fills remaining space; scripting disabled in code-behind -->
+                    <wpf:WebView2 x:Name="wbBody2" />
                 </Border>
             </Grid>
         </GroupBox>

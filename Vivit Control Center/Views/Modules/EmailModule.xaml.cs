@@ -4,6 +4,7 @@ using MailKit.Security;
 using MimeKit;
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel; // added
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -14,17 +15,27 @@ using System.Windows.Controls;
 using Vivit_Control_Center.Settings;
 using Vivit_Control_Center.Services;
 using Vivit_Control_Center.Views.Modules.OAuth;
+using Microsoft.Web.WebView2.Core;
 
 namespace Vivit_Control_Center.Views.Modules
 {
     public partial class EmailModule : BaseSimpleModule
     {
-        private class MessageItem
+        private class MessageItem : INotifyPropertyChanged
         {
             public UniqueId Uid { get; set; }
             public string From { get; set; }
             public string Subject { get; set; }
             public string Date { get; set; }
+            private bool _isUnread;
+            public bool IsUnread
+            {
+                get => _isUnread;
+                set { if (_isUnread != value) { _isUnread = value; OnPropertyChanged(nameof(IsUnread)); } }
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
         private readonly ObservableCollection<MessageItem> _messages = new ObservableCollection<MessageItem>();
@@ -37,8 +48,36 @@ namespace Vivit_Control_Center.Views.Modules
         {
             InitializeComponent();
             _settings = AppSettings.Load();
+            EmailSyncService.Current.Initialize(_settings);
             cmbAccounts.ItemsSource = _settings.EmailAccounts;
             lvMessages.ItemsSource = _messages;
+            _ = InitPreviewWebView2Async();
+        }
+
+        private Microsoft.Web.WebView2.Wpf.WebView2 GetPreviewWebView2() =>
+            this.FindName("wbBody2") as Microsoft.Web.WebView2.Wpf.WebView2;
+
+        private async Task InitPreviewWebView2Async()
+        {
+            try
+            {
+                var web = GetPreviewWebView2();
+                if (web != null)
+                {
+                    await web.EnsureCoreWebView2Async();
+                    if (web.CoreWebView2 != null)
+                    {
+                        var s = web.CoreWebView2.Settings;
+                        s.IsScriptEnabled = false;
+                        s.AreDefaultScriptDialogsEnabled = false;
+                        s.AreDefaultContextMenusEnabled = false;
+                        s.IsWebMessageEnabled = false;
+                        s.IsGeneralAutofillEnabled = false;
+                        s.IsPasswordAutosaveEnabled = false;
+                    }
+                }
+            }
+            catch { }
         }
 
         public override Task PreloadAsync() => base.PreloadAsync();
@@ -86,21 +125,19 @@ namespace Vivit_Control_Center.Views.Modules
             if (_currentAccount == null) return;
             var folder = GetSelectedFolderName();
 
-            // 1) Fill from background cache immediately
             var cached = EmailSyncService.Current.GetSummaries(_currentAccount, folder);
             var initial = cached.Take(_pageSize).ToList();
             _messages.Clear();
             foreach (var s in initial)
-                _messages.Add(new MessageItem { Uid = s.Uid, From = s.From, Subject = s.Subject, Date = s.DateDisplay });
+                _messages.Add(new MessageItem { Uid = s.Uid, From = s.From, Subject = s.Subject, Date = s.DateDisplay, IsUnread = s.IsUnread });
             _loadedCount = initial.Count;
 
-            // 2) Refresh this folder in background and rebind
             await EmailSyncService.Current.RefreshAccountFolderAsync(_currentAccount, folder);
             cached = EmailSyncService.Current.GetSummaries(_currentAccount, folder);
 
             _messages.Clear();
             foreach (var s in cached.Take(_pageSize))
-                _messages.Add(new MessageItem { Uid = s.Uid, From = s.From, Subject = s.Subject, Date = s.DateDisplay });
+                _messages.Add(new MessageItem { Uid = s.Uid, From = s.From, Subject = s.Subject, Date = s.DateDisplay, IsUnread = s.IsUnread });
             _loadedCount = Math.Min(_pageSize, cached.Count);
             txtStatus.Text = $"Loaded {_loadedCount} messages";
         }
@@ -124,7 +161,7 @@ namespace Vivit_Control_Center.Views.Modules
                     toAppend = cached.Skip(_loadedCount).Take(_pageSize).ToList();
                 }
                 foreach (var s in toAppend)
-                    _messages.Add(new MessageItem { Uid = s.Uid, From = s.From, Subject = s.Subject, Date = s.DateDisplay });
+                    _messages.Add(new MessageItem { Uid = s.Uid, From = s.From, Subject = s.Subject, Date = s.DateDisplay, IsUnread = s.IsUnread });
                 _loadedCount += toAppend.Count;
                 txtStatus.Text = $"Loaded {_loadedCount} messages";
             }
@@ -143,7 +180,21 @@ namespace Vivit_Control_Center.Views.Modules
                     html = await EmailSyncService.Current.GetMessageBodyAsync(_currentAccount, folder, item.Uid);
                 }
                 txtMailHeader.Text = $"From: {item.From}\nSubject: {item.Subject}\nDate: {item.Date}";
-                wbBody.NavigateToString($"<html><head><meta charset='utf-8'/></head><body>{html}</body></html>");
+
+                var safeHtml = SanitizeHtml(html);
+
+                var web = GetPreviewWebView2();
+                if (web?.CoreWebView2 != null)
+                {
+                    web.NavigateToString($"<html><head><meta charset='utf-8'/></head><body>{safeHtml}</body></html>");
+                }
+
+                // Mark as read locally and on the server
+                if (item.IsUnread)
+                {
+                    item.IsUnread = false; // updates bold immediately
+                    _ = EmailSyncService.Current.TryMarkAsSeenAsync(_currentAccount, folder, item.Uid);
+                }
             }
             catch (Exception ex)
             {
@@ -187,6 +238,31 @@ namespace Vivit_Control_Center.Views.Modules
         }
 
         private void btnCancelCompose_Click(object sender, RoutedEventArgs e) => expCompose.IsExpanded = false;
+
+        // ===== HTML sanitization for preview =====
+        private static string SanitizeHtml(string html)
+        {
+            if (string.IsNullOrEmpty(html)) return string.Empty;
+
+            string s = html;
+            // Remove script/style/iframe/object/embed blocks
+            s = Regex.Replace(s, @"(?is)<script[^>]*>.*?</script>", string.Empty, RegexOptions.IgnoreCase);
+            s = Regex.Replace(s, @"(?is)<style[^>]*>.*?</style>", string.Empty, RegexOptions.IgnoreCase);
+            s = Regex.Replace(s, @"(?is)<iframe[^>]*>.*?</iframe>", string.Empty, RegexOptions.IgnoreCase);
+            s = Regex.Replace(s, @"(?is)<object[^>]*>.*?</object>", string.Empty, RegexOptions.IgnoreCase);
+            s = Regex.Replace(s, @"(?is)<embed[^>]*>.*?</embed>", string.Empty, RegexOptions.IgnoreCase);
+            // Remove meta refresh
+            s = Regex.Replace(s, @"(?is)<meta[^>]*http-equiv\s*=\s*""?refresh""?[^>]*>", string.Empty, RegexOptions.IgnoreCase);
+            // Remove inline event attributes (onclick=, onload=, ...)
+            s = Regex.Replace(s, @"(?is)\son\w+\s*=\s*('.*?'|""[^""]*""|[^\s>]+)", string.Empty, RegexOptions.IgnoreCase);
+            // Remove style attributes completely (to avoid expression(), url(javascript:), etc.)
+            s = Regex.Replace(s, @"(?is)\sstyle\s*=\s*('.*?'|""[^""]*""|[^\s>]+)", string.Empty, RegexOptions.IgnoreCase);
+            // Neutralize javascript: and data: urls in href/src
+            s = Regex.Replace(s, @"(?is)(href|src)\s*=\s*(['""])\s*(javascript|data):.*?\2", "$1=\"#\"", RegexOptions.IgnoreCase);
+            s = Regex.Replace(s, @"(?is)(href|src)\s*=\s*(?!['""])\s*(javascript|data):[^\s>]+", "$1=\"#\"", RegexOptions.IgnoreCase);
+
+            return s;
+        }
 
         // ===== OAuth2 helpers for SMTP send =====
         private static DateTime NowUtc => DateTime.UtcNow;
@@ -285,10 +361,10 @@ namespace Vivit_Control_Center.Views.Modules
                     if (!resp.IsSuccessStatusCode)
                         throw new Exception($"Token refresh failed: {resp.StatusCode} {body}");
 
-                    // Parse JSON lightweight
-                    var access = Regex.Match(body, "\\\"access_token\\\"\\s*:\\s*\\\"(.*?)\\\"").Groups[1].Value;
-                    var expiresStr = Regex.Match(body, "\\\"expires_in\\\"\\s*:\\s*(\\d+)").Groups[1].Value;
-                    var refresh = Regex.Match(body, "\\\"refresh_token\\\"\\s*:\\s*\\\"(.*?)\\\"").Groups[1].Value;
+                    // Parse JSON lightweight with escaped quotes (no verbatim literal here)
+                    var access = Regex.Match(body, "\"access_token\"\\s*:\\s*\"(.*?)\"").Groups[1].Value;
+                    var expiresStr = Regex.Match(body, "\"expires_in\"\\s*:\\s*(\\d+)").Groups[1].Value;
+                    var refresh = Regex.Match(body, "\"refresh_token\"\\s*:\\s*\"(.*?)\"").Groups[1].Value;
                     if (!string.IsNullOrEmpty(access))
                     {
                         int expiresSec = 3600;

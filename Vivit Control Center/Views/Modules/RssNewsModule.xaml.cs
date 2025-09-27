@@ -11,6 +11,8 @@ using System.Xml;
 using System.Xml.Linq;
 using Vivit_Control_Center.Settings;
 using System.Windows.Threading;
+using System.Net; // added for WebClient
+using System.IO;  // added for MemoryStream
 
 namespace Vivit_Control_Center.Views.Modules
 {
@@ -29,7 +31,7 @@ namespace Vivit_Control_Center.Views.Modules
             InitializeComponent();
             DataContext = this;
             Loaded += async (_, __) => await EnsureLoadedAsync();
-            Unloaded += (_, __) => _refreshTimer?.Stop();
+            Unloaded += (_, __) => { try { _refreshTimer?.Stop(); } catch { } };
         }
 
         private async Task EnsureLoadedAsync()
@@ -39,6 +41,8 @@ namespace Vivit_Control_Center.Views.Modules
             _settings = AppSettings.Load();
             await LoadFeedsAsync();
             EnsureRefreshTimer();
+            // Quick delayed refresh
+            try { _ = Dispatcher.InvokeAsync(async () => { await Task.Delay(2000).ConfigureAwait(false); await RefreshNowAsync().ConfigureAwait(false); }); } catch { }
         }
 
         public override async Task PreloadAsync()
@@ -54,38 +58,29 @@ namespace Vivit_Control_Center.Views.Modules
                 _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(5) };
                 _refreshTimer.Tick += async (s, e) => await RefreshNowAsync();
             }
-            if (Visibility == Visibility.Visible)
-            {
-                _refreshTimer.Start();
-            }
+            try { _refreshTimer.Start(); } catch { }
         }
 
         private async Task RefreshNowAsync()
         {
             if (_refreshInProgress) return;
             _refreshInProgress = true;
-            try
-            {
-                await LoadFeedsAsync();
-            }
+            try { await LoadFeedsAsync(); }
             catch { }
-            finally
-            {
-                _refreshInProgress = false;
-            }
+            finally { _refreshInProgress = false; }
         }
 
         public override void SetVisible(bool visible)
         {
             base.SetVisible(visible);
-            if (_refreshTimer == null)
+            if (visible)
             {
-                EnsureRefreshTimer();
+                try { _refreshTimer?.Start(); } catch { }
+                _ = RefreshNowAsync();
             }
-            if (_refreshTimer != null)
+            else
             {
-                if (visible) _refreshTimer.Start();
-                else _refreshTimer.Stop();
+                try { _refreshTimer?.Start(); } catch { }
             }
         }
 
@@ -103,34 +98,36 @@ namespace Vivit_Control_Center.Views.Modules
 
             int totalTarget = _settings.RssMaxArticles > 0 ? _settings.RssMaxArticles : 60;
 
-            // Alle Feeds einlesen (jedes sortiert nach Datum DESC, lokal begrenzt auf totalTarget zur Schonung)
-            var perFeedLists = new System.Collections.Generic.List<System.Collections.Generic.List<RssArticle>>();
-            foreach (var feed in feeds)
-            {
-                var list = await FetchFeedArticlesAsync(feed, totalTarget);
-                perFeedLists.Add(list);
-            }
+            // Fetch feeds in parallel
+            var tasks = feeds.Select(f => FetchFeedArticlesAsync(f, totalTarget)).ToArray();
+            System.Collections.Generic.List<RssArticle>[] perFeedLists;
+            try { perFeedLists = await Task.WhenAll(tasks).ConfigureAwait(false); }
+            catch { perFeedLists = tasks.Where(t => t.IsCompleted).Select(t => t.Result).ToArray(); }
 
-            // Round-Robin über die per-Feed-Listen bis das Ziel erreicht ist
+            // Round-robin merge up to target
             var final = new System.Collections.Generic.List<RssArticle>(totalTarget);
             bool progress = true;
+            var lists = perFeedLists.ToList();
             while (final.Count < totalTarget && progress)
             {
                 progress = false;
-                for (int i = 0; i < perFeedLists.Count && final.Count < totalTarget; i++)
+                for (int i = 0; i < lists.Count && final.Count < totalTarget; i++)
                 {
-                    var list = perFeedLists[i];
-                    if (list.Count == 0) continue;
+                    var list = lists[i];
+                    if (list == null || list.Count == 0) continue;
                     final.Add(list[0]);
                     list.RemoveAt(0);
                     progress = true;
                 }
             }
 
-            // CollectionView mit Gruppierung (nach Source)
-            var view = new ListCollectionView(final);
-            view.GroupDescriptions.Add(new PropertyGroupDescription(nameof(RssArticle.Source)));
-            lstArticles.ItemsSource = view;
+            // Update UI on dispatcher
+            await Dispatcher.InvokeAsync(() =>
+            {
+                var view = new ListCollectionView(final);
+                view.GroupDescriptions.Add(new PropertyGroupDescription(nameof(RssArticle.Source)));
+                lstArticles.ItemsSource = view;
+            });
         }
 
         private async Task<System.Collections.Generic.List<RssArticle>> FetchFeedArticlesAsync(string feed, int softLimit)
@@ -138,7 +135,7 @@ namespace Vivit_Control_Center.Views.Modules
             var result = new System.Collections.Generic.List<RssArticle>();
             try
             {
-                var bytes = await _http.GetByteArrayAsync(feed);
+                var bytes = await _http.GetByteArrayAsync(feed).ConfigureAwait(false);
                 var xml = XDocument.Parse(System.Text.Encoding.UTF8.GetString(bytes));
                 if (xml.Root == null) return result;
 
@@ -151,7 +148,7 @@ namespace Vivit_Control_Center.Views.Modules
                     {
                         var art = BuildArticleFromRssItem(item, sourceTitle);
                         if (art != null) result.Add(art);
-                        if (result.Count >= softLimit) break; // lokal begrenzen
+                        if (result.Count >= softLimit) break;
                     }
                 }
                 else if (xml.Root.Name.LocalName.Equals("feed", StringComparison.OrdinalIgnoreCase))
@@ -242,16 +239,20 @@ namespace Vivit_Control_Center.Views.Modules
         {
             try
             {
-                var data = _http.GetByteArrayAsync(url).GetAwaiter().GetResult();
-                using (var ms = new System.IO.MemoryStream(data))
+                using (var wc = new WebClient())
                 {
-                    var bmp = new BitmapImage();
-                    bmp.BeginInit();
-                    bmp.CacheOption = BitmapCacheOption.OnLoad;
-                    bmp.StreamSource = ms;
-                    bmp.EndInit();
-                    bmp.Freeze();
-                    return bmp;
+                    var data = wc.DownloadData(url);
+                    using (var ms = new MemoryStream(data))
+                    {
+                        var bmp = new BitmapImage();
+                        bmp.BeginInit();
+                        bmp.CacheOption = BitmapCacheOption.OnLoad; // load fully now so we can Freeze
+                        bmp.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                        bmp.StreamSource = ms;
+                        bmp.EndInit();
+                        bmp.Freeze(); // make it cross-thread usable
+                        return bmp;
+                    }
                 }
             }
             catch { return null; }
@@ -262,7 +263,7 @@ namespace Vivit_Control_Center.Views.Modules
             if (lstArticles.SelectedItem is RssArticle art)
             {
                 txtArticleTitle.Text = art.Title;
-                txtArticleMeta.Text = $"{art.Source} | {art.PublishDate:dd.MM.yyyy HH:mm}";
+                txtArticleMeta.Text = string.Format("{0} | {1:dd.MM.yyyy HH:mm}", art.Source, art.PublishDate);
                 txtArticleContent.Text = StripHtml(art.Summary);
                 if (art.Image != null)
                 {

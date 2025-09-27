@@ -4,6 +4,7 @@ using MailKit.Security;
 using MimeKit;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -22,6 +23,7 @@ namespace Vivit_Control_Center.Services
             public string From { get; set; }
             public string Subject { get; set; }
             public DateTimeOffset Date { get; set; }
+            public bool IsUnread { get; set; }
             public string DateDisplay => Date == default(DateTimeOffset) ? string.Empty : Date.LocalDateTime.ToString("g");
         }
 
@@ -45,6 +47,41 @@ namespace Vivit_Control_Center.Services
         public static EmailSyncService Current { get; } = new EmailSyncService();
 
         private EmailSyncService() { }
+
+        private static string CacheRoot
+        {
+            get
+            {
+                var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "VivitControlCenter", "mailcache");
+                try { Directory.CreateDirectory(dir); } catch { }
+                return dir;
+            }
+        }
+        private static string GetAccountFolder(EmailAccount acc)
+        {
+            var key = ($"{acc?.Username}|{acc?.ImapHost}").ToLowerInvariant();
+            var safe = Convert.ToBase64String(Encoding.UTF8.GetBytes(key));
+            return Path.Combine(CacheRoot, safe);
+        }
+        private static string GetFolderDir(EmailAccount acc, string folder)
+        {
+            var dir = Path.Combine(GetAccountFolder(acc), (folder ?? "Inbox").ToLowerInvariant());
+            try { Directory.CreateDirectory(dir); } catch { }
+            return dir;
+        }
+        private static string GetSummariesPath(EmailAccount acc, string folder) => Path.Combine(GetFolderDir(acc, folder), "summaries.txt");
+        private static string GetBodiesDir(EmailAccount acc, string folder)
+        {
+            var dir = Path.Combine(GetFolderDir(acc, folder), "bodies");
+            try { Directory.CreateDirectory(dir); } catch { }
+            return dir;
+        }
+        private static string GetBodyFile(EmailAccount acc, string folder, UniqueId uid)
+        {
+            // Use UID numeric Id component for filename safety
+            var name = uid.Id.ToString() + ".html";
+            return Path.Combine(GetBodiesDir(acc, folder), name);
+        }
 
         public void Initialize(AppSettings settings)
         {
@@ -94,7 +131,7 @@ namespace Vivit_Control_Center.Services
                 int end = Math.Max(0, total - 1);
 
                 var summaries = total > 0
-                    ? await mailbox.FetchAsync(start, end, MessageSummaryItems.Envelope | MessageSummaryItems.UniqueId | MessageSummaryItems.InternalDate)
+                    ? await mailbox.FetchAsync(start, end, MessageSummaryItems.Envelope | MessageSummaryItems.UniqueId | MessageSummaryItems.InternalDate | MessageSummaryItems.Flags)
                     : new List<IMessageSummary>();
 
                 var list = summaries
@@ -104,7 +141,8 @@ namespace Vivit_Control_Center.Services
                         Uid = s.UniqueId,
                         From = s.Envelope?.From?.FirstOrDefault()?.ToString() ?? string.Empty,
                         Subject = s.Envelope?.Subject ?? "(no subject)",
-                        Date = s.Date
+                        Date = s.Date,
+                        IsUnread = s.Flags.HasValue ? !s.Flags.Value.HasFlag(MessageFlags.Seen) : true // assume unread if unknown
                     })
                     .ToList();
 
@@ -121,8 +159,45 @@ namespace Vivit_Control_Center.Services
                     fc.LastUpdatedUtc = DateTime.UtcNow;
                 }
 
+                // Persist cache to disk
+                try { SaveSummaries(acc, folder, list); } catch { }
+
                 await client.DisconnectAsync(true);
             }
+        }
+
+        public async Task TryMarkAsSeenAsync(EmailAccount acc, string folder, UniqueId uid)
+        {
+            try
+            {
+                using (var client = new ImapClient())
+                {
+                    client.CheckCertificateRevocation = false;
+                    await client.ConnectAsync(acc.ImapHost, acc.ImapPort, acc.ImapUseSsl);
+                    await AuthenticateImapAsync(client, acc);
+
+                    IMailFolder mailbox = client.Inbox;
+                    if (string.Equals(folder, "Sent", StringComparison.OrdinalIgnoreCase)) mailbox = client.GetFolder(SpecialFolder.Sent);
+                    else if (string.Equals(folder, "Drafts", StringComparison.OrdinalIgnoreCase)) mailbox = client.GetFolder(SpecialFolder.Drafts);
+                    await mailbox.OpenAsync(FolderAccess.ReadWrite);
+
+                    await mailbox.AddFlagsAsync(uid, MessageFlags.Seen, true);
+
+                    // update cache entry if present
+                    var key = GetFolderKey(acc, folder);
+                    lock (_sync)
+                    {
+                        if (_cache.TryGetValue(key, out var fc))
+                        {
+                            var m = fc.SummariesNewFirst.FirstOrDefault(x => x.Uid == uid);
+                            if (m != null) m.IsUnread = false;
+                        }
+                    }
+
+                    await client.DisconnectAsync(true);
+                }
+            }
+            catch { }
         }
 
         public List<MessageSummaryDto> GetSummaries(EmailAccount acc, string folder)
@@ -133,6 +208,21 @@ namespace Vivit_Control_Center.Services
                 if (_cache.TryGetValue(key, out var fc))
                     return fc.SummariesNewFirst.ToList();
             }
+            // Try load from disk on-demand
+            try
+            {
+                var disk = LoadSummaries(acc, folder);
+                if (disk != null && disk.Count > 0)
+                {
+                    lock (_sync)
+                    {
+                        var fc = new FolderCache { SummariesNewFirst = disk, LastKnownTotalCount = disk.Count, LastUpdatedUtc = DateTime.UtcNow };
+                        _cache[key] = fc;
+                    }
+                    return disk.ToList();
+                }
+            }
+            catch { }
             return new List<MessageSummaryDto>();
         }
 
@@ -167,7 +257,7 @@ namespace Vivit_Control_Center.Services
                 int end = total - alreadyCovered - 1;
                 int start = Math.Max(0, end - fetchCount + 1);
 
-                var summaries = await mailbox.FetchAsync(start, end, MessageSummaryItems.Envelope | MessageSummaryItems.UniqueId | MessageSummaryItems.InternalDate);
+                var summaries = await mailbox.FetchAsync(start, end, MessageSummaryItems.Envelope | MessageSummaryItems.UniqueId | MessageSummaryItems.InternalDate | MessageSummaryItems.Flags);
 
                 var older = summaries
                     .OrderByDescending(s => s.Date)
@@ -176,7 +266,8 @@ namespace Vivit_Control_Center.Services
                         Uid = s.UniqueId,
                         From = s.Envelope?.From?.FirstOrDefault()?.ToString() ?? string.Empty,
                         Subject = s.Envelope?.Subject ?? "(no subject)",
-                        Date = s.Date
+                        Date = s.Date,
+                        IsUnread = s.Flags.HasValue ? !s.Flags.Value.HasFlag(MessageFlags.Seen) : false
                     })
                     .ToList();
 
@@ -191,6 +282,14 @@ namespace Vivit_Control_Center.Services
                     cache.LastKnownTotalCount = total;
                 }
 
+                // Update disk cache with appended items
+                try
+                {
+                    var all = GetSummaries(acc, folder);
+                    SaveSummaries(acc, folder, all);
+                }
+                catch { }
+
                 await client.DisconnectAsync(true);
             }
         }
@@ -203,6 +302,23 @@ namespace Vivit_Control_Center.Services
                 if (_cache.TryGetValue(key, out var fc) && fc.HtmlByUid.TryGetValue(uid, out html))
                     return true;
             }
+            // Try disk
+            try
+            {
+                var path = GetBodyFile(acc, folder, uid);
+                if (File.Exists(path))
+                {
+                    html = File.ReadAllText(path, Encoding.UTF8);
+                    // Populate memory cache for faster next access
+                    lock (_sync)
+                    {
+                        if (!_cache.TryGetValue(key, out var fc)) { fc = new FolderCache(); _cache[key] = fc; }
+                        fc.HtmlByUid[uid] = html;
+                    }
+                    return true;
+                }
+            }
+            catch { }
             html = null;
             return false;
         }
@@ -235,6 +351,14 @@ namespace Vivit_Control_Center.Services
                     }
                     fc.HtmlByUid[uid] = html;
                 }
+
+                // Persist body to disk
+                try
+                {
+                    var path = GetBodyFile(acc, folder, uid);
+                    File.WriteAllText(path, html, Encoding.UTF8);
+                }
+                catch { }
 
                 await client.DisconnectAsync(true);
                 return html;
@@ -342,6 +466,76 @@ namespace Vivit_Control_Center.Services
         public void Dispose()
         {
             try { _timer?.Dispose(); } catch { }
+        }
+
+        // ===== Disk cache helpers =====
+        private static void SaveSummaries(EmailAccount acc, string folder, List<MessageSummaryDto> list)
+        {
+            var path = GetSummariesPath(acc, folder);
+            try
+            {
+                var sb = new StringBuilder();
+                // header with timestamp
+                sb.AppendLine(DateTime.UtcNow.Ticks.ToString());
+                foreach (var m in list)
+                {
+                    // uidId|ticks|isUnread|fromBase64|subjBase64
+                    var uidId = m.Uid.Id.ToString();
+                    var ticks = m.Date.UtcTicks.ToString();
+                    var unread = m.IsUnread ? "1" : "0";
+                    var from64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(m.From ?? string.Empty));
+                    var subj64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(m.Subject ?? string.Empty));
+                    sb.AppendLine(string.Join("|", new[] { uidId, ticks, unread, from64, subj64 }));
+                }
+                File.WriteAllText(path, sb.ToString(), Encoding.UTF8);
+            }
+            catch { }
+        }
+
+        private static List<MessageSummaryDto> LoadSummaries(EmailAccount acc, string folder)
+        {
+            var path = GetSummariesPath(acc, folder);
+            if (!File.Exists(path)) return new List<MessageSummaryDto>();
+            var list = new List<MessageSummaryDto>();
+            try
+            {
+                var lines = File.ReadAllLines(path, Encoding.UTF8);
+                for (int i = 1; i < lines.Length; i++) // skip header
+                {
+                    var line = lines[i];
+                    if (string.IsNullOrWhiteSpace(line)) continue;
+                    var parts = line.Split('|');
+                    if (parts.Length < 5) continue;
+                    uint uidId; long ticks; bool unread;
+                    if (!uint.TryParse(parts[0], out uidId)) continue;
+                    if (!long.TryParse(parts[1], out ticks)) ticks = 0L;
+                    unread = parts[2] == "1";
+                    string from = SafeB64(parts[3]);
+                    string subj = SafeB64(parts[4]);
+                    try
+                    {
+                        // UniqueId ctor that accepts uint id
+                        var uid = new UniqueId(uidId);
+                        var dto = new MessageSummaryDto
+                        {
+                            Uid = uid,
+                            From = from,
+                            Subject = subj,
+                            Date = ticks > 0 ? new DateTimeOffset(new DateTime(ticks, DateTimeKind.Utc)) : default(DateTimeOffset),
+                            IsUnread = unread
+                        };
+                        list.Add(dto);
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+            return list;
+        }
+
+        private static string SafeB64(string s)
+        {
+            try { return Encoding.UTF8.GetString(Convert.FromBase64String(s ?? string.Empty)); } catch { return string.Empty; }
         }
     }
 }
